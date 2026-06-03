@@ -7,6 +7,7 @@ import 'package:party_game_hub/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nsd/nsd.dart';
 import 'package:provider/provider.dart';
+import 'package:party_game_hub/core/utils/emoji_code.dart';
 import 'lobby_provider.dart';
 
 /// Màn hình quét và hiển thị danh sách phòng Host đang quảng bá.
@@ -51,10 +52,7 @@ class _RadarEmptyState extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             'Đảm bảo 2 thiết bị cùng WiFi',
-            style: TextStyle(
-              color: Colors.white38,
-              fontSize: 12,
-            ),
+            style: TextStyle(color: Colors.white38, fontSize: 12),
           ),
         ],
       ),
@@ -121,9 +119,14 @@ class _RoomListState extends State<_RoomList> {
       itemCount: widget.rooms.length,
       itemBuilder: (context, i) {
         final room = widget.rooms[i];
+        final rawName = room.name ?? '';
+        final displayName = EmojiCode.displayName(rawName).isNotEmpty
+            ? EmojiCode.displayName(rawName)
+            : l10n.unknownRoom;
+        final emojiCode = EmojiCode.extractCode(rawName);
         return _RoomCard(
-          name: room.name ?? l10n.unknownRoom,
-          // Disable button khi đang connecting
+          name: displayName,
+          emojiCode: emojiCode,
           onJoin: _connecting ? null : () => _connectWithRadar(room),
         );
       },
@@ -159,8 +162,9 @@ class _ConnectingDialog extends StatelessWidget {
 
 class _RoomCard extends StatefulWidget {
   final String name;
+  final String? emojiCode;
   final VoidCallback? onJoin;
-  const _RoomCard({required this.name, required this.onJoin});
+  const _RoomCard({required this.name, required this.onJoin, this.emojiCode});
 
   @override
   State<_RoomCard> createState() => _RoomCardState();
@@ -210,8 +214,10 @@ class _RoomCardState extends State<_RoomCard>
               boxShadow: AppTheme.glowShadow(primary, blur: 10),
             ),
             child: ListTile(
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 4,
+              ),
               leading: Container(
                 width: 40,
                 height: 40,
@@ -228,17 +234,24 @@ class _RoomCardState extends State<_RoomCard>
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              subtitle: Text(
-                'Tap để vào phòng',
-                style: TextStyle(color: Colors.white38, fontSize: 12),
-              ),
+              subtitle: widget.emojiCode != null
+                  ? Text(
+                      widget.emojiCode!,
+                      style: const TextStyle(fontSize: 18, letterSpacing: 2),
+                    )
+                  : Text(
+                      'Tap để vào phòng',
+                      style: TextStyle(color: Colors.white38, fontSize: 12),
+                    ),
               trailing: ElevatedButton(
                 onPressed: widget.onJoin,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: primary,
                   foregroundColor: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                 ),
                 child: const Text('Vào'),
               ),

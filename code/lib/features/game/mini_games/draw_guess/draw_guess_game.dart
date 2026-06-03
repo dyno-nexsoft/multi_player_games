@@ -62,11 +62,31 @@ class DrawGuessGame extends BaseMiniGame {
   // ── Word list ─────────────────────────────────────────────────────────────
 
   static const _words = [
-    'cat', 'dog', 'house', 'tree', 'car',
-    'sun', 'moon', 'fish', 'bird', 'hat',
-    'book', 'cake', 'star', 'boat', 'rain',
-    'shoe', 'door', 'ball', 'fire', 'ship',
-    'key', 'cup', 'lamp', 'clock', 'flower',
+    'cat',
+    'dog',
+    'house',
+    'tree',
+    'car',
+    'sun',
+    'moon',
+    'fish',
+    'bird',
+    'hat',
+    'book',
+    'cake',
+    'star',
+    'boat',
+    'rain',
+    'shoe',
+    'door',
+    'ball',
+    'fire',
+    'ship',
+    'key',
+    'cup',
+    'lamp',
+    'clock',
+    'flower',
   ];
 
   late List<String> _shuffled;
@@ -272,8 +292,9 @@ class DrawGuessGame extends BaseMiniGame {
       case 'new_word':
         final drawerIsHost = payload['drawer_is_host'] as bool;
         _wordIndex = payload['word_index'] as int;
-        _myTurnToDraw =
-            gameProvider.lobbyProvider.isHost ? drawerIsHost : !drawerIsHost;
+        _myTurnToDraw = gameProvider.lobbyProvider.isHost
+            ? drawerIsHost
+            : !drawerIsHost;
         // Only give the actual word to the drawer; guesser sees hint only
         _currentWord = _myTurnToDraw ? payload['word'] as String : '';
         _wordHint = payload['word_hint'] as String? ?? '';
@@ -382,8 +403,7 @@ class DrawGuessGame extends BaseMiniGame {
     super.onDetach();
   }
 
-  Widget buildOverlay(BuildContext context) =>
-      _DrawGuessOverlay(game: this);
+  Widget buildOverlay(BuildContext context) => _DrawGuessOverlay(game: this);
 }
 
 // ── Overlay widget ─────────────────────────────────────────────────────────
@@ -462,11 +482,14 @@ class _Header extends StatelessWidget {
                       CircleAvatar(
                         radius: 10,
                         backgroundColor: Color(p.color),
-                        child: Text(p.name[0],
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 9,
-                                fontWeight: FontWeight.bold)),
+                        child: Text(
+                          p.name[0],
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                       const SizedBox(width: 4),
                       Text(
@@ -474,8 +497,9 @@ class _Header extends StatelessWidget {
                         style: TextStyle(
                           color: isMe ? Colors.yellow : Colors.white70,
                           fontSize: 14,
-                          fontWeight:
-                              isMe ? FontWeight.bold : FontWeight.normal,
+                          fontWeight: isMe
+                              ? FontWeight.bold
+                              : FontWeight.normal,
                         ),
                       ),
                     ],
@@ -488,9 +512,10 @@ class _Header extends StatelessWidget {
           Text(
             '${game.timeLeft.ceil()}s',
             style: TextStyle(
-                color: timeColor,
-                fontSize: 18,
-                fontWeight: FontWeight.bold),
+              color: timeColor,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ],
       ),
@@ -515,8 +540,7 @@ class _Canvas extends StatelessWidget {
             if (box == null) return;
             final size = box.size;
             final pos = e.localPosition;
-            game.onDrawStart(
-                Offset(pos.dx / size.width, pos.dy / size.height));
+            game.onDrawStart(Offset(pos.dx / size.width, pos.dy / size.height));
           },
           onPanUpdate: (e) {
             final box = context.findRenderObject() as RenderBox?;
@@ -524,7 +548,8 @@ class _Canvas extends StatelessWidget {
             final size = box.size;
             final pos = e.localPosition;
             game.onDrawUpdate(
-                Offset(pos.dx / size.width, pos.dy / size.height));
+              Offset(pos.dx / size.width, pos.dy / size.height),
+            );
           },
           child: Container(
             color: Colors.white,
@@ -541,8 +566,7 @@ class _Canvas extends StatelessWidget {
             left: 16,
             right: 16,
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
                 color: game.resultColor.withValues(alpha: 0.9),
                 borderRadius: BorderRadius.circular(8),
@@ -550,9 +574,10 @@ class _Canvas extends StatelessWidget {
               child: Text(
                 game.resultText,
                 style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold),
+                  color: Colors.white,
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -563,8 +588,7 @@ class _Canvas extends StatelessWidget {
           left: 16,
           right: 16,
           child: Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: Colors.black54,
               borderRadius: BorderRadius.circular(8),
@@ -593,8 +617,11 @@ class _Canvas extends StatelessWidget {
                   color: Colors.black54,
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: const Icon(Icons.delete_outline,
-                    color: Colors.white, size: 20),
+                child: const Icon(
+                  Icons.delete_outline,
+                  color: Colors.white,
+                  size: 20,
+                ),
               ),
             ),
           ),
@@ -621,7 +648,10 @@ class _StrokePainter extends CustomPainter {
     for (final stroke in strokes) {
       if (stroke.length < 2) {
         if (stroke.length == 1) {
-          final pt = Offset(stroke[0].dx * size.width, stroke[0].dy * size.height);
+          final pt = Offset(
+            stroke[0].dx * size.width,
+            stroke[0].dy * size.height,
+          );
           canvas.drawCircle(pt, 2, Paint()..color = Colors.black);
         }
         continue;
@@ -674,8 +704,10 @@ class _Footer extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
               ),
               textInputAction: TextInputAction.send,
               onSubmitted: (v) {

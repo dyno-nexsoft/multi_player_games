@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../domain/player.dart';
 import 'lobby_provider.dart';
+import 'package:party_game_hub/core/theme/gamer_card.dart';
 import '../../game/domain/mini_game_metadata.dart';
 import '../../game/domain/mini_game_registry.dart';
 
@@ -47,9 +48,15 @@ class RoomScreen extends StatefulWidget {
 class _RoomScreenState extends State<RoomScreen> {
   // Guards: chặn addPostFrameCallback đăng ký nhiều lần
   bool _goingToGame = false;
+  bool _goingToGamepad = false;
+  bool _goingToSpectate = false;
   bool _goingToLobby = false;
 
-  void _navigateOnce(String path, bool Function() guard, void Function() setFlag) {
+  void _navigateOnce(
+    String path,
+    bool Function() guard,
+    void Function() setFlag,
+  ) {
     if (guard()) return;
     setFlag();
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -62,12 +69,31 @@ class _RoomScreenState extends State<RoomScreen> {
     final l10n = AppLocalizations.of(context)!;
     return Consumer<LobbyProvider>(
       builder: (context, lobby, _) {
-        // Reset flags khi state thay đổi (đề phòng user quay lại rồi vào lại)
+        // Reset flags khi state thay đổi
         if (lobby.state != LobbyState.inGame) _goingToGame = false;
+        if (lobby.state != LobbyState.inConsole) _goingToGamepad = false;
+        if (!lobby.iAmSpectator) _goingToSpectate = false;
         if (lobby.state != LobbyState.idle) _goingToLobby = false;
 
         if (lobby.state == LobbyState.inGame && lobby.pendingGameId != null) {
           _navigateOnce('/game', () => _goingToGame, () => _goingToGame = true);
+        }
+
+        if (lobby.state == LobbyState.inConsole) {
+          _navigateOnce(
+            '/gamepad',
+            () => _goingToGamepad,
+            () => _goingToGamepad = true,
+          );
+        }
+
+        // Khán giả → màn hình spectator
+        if (lobby.iAmSpectator) {
+          _navigateOnce(
+            '/spectate',
+            () => _goingToSpectate,
+            () => _goingToSpectate = true,
+          );
         }
 
         if (lobby.state == LobbyState.idle) {
@@ -76,7 +102,54 @@ class _RoomScreenState extends State<RoomScreen> {
 
         return Scaffold(
           appBar: AppBar(
-            title: Text(l10n.roomTitle),
+            title: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(l10n.roomTitle),
+                if (lobby.isConsoleMode) ...[
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1565C0),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      '🖥️ Console',
+                      style: TextStyle(fontSize: 11, color: Colors.white),
+                    ),
+                  ),
+                ],
+                // Emoji code chip — visible to all (host reads it out loud)
+                if (lobby.isHost && lobby.emojiCode.isNotEmpty) ...[
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.4),
+                      ),
+                    ),
+                    child: Text(
+                      lobby.emojiCode,
+                      style: const TextStyle(fontSize: 16, letterSpacing: 2),
+                    ),
+                  ),
+                ],
+              ],
+            ),
             leading: BackButton(onPressed: () => context.go('/')),
             actions: [
               if (lobby.isHost)
@@ -90,8 +163,32 @@ class _RoomScreenState extends State<RoomScreen> {
             children: [
               Column(
                 children: [
-                  _PlayerList(players: lobby.players),
-                  if (lobby.isHost) Expanded(child: _GameSelector(lobby: lobby)),
+                  _PlayerList(players: lobby.players, isHostView: lobby.isHost),
+                  if (lobby.isHost)
+                    Expanded(child: _GameSelector(lobby: lobby)),
+                  // Client trong console mode: chờ host bắt đầu
+                  if (!lobby.isHost && lobby.isConsoleMode)
+                    const Padding(
+                      padding: EdgeInsets.all(24),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.sports_esports,
+                            size: 48,
+                            color: Color(0xFF1565C0),
+                          ),
+                          SizedBox(height: 12),
+                          Text(
+                            'Thiết bị của bạn sẽ là Tay Cầm\nChờ Host bắt đầu game...',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                 ],
               ),
               if (lobby.state == LobbyState.reconnecting)
@@ -104,81 +201,39 @@ class _RoomScreenState extends State<RoomScreen> {
   }
 }
 
-// ── Player List ────────────────────────────────────────────────────────────
+// ── Player List (GamerCards with slide-in) ────────────────────────────────────
 
 class _PlayerList extends StatelessWidget {
   final List<Player> players;
-  const _PlayerList({required this.players});
+  final bool isHostView;
+  const _PlayerList({required this.players, this.isHostView = false});
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-      child: Row(
-        children: players.map((p) {
-          return Padding(
-            padding: const EdgeInsets.only(right: 12),
+    if (players.isEmpty) return const SizedBox.shrink();
+
+    // Host view shows full-width cards with slide-in animation.
+    // Client view shows compact horizontal row.
+    return isHostView
+        ? Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 46,
-                  height: 46,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Color(p.color),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Color(p.color).withValues(alpha: 0.55),
-                        blurRadius: 10,
-                        spreadRadius: 1,
-                      ),
-                    ],
-                  ),
-                  child: Center(
-                    child: Text(
-                      p.name[0].toUpperCase(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  p.name,
-                  style: const TextStyle(color: Colors.white70, fontSize: 11),
-                ),
-                if (p.isHost)
-                  Container(
-                    margin: const EdgeInsets.only(top: 2),
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.25),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
-                        width: 1,
-                      ),
-                    ),
-                    child: Text(
-                      l10n.host,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontSize: 9,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-              ],
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: players
+                  .map((p) => SlideInGamerCard(key: ValueKey(p.id), player: p))
+                  .toList(),
+            ),
+          )
+        : Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+            child: Wrap(
+              spacing: 12,
+              runSpacing: 8,
+              children: players
+                  .map((p) => GamerCard(player: p, compact: true))
+                  .toList(),
             ),
           );
-        }).toList(),
-      ),
-    );
   }
 }
 
@@ -188,27 +243,34 @@ class _GameSelector extends StatelessWidget {
   final LobbyProvider lobby;
   const _GameSelector({required this.lobby});
 
-  String _localTitle(BuildContext context, String gameId, MiniGameMetadata game) {
+  String _localTitle(
+    BuildContext context,
+    String gameId,
+    MiniGameMetadata game,
+  ) {
     final l10n = AppLocalizations.of(context)!;
     return switch (gameId) {
-      'tug_of_war'       => l10n.gameTugOfWarTitle,
-      'sumo_bumper'      => l10n.gameSumoBumperTitle,
+      'tug_of_war' => l10n.gameTugOfWarTitle,
+      'sumo_bumper' => l10n.gameSumoBumperTitle,
       'penalty_shootout' => l10n.gamePenaltyShootoutTitle,
-      'air_hockey'       => l10n.gameAirHockeyTitle,
-      'reaction_tap'     => l10n.gameReactionTapTitle,
-      'minesweeper'      => l10n.gameMinesweeperTitle,
-      'billiards'        => l10n.gameBilliardsTitle,
-      'draw_guess'       => l10n.gameDrawGuessTitle,
-      'battleship'       => l10n.gameBattleshipTitle,
-      'hot_potato'       => l10n.gameHotPotatoTitle,
-      _                  => game.title,
+      'air_hockey' => l10n.gameAirHockeyTitle,
+      'reaction_tap' => l10n.gameReactionTapTitle,
+      'minesweeper' => l10n.gameMinesweeperTitle,
+      'billiards' => l10n.gameBilliardsTitle,
+      'draw_guess' => l10n.gameDrawGuessTitle,
+      'battleship' => l10n.gameBattleshipTitle,
+      'hot_potato' => l10n.gameHotPotatoTitle,
+      _ => game.title,
     };
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final games = MiniGameRegistry.availableGames;
+    final allGames = MiniGameRegistry.availableGames;
+    final games = lobby.isConsoleMode
+        ? allGames.where((g) => g.supportsConsoleMode).toList()
+        : allGames.where((g) => !g.supportsConsoleMode).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -221,9 +283,9 @@ class _GameSelector extends StatelessWidget {
               Expanded(
                 child: Text(
                   l10n.selectMiniGame,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: Colors.white70,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(color: Colors.white70),
                 ),
               ),
               SegmentedButton<int>(
@@ -234,9 +296,7 @@ class _GameSelector extends StatelessWidget {
                 ],
                 selected: {lobby.seriesLength},
                 onSelectionChanged: (v) => lobby.setSeriesLength(v.first),
-                style: const ButtonStyle(
-                  visualDensity: VisualDensity.compact,
-                ),
+                style: const ButtonStyle(visualDensity: VisualDensity.compact),
               ),
             ],
           ),

@@ -9,9 +9,7 @@ import '../../domain/base_mini_game.dart';
 /// Billiards Pool — Turn-based 9-ball.
 /// Host tính physics sau mỗi shot, gửi toàn bộ vị trí ball khi dừng.
 /// Mỗi ball bỏ túi = +10 điểm. Ai bỏ 8-ball cuối cùng thắng.
-class BilliardsGame extends BaseMiniGame
-    with DragCallbacks, TapCallbacks {
-
+class BilliardsGame extends BaseMiniGame with DragCallbacks, TapCallbacks {
   static const double gameW = 400;
   static const double gameH = 700;
   static const double _ballR = 14.0;
@@ -25,8 +23,8 @@ class BilliardsGame extends BaseMiniGame
   String get gameId => 'billiards';
 
   // ── Ball state ─────────────────────────────────────────────────────────────
-  late List<_Ball> _balls;          // index 0 = cue ball
-  bool _shooting = false;           // physics running
+  late List<_Ball> _balls; // index 0 = cue ball
+  bool _shooting = false; // physics running
   bool _myTurn = false;
   bool _gameOver = false;
   bool _cancelled = false;
@@ -43,8 +41,12 @@ class BilliardsGame extends BaseMiniGame
 
   // ── Pockets ───────────────────────────────────────────────────────────────
   static final List<Offset> _pockets = [
-    const Offset(16, 16), const Offset(gameW / 2, 14), const Offset(gameW - 16, 16),
-    const Offset(16, gameH - 16), const Offset(gameW / 2, gameH - 14), const Offset(gameW - 16, gameH - 16),
+    const Offset(16, 16),
+    const Offset(gameW / 2, 14),
+    const Offset(gameW - 16, 16),
+    const Offset(16, gameH - 16),
+    const Offset(gameW / 2, gameH - 14),
+    const Offset(gameW - 16, gameH - 16),
   ];
 
   // ── Lifecycle ──────────────────────────────────────────────────────────────
@@ -70,21 +72,27 @@ class BilliardsGame extends BaseMiniGame
   void _setupBalls() {
     // 9-ball triangle rack + cue ball
     final rack = [
-      Vector2(gameW / 2, gameH * 0.35),        // 1
+      Vector2(gameW / 2, gameH * 0.35), // 1
       Vector2(gameW / 2 - _ballR, gameH * 0.35 + _ballR * 1.8), // 2
       Vector2(gameW / 2 + _ballR, gameH * 0.35 + _ballR * 1.8), // 3
-      Vector2(gameW / 2, gameH * 0.35 + _ballR * 3.6),          // 9 (money ball)
+      Vector2(gameW / 2, gameH * 0.35 + _ballR * 3.6), // 9 (money ball)
       Vector2(gameW / 2 - _ballR * 2, gameH * 0.35 + _ballR * 3.6),
       Vector2(gameW / 2 + _ballR * 2, gameH * 0.35 + _ballR * 3.6),
     ];
 
     _balls = [
-      _Ball(pos: Vector2(gameW / 2, gameH * 0.7), color: Colors.white, number: 0), // cue
-      ...rack.asMap().entries.map((e) => _Ball(
-        pos: e.value,
-        color: _ballColor(e.key + 1),
-        number: e.key + 1,
-      )),
+      _Ball(
+        pos: Vector2(gameW / 2, gameH * 0.7),
+        color: Colors.white,
+        number: 0,
+      ), // cue
+      ...rack.asMap().entries.map(
+        (e) => _Ball(
+          pos: e.value,
+          color: _ballColor(e.key + 1),
+          number: e.key + 1,
+        ),
+      ),
     ];
 
     for (final b in _balls) {
@@ -132,11 +140,17 @@ class BilliardsGame extends BaseMiniGame
   @override
   void onDragEnd(DragEndEvent event) {
     super.onDragEnd(event);
-    if (_dragStart == null || _dragCurrent == null || !_myTurn || _shooting) return;
+    if (_dragStart == null || _dragCurrent == null || !_myTurn || _shooting) {
+      return;
+    }
     final dx = _dragStart!.dx - _dragCurrent!.dx;
     final dy = _dragStart!.dy - _dragCurrent!.dy;
     final power = sqrt(dx * dx + dy * dy).clamp(0.0, 150.0);
-    if (power < 5) { _dragStart = null; _dragCurrent = null; return; }
+    if (power < 5) {
+      _dragStart = null;
+      _dragCurrent = null;
+      return;
+    }
 
     final vx = (dx / power) * power * 0.2;
     final vy = (dy / power) * power * 0.2;
@@ -191,10 +205,22 @@ class BilliardsGame extends BaseMiniGame
   }
 
   void _clampToBounds(_Ball b) {
-    if (b.pos.x < _ballR) { b.pos.x = _ballR; b.vel.x = b.vel.x.abs(); }
-    if (b.pos.x > gameW - _ballR) { b.pos.x = gameW - _ballR; b.vel.x = -b.vel.x.abs(); }
-    if (b.pos.y < _ballR) { b.pos.y = _ballR; b.vel.y = b.vel.y.abs(); }
-    if (b.pos.y > gameH - _ballR) { b.pos.y = gameH - _ballR; b.vel.y = -b.vel.y.abs(); }
+    if (b.pos.x < _ballR) {
+      b.pos.x = _ballR;
+      b.vel.x = b.vel.x.abs();
+    }
+    if (b.pos.x > gameW - _ballR) {
+      b.pos.x = gameW - _ballR;
+      b.vel.x = -b.vel.x.abs();
+    }
+    if (b.pos.y < _ballR) {
+      b.pos.y = _ballR;
+      b.vel.y = b.vel.y.abs();
+    }
+    if (b.pos.y > gameH - _ballR) {
+      b.pos.y = gameH - _ballR;
+      b.vel.y = -b.vel.y.abs();
+    }
   }
 
   void _resolveBallCollision(_Ball a, _Ball b) {
@@ -257,7 +283,9 @@ class BilliardsGame extends BaseMiniGame
     }
 
     // Sync positions
-    final positions = _balls.map((b) => [b.pos.x, b.pos.y, b.active ? 1 : 0]).toList();
+    final positions = _balls
+        .map((b) => [b.pos.x, b.pos.y, b.active ? 1 : 0])
+        .toList();
     gameProvider.sendGameData(gameId, {
       'action': 'sync',
       'positions': positions,
@@ -343,17 +371,13 @@ class _Ball extends PositionComponent {
   bool active = true;
 
   _Ball({required this.pos, required this.color, required this.number})
-      : super(size: Vector2.all(BilliardsGame._ballR * 2));
+    : super(size: Vector2.all(BilliardsGame._ballR * 2));
 
   @override
   void render(Canvas canvas) {
     if (!active) return;
     final center = Offset(BilliardsGame._ballR, BilliardsGame._ballR);
-    canvas.drawCircle(
-      center,
-      BilliardsGame._ballR,
-      Paint()..color = color,
-    );
+    canvas.drawCircle(center, BilliardsGame._ballR, Paint()..color = color);
     if (number > 0) {
       final tp = TextPainter(
         text: TextSpan(
@@ -368,8 +392,10 @@ class _Ball extends PositionComponent {
       )..layout();
       tp.paint(
         canvas,
-        Offset(BilliardsGame._ballR - tp.width / 2,
-            BilliardsGame._ballR - tp.height / 2),
+        Offset(
+          BilliardsGame._ballR - tp.width / 2,
+          BilliardsGame._ballR - tp.height / 2,
+        ),
       );
     }
   }
@@ -454,8 +480,10 @@ class _BilliardsOverlayState extends State<_BilliardsOverlay> {
             children: [
               // Status
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.black54,
                   borderRadius: BorderRadius.circular(8),
@@ -474,7 +502,9 @@ class _BilliardsOverlayState extends State<_BilliardsOverlay> {
                     padding: const EdgeInsets.only(right: 8),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.black54,
                         borderRadius: BorderRadius.circular(6),
@@ -488,7 +518,9 @@ class _BilliardsOverlayState extends State<_BilliardsOverlay> {
                       child: Text(
                         '${p.name}: $score',
                         style: const TextStyle(
-                            color: Colors.white, fontSize: 13),
+                          color: Colors.white,
+                          fontSize: 13,
+                        ),
                       ),
                     ),
                   );
@@ -501,9 +533,10 @@ class _BilliardsOverlayState extends State<_BilliardsOverlay> {
                   child: Text(
                     'Kéo để ngắm & bắn',
                     style: TextStyle(
-                        color: Colors.white54,
-                        fontSize: 13,
-                        fontStyle: FontStyle.italic),
+                      color: Colors.white54,
+                      fontSize: 13,
+                      fontStyle: FontStyle.italic,
+                    ),
                   ),
                 ),
             ],

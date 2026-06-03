@@ -95,10 +95,7 @@ class MinesweeperGame extends BaseMiniGame {
 
   void _broadcast() {
     final flat = _board.expand((row) => row).toList();
-    gameProvider.sendGameData(gameId, {
-      'action': 'board_init',
-      'board': flat,
-    });
+    gameProvider.sendGameData(gameId, {'action': 'board_init', 'board': flat});
     _statusText = 'Tap để reveal ô trống!';
     _notify();
   }
@@ -160,10 +157,7 @@ class MinesweeperGame extends BaseMiniGame {
 
     // Check all safe cells revealed
     final totalSafe = _rows * _cols - _mines;
-    final revealed = _revealed
-        .expand((r) => r)
-        .where((v) => v)
-        .length;
+    final revealed = _revealed.expand((r) => r).where((v) => v).length;
     if (revealed >= totalSafe) _finishGame();
   }
 
@@ -230,8 +224,7 @@ class MinesweeperGame extends BaseMiniGame {
 
   // ── Overlay ───────────────────────────────────────────────────────────────
 
-  Widget buildOverlay(BuildContext context) =>
-      _MinesweeperOverlay(game: this);
+  Widget buildOverlay(BuildContext context) => _MinesweeperOverlay(game: this);
 }
 
 // ── Overlay Widget ─────────────────────────────────────────────────────────
@@ -341,12 +334,11 @@ class _MinesweeperOverlayState extends State<_MinesweeperOverlay> {
                     physics: const NeverScrollableScrollPhysics(),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: MinesweeperGame._cols,
-                      mainAxisSpacing: 2,
-                      crossAxisSpacing: 2,
-                    ),
-                    itemCount:
-                        MinesweeperGame._rows * MinesweeperGame._cols,
+                          crossAxisCount: MinesweeperGame._cols,
+                          mainAxisSpacing: 2,
+                          crossAxisSpacing: 2,
+                        ),
+                    itemCount: MinesweeperGame._rows * MinesweeperGame._cols,
                     itemBuilder: (_, index) {
                       final row = index ~/ MinesweeperGame._cols;
                       final col = index % MinesweeperGame._cols;
@@ -381,14 +373,14 @@ class _Cell extends StatelessWidget {
 
   static const _numberColors = [
     Colors.transparent, // 0
-    Color(0xFF2196F3),  // 1
-    Color(0xFF4CAF50),  // 2
-    Color(0xFFE53935),  // 3
-    Color(0xFF9C27B0),  // 4
-    Color(0xFFFF5722),  // 5
-    Color(0xFF00BCD4),  // 6
-    Color(0xFF000000),  // 7
-    Color(0xFF607D8B),  // 8
+    Color(0xFF2196F3), // 1
+    Color(0xFF4CAF50), // 2
+    Color(0xFFE53935), // 3
+    Color(0xFF9C27B0), // 4
+    Color(0xFFFF5722), // 5
+    Color(0xFF00BCD4), // 6
+    Color(0xFF000000), // 7
+    Color(0xFF607D8B), // 8
   ];
 
   @override
@@ -411,9 +403,7 @@ class _Cell extends StatelessWidget {
           color: const Color(0xFF4A1515),
           borderRadius: BorderRadius.circular(3),
         ),
-        child: const Center(
-          child: Text('💣', style: TextStyle(fontSize: 14)),
-        ),
+        child: const Center(child: Text('💣', style: TextStyle(fontSize: 14))),
       );
     }
     return Container(

@@ -30,9 +30,9 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
       if (mounted) context.go('/room');
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('QR không hợp lệ')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('QR không hợp lệ')));
         setState(() => _processing = false);
       }
     }
@@ -50,10 +50,7 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
               if (raw != null) _onDetect(raw);
             },
           ),
-          if (_processing)
-            const Center(
-              child: CircularProgressIndicator(),
-            ),
+          if (_processing) const Center(child: CircularProgressIndicator()),
           // Overlay khung ngắm
           Center(
             child: Container(

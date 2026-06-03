@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
+import 'package:party_game_hub/core/storage/onboarding_service.dart';
+import 'package:party_game_hub/core/storage/stats_service.dart';
 import 'package:party_game_hub/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../core/localization/locale_provider.dart';
 import 'lobby_provider.dart';
+import 'onboarding_screen.dart';
 
 class LobbyScreen extends StatefulWidget {
   const LobbyScreen({super.key});
@@ -18,6 +21,15 @@ class _LobbyScreenState extends State<LobbyScreen> {
   final _roomController = TextEditingController(text: 'My Room');
 
   @override
+  void initState() {
+    super.initState();
+    // Redirect lần đầu tiên mở app → OnboardingScreen.
+    OnboardingService.isFirstTime().then((first) {
+      if (first && mounted) context.go('/onboarding');
+    });
+  }
+
+  @override
   void dispose() {
     _nameController.dispose();
     _roomController.dispose();
@@ -28,6 +40,17 @@ class _LobbyScreenState extends State<LobbyScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
+      // Nút [?] góc trên phải — mở lại onboarding bất cứ lúc nào.
+      floatingActionButton: FloatingActionButton.small(
+        heroTag: 'help_btn',
+        onPressed: () => OnboardingScreen.showAsDialog(context),
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        child: Icon(
+          Icons.help_outline,
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.7),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndTop,
       body: SafeArea(
         child: Column(
           children: [
@@ -50,7 +73,9 @@ class _LobbyScreenState extends State<LobbyScreen> {
                         style: Theme.of(context).textTheme.headlineMedium
                             ?.copyWith(fontWeight: FontWeight.bold),
                       ),
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 16),
+                      const _StatsBar(),
+                      const SizedBox(height: 24),
                       _TextField(
                         controller: _nameController,
                         label: l10n.yourNameLabel,
@@ -72,6 +97,13 @@ class _LobbyScreenState extends State<LobbyScreen> {
                         icon: Icons.wifi_tethering,
                         onPressed: () => _hostRoom(context),
                       ),
+                      const SizedBox(height: 10),
+                      _ActionButton(
+                        label: '🖥️  Tạo Phòng Màn Hình Lớn',
+                        icon: Icons.tv,
+                        color: const Color(0xFF1565C0),
+                        onPressed: () => _hostRoom(context, consoleMode: true),
+                      ),
                       const SizedBox(height: 16),
                       _ActionButton(
                         label: l10n.findRoomBtn,
@@ -86,6 +118,21 @@ class _LobbyScreenState extends State<LobbyScreen> {
                         color: Theme.of(context).colorScheme.tertiary,
                         onPressed: () => _scanQr(context),
                       ),
+                      const SizedBox(height: 10),
+                      _ActionButton(
+                        label: '🔑  Nhập Mã Emoji',
+                        icon: Icons.tag_faces,
+                        color: const Color(0xFF2E7D32),
+                        onPressed: () async {
+                          final lobby = context.read<LobbyProvider>();
+                          if (lobby.localPlayer == null) {
+                            await lobby.discoverRooms(
+                              _nameController.text.trim(),
+                            );
+                          }
+                          if (context.mounted) context.push('/emoji-join');
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -97,11 +144,15 @@ class _LobbyScreenState extends State<LobbyScreen> {
     );
   }
 
-  Future<void> _hostRoom(BuildContext context) async {
+  Future<void> _hostRoom(
+    BuildContext context, {
+    bool consoleMode = false,
+  }) async {
     final lobby = context.read<LobbyProvider>();
     await lobby.hostRoom(
       _nameController.text.trim(),
       _roomController.text.trim(),
+      consoleMode: consoleMode,
     );
     if (context.mounted) context.push('/room');
   }
@@ -117,6 +168,64 @@ class _LobbyScreenState extends State<LobbyScreen> {
     // Khởi tạo local player trước khi mở scanner
     await lobby.discoverRooms(_nameController.text.trim());
     if (context.mounted) context.push('/qr-scan');
+  }
+}
+
+/// Thanh thống kê tích lũy (trận / thắng / chuỗi thắng) đọc từ StatsService.
+class _StatsBar extends StatelessWidget {
+  const _StatsBar();
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<PlayerStats>(
+      future: StatsService.load(),
+      builder: (context, snapshot) {
+        final stats = snapshot.data;
+        if (stats == null || stats.gamesPlayed == 0) {
+          return const SizedBox.shrink();
+        }
+        final winPct = (stats.winRate * 100).round();
+        return Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 10,
+          runSpacing: 8,
+          children: [
+            _StatChip(icon: '🎮', label: '${stats.gamesPlayed}'),
+            _StatChip(icon: '🏆', label: '${stats.wins} ($winPct%)'),
+            _StatChip(icon: '🔥', label: '${stats.currentStreak}'),
+            if (stats.bestStreak > 0)
+              _StatChip(icon: '⭐', label: '${stats.bestStreak}'),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _StatChip extends StatelessWidget {
+  final String icon;
+  final String label;
+  const _StatChip({required this.icon, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final primary = Theme.of(context).colorScheme.primary;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: primary.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: primary.withValues(alpha: 0.3)),
+      ),
+      child: Text(
+        '$icon $label',
+        style: const TextStyle(
+          color: Colors.white70,
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
   }
 }
 
@@ -288,7 +397,12 @@ class _ColorPicker extends StatelessWidget {
                   ? Border.all(color: Colors.white, width: 3)
                   : null,
               boxShadow: isSelected
-                  ? [BoxShadow(color: Color(c).withValues(alpha: 0.6), blurRadius: 8)]
+                  ? [
+                      BoxShadow(
+                        color: Color(c).withValues(alpha: 0.6),
+                        blurRadius: 8,
+                      ),
+                    ]
                   : null,
             ),
           ),

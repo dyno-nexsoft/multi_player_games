@@ -8,7 +8,7 @@ import 'components/soccer_ball.dart';
 import 'components/goalkeeper_hand.dart';
 
 /// Sút Phạt Đền — người sút (Host) kéo để chọn góc, thủ môn (Client) trượt để cản.
-class PenaltyGame extends BaseMiniGame with TapCallbacks {
+class PenaltyGame extends BaseMiniGame with TapCallbacks, DragCallbacks {
   late SoccerBall _ball;
   late GoalkeeperHand _hand;
   late TextComponent _shootLabelText;
@@ -19,6 +19,9 @@ class PenaltyGame extends BaseMiniGame with TapCallbacks {
   int _score = 0;
   int _round = 0;
   static const _maxRounds = 3;
+
+  // Thủ môn (client) trượt để di chuyển tay — throttle gửi slide ~20Hz.
+  int _lastSlideSentMs = 0;
 
   PenaltyGame(super.gameProvider);
 
@@ -66,6 +69,23 @@ class PenaltyGame extends BaseMiniGame with TapCallbacks {
       AppAudio.playKick();
       HapticFeedback.mediumImpact();
       gameProvider.sendGameData(gameId, {'action': 'shoot', 'dx': dx});
+    }
+  }
+
+  // Thủ môn (client) trượt để di chuyển tay cản bóng.
+  @override
+  void onDragUpdate(DragUpdateEvent event) {
+    if (_roundOver || gameProvider.lobbyProvider.isHost) return;
+    final worldX = (event.canvasStartPosition.x / canvasSize.x * 400).clamp(
+      30.0,
+      370.0,
+    );
+    _hand.position = Vector2(worldX, 180);
+
+    final now = DateTime.now().millisecondsSinceEpoch;
+    if (now - _lastSlideSentMs >= 50) {
+      _lastSlideSentMs = now;
+      gameProvider.sendGameData(gameId, {'action': 'slide', 'x': worldX / 400});
     }
   }
 

@@ -94,53 +94,106 @@ abstract class GamePacket with _$GamePacket {
     if (b >= 0xe0) return (b - 256, i + 1); // negative fixint
     if (b & 0xf0 == 0x80) return _decodeMap(d, i + 1, b & 0x0f); // fixmap
     if (b & 0xf0 == 0x90) return _decodeList(d, i + 1, b & 0x0f); // fixarray
-    if (b & 0xe0 == 0xa0) { // fixstr
+    if (b & 0xe0 == 0xa0) {
+      // fixstr
       final n = b & 0x1f;
       return (utf8.decode(d.sublist(i + 1, i + 1 + n)), i + 1 + n);
     }
     switch (b) {
-      case 0xc0: return (null, i + 1);
-      case 0xc2: return (false, i + 1);
-      case 0xc3: return (true, i + 1);
+      case 0xc0:
+        return (null, i + 1);
+      case 0xc2:
+        return (false, i + 1);
+      case 0xc3:
+        return (true, i + 1);
       case 0xca: // float32
-        return (ByteData.sublistView(d, i + 1, i + 5).getFloat32(0, Endian.big), i + 5);
+        return (
+          ByteData.sublistView(d, i + 1, i + 5).getFloat32(0, Endian.big),
+          i + 5,
+        );
       case 0xcb: // float64
-        return (ByteData.sublistView(d, i + 1, i + 9).getFloat64(0, Endian.big), i + 9);
-      case 0xcc: return (d[i + 1], i + 2); // uint8
+        return (
+          ByteData.sublistView(d, i + 1, i + 9).getFloat64(0, Endian.big),
+          i + 9,
+        );
+      case 0xcc:
+        return (d[i + 1], i + 2); // uint8
       case 0xcd: // uint16
-        return (ByteData.sublistView(d, i + 1, i + 3).getUint16(0, Endian.big), i + 3);
+        return (
+          ByteData.sublistView(d, i + 1, i + 3).getUint16(0, Endian.big),
+          i + 3,
+        );
       case 0xce: // uint32
-        return (ByteData.sublistView(d, i + 1, i + 5).getUint32(0, Endian.big), i + 5);
+        return (
+          ByteData.sublistView(d, i + 1, i + 5).getUint32(0, Endian.big),
+          i + 5,
+        );
       case 0xcf: // uint64
-        return (ByteData.sublistView(d, i + 1, i + 9).getUint64(0, Endian.big), i + 9);
+        return (
+          ByteData.sublistView(d, i + 1, i + 9).getUint64(0, Endian.big),
+          i + 9,
+        );
       case 0xd0: // int8
         return (ByteData.sublistView(d, i + 1, i + 2).getInt8(0), i + 2);
       case 0xd1: // int16
-        return (ByteData.sublistView(d, i + 1, i + 3).getInt16(0, Endian.big), i + 3);
+        return (
+          ByteData.sublistView(d, i + 1, i + 3).getInt16(0, Endian.big),
+          i + 3,
+        );
       case 0xd2: // int32
-        return (ByteData.sublistView(d, i + 1, i + 5).getInt32(0, Endian.big), i + 5);
+        return (
+          ByteData.sublistView(d, i + 1, i + 5).getInt32(0, Endian.big),
+          i + 5,
+        );
       case 0xd3: // int64
-        return (ByteData.sublistView(d, i + 1, i + 9).getInt64(0, Endian.big), i + 9);
+        return (
+          ByteData.sublistView(d, i + 1, i + 9).getInt64(0, Endian.big),
+          i + 9,
+        );
       case 0xd9: // str8
         final n = d[i + 1];
         return (utf8.decode(d.sublist(i + 2, i + 2 + n)), i + 2 + n);
       case 0xda: // str16
-        final n = ByteData.sublistView(d, i + 1, i + 3).getUint16(0, Endian.big);
+        final n = ByteData.sublistView(
+          d,
+          i + 1,
+          i + 3,
+        ).getUint16(0, Endian.big);
         return (utf8.decode(d.sublist(i + 3, i + 3 + n)), i + 3 + n);
       case 0xdb: // str32
-        final n = ByteData.sublistView(d, i + 1, i + 5).getUint32(0, Endian.big);
+        final n = ByteData.sublistView(
+          d,
+          i + 1,
+          i + 5,
+        ).getUint32(0, Endian.big);
         return (utf8.decode(d.sublist(i + 5, i + 5 + n)), i + 5 + n);
       case 0xdc: // array16
-        final n = ByteData.sublistView(d, i + 1, i + 3).getUint16(0, Endian.big);
+        final n = ByteData.sublistView(
+          d,
+          i + 1,
+          i + 3,
+        ).getUint16(0, Endian.big);
         return _decodeList(d, i + 3, n);
       case 0xdd: // array32
-        final n = ByteData.sublistView(d, i + 1, i + 5).getUint32(0, Endian.big);
+        final n = ByteData.sublistView(
+          d,
+          i + 1,
+          i + 5,
+        ).getUint32(0, Endian.big);
         return _decodeList(d, i + 5, n);
       case 0xde: // map16
-        final n = ByteData.sublistView(d, i + 1, i + 3).getUint16(0, Endian.big);
+        final n = ByteData.sublistView(
+          d,
+          i + 1,
+          i + 3,
+        ).getUint16(0, Endian.big);
         return _decodeMap(d, i + 3, n);
       case 0xdf: // map32
-        final n = ByteData.sublistView(d, i + 1, i + 5).getUint32(0, Endian.big);
+        final n = ByteData.sublistView(
+          d,
+          i + 1,
+          i + 5,
+        ).getUint32(0, Endian.big);
         return _decodeMap(d, i + 5, n);
       default:
         throw FormatException('Unknown msgpack byte 0x${b.toRadixString(16)}');
@@ -169,14 +222,20 @@ abstract class GamePacket with _$GamePacket {
   }
 
   static Map<String, dynamic> _toStringDynamic(Map<dynamic, dynamic> raw) {
-    return raw.map((k, v) => MapEntry(
-      k.toString(),
-      v is Map<dynamic, dynamic>
-          ? _toStringDynamic(v)
-          : v is List
-              ? v.map((e) => e is Map<dynamic, dynamic> ? _toStringDynamic(e) : e).toList()
-              : v,
-    ));
+    return raw.map(
+      (k, v) => MapEntry(
+        k.toString(),
+        v is Map<dynamic, dynamic>
+            ? _toStringDynamic(v)
+            : v is List
+            ? v
+                  .map(
+                    (e) => e is Map<dynamic, dynamic> ? _toStringDynamic(e) : e,
+                  )
+                  .toList()
+            : v,
+      ),
+    );
   }
 }
 
@@ -192,4 +251,17 @@ abstract class PacketType {
   static const String heartbeat = 'heartbeat';
   static const String systemPause = 'system_pause';
   static const String emote = 'emote';
+  static const String haptic = 'haptic';
+  static const String chat = 'chat';
+  // Console Mode
+  static const String controllerInput = 'ctrl_in';
+  static const String controllerFeedback = 'ctrl_fb';
+  static const String countdownTick = 'cd_tick';
+  static const String initController = 'init_ctrl';
+  // Spectator
+  static const String joinSpectator = 'join_spec';
+  static const String spectatorAction = 'spec_act';
+  static const String disruption = 'disruption';
+  // Spatial audio
+  static const String spatialAudio = 'spatial_audio';
 }

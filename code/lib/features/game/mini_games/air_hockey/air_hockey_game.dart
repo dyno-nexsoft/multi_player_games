@@ -178,7 +178,10 @@ class AirHockeyGame extends BaseMiniGame with DragCallbacks {
       _paddleSyncTimer += dt;
       if (_paddleSyncTimer >= _paddleSyncHz) {
         _paddleSyncTimer = 0;
-        gameProvider.sendGameData(gameId, {'action': 'paddle', 'x': _pendingPaddleX!});
+        gameProvider.sendGameData(gameId, {
+          'action': 'paddle',
+          'x': _pendingPaddleX!,
+        });
         _pendingPaddleX = null;
       }
     }
@@ -278,6 +281,8 @@ class AirHockeyGame extends BaseMiniGame with DragCallbacks {
   // ── Transfer ──────────────────────────────────────────────────────────────
   void _transferPuck() {
     _isPuckOwner = false;
+    // Puck vượt mép sân giữa 2 màn hình — rung đồng bộ tạo cảm giác "nối liền".
+    gameProvider.triggerSyncHaptic();
     final normX = _puckPos.x / gameW;
     final normVx = _puckVel.x;
     final normVy = _puckVel.y;

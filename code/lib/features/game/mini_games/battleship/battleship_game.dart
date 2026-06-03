@@ -22,18 +22,22 @@ class BattleshipGame extends BaseMiniGame {
 
   // ── My grid ───────────────────────────────────────────────────────────────
   // 0 = empty, 1 = my ship, 2 = hit on my ship, 3 = missed shot on my grid
-  final List<List<int>> _myGrid =
-      List.generate(_gridSize, (_) => List.filled(_gridSize, 0));
+  final List<List<int>> _myGrid = List.generate(
+    _gridSize,
+    (_) => List.filled(_gridSize, 0),
+  );
 
   // ── Opponent tracking grid ────────────────────────────────────────────────
   // null = unknown, true = hit, false = miss
-  final List<List<bool?>> _trackGrid =
-      List.generate(_gridSize, (_) => List.filled(_gridSize, null));
+  final List<List<bool?>> _trackGrid = List.generate(
+    _gridSize,
+    (_) => List.filled(_gridSize, null),
+  );
 
   // ── Ship placement state ──────────────────────────────────────────────────
-  final List<_Ship> _ships = [];          // my placed ships
-  int _selectedShipIndex = 0;             // ship index being placed
-  bool _horizontal = true;                // orientation toggle
+  final List<_Ship> _ships = []; // my placed ships
+  int _selectedShipIndex = 0; // ship index being placed
+  bool _horizontal = true; // orientation toggle
 
   // ── Game flow ─────────────────────────────────────────────────────────────
   bool _myTurn = false;
@@ -47,8 +51,10 @@ class BattleshipGame extends BaseMiniGame {
   String get resultText => _resultText;
 
   // Opponent's ship grid — only host holds this
-  final List<List<int>> _oppGrid =
-      List.generate(_gridSize, (_) => List.filled(_gridSize, 0));
+  final List<List<int>> _oppGrid = List.generate(
+    _gridSize,
+    (_) => List.filled(_gridSize, 0),
+  );
 
   final Map<String, int> _scores = {};
 
@@ -135,10 +141,7 @@ class BattleshipGame extends BaseMiniGame {
 
     // Encode ship positions as flat list
     final flat = _myGrid.expand((r) => r).toList();
-    gameProvider.sendGameData(gameId, {
-      'action': 'place_ships',
-      'grid': flat,
-    });
+    gameProvider.sendGameData(gameId, {'action': 'place_ships', 'grid': flat});
 
     _phase = _Phase.waiting;
     _statusText = 'Chờ đối thủ đặt tàu...';
@@ -151,7 +154,9 @@ class BattleshipGame extends BaseMiniGame {
     _phase = _Phase.attacking;
     // Host always goes first
     _myTurn = gameProvider.lobbyProvider.isHost;
-    _statusText = _myTurn ? 'Lượt bạn — chọn ô tấn công!' : 'Đợi đối thủ tấn công...';
+    _statusText = _myTurn
+        ? 'Lượt bạn — chọn ô tấn công!'
+        : 'Đợi đối thủ tấn công...';
     gameProvider.sendGameData(gameId, {
       'action': 'battle_start',
       'first_turn_is_host': true,
@@ -178,7 +183,8 @@ class BattleshipGame extends BaseMiniGame {
     // attackerId is attacker's player id
     // Check against opponent's grid
     final List<List<int>> targetGrid;
-    if (attackerId == gameProvider.lobbyProvider.players.firstWhere((p) => p.isHost).id) {
+    if (attackerId ==
+        gameProvider.lobbyProvider.players.firstWhere((p) => p.isHost).id) {
       targetGrid = _oppGrid; // host attacked client's grid
     } else {
       targetGrid = _myGrid; // client attacked host's grid
@@ -191,7 +197,9 @@ class BattleshipGame extends BaseMiniGame {
 
     // Check if all ships sunk for target
     final ships = _shipsFromGrid(targetGrid);
-    final allSunk = ships.every((s) => s.every((cell) => targetGrid[cell.r][cell.c] == 2));
+    final allSunk = ships.every(
+      (s) => s.every((cell) => targetGrid[cell.r][cell.c] == 2),
+    );
 
     gameProvider.sendGameData(gameId, {
       'action': 'attack_result',
@@ -215,7 +223,9 @@ class BattleshipGame extends BaseMiniGame {
     for (int r = 0; r < _gridSize; r++) {
       for (int c = 0; c < _gridSize; c++) {
         if (grid[r][c] == 1 || grid[r][c] == 2) {
-          result.add([_Cell(r, c)]); // simple — each cell is its own "ship" for sunk check
+          result.add([
+            _Cell(r, c),
+          ]); // simple — each cell is its own "ship" for sunk check
         }
       }
     }
@@ -260,17 +270,17 @@ class BattleshipGame extends BaseMiniGame {
       case 'battle_start':
         _phase = _Phase.attacking;
         final firstIsHost = payload['first_turn_is_host'] as bool;
-        _myTurn = gameProvider.lobbyProvider.isHost ? firstIsHost : !firstIsHost;
-        _statusText = _myTurn ? 'Lượt bạn — chọn ô tấn công!' : 'Đợi đối thủ tấn công...';
+        _myTurn = gameProvider.lobbyProvider.isHost
+            ? firstIsHost
+            : !firstIsHost;
+        _statusText = _myTurn
+            ? 'Lượt bạn — chọn ô tấn công!'
+            : 'Đợi đối thủ tấn công...';
         _notify();
 
       case 'attack_coord':
         if (gameProvider.lobbyProvider.isHost) {
-          _processAttack(
-            payload['r'] as int,
-            payload['c'] as int,
-            senderId,
-          );
+          _processAttack(payload['r'] as int, payload['c'] as int, senderId);
         }
 
       case 'attack_result':
@@ -279,11 +289,14 @@ class BattleshipGame extends BaseMiniGame {
         final hit = payload['hit'] as bool;
         final sunk = payload['sunk'] as bool;
         final attackerId = payload['attacker_id'] as String;
-        final iMeAttacker = attackerId == gameProvider.lobbyProvider.localPlayer?.id;
+        final iMeAttacker =
+            attackerId == gameProvider.lobbyProvider.localPlayer?.id;
 
         if (iMeAttacker) {
           _trackGrid[r][c] = hit;
-          _resultText = hit ? (sunk ? '💥 Đánh chìm!' : '🎯 Trúng!') : '💧 Hụt!';
+          _resultText = hit
+              ? (sunk ? '💥 Đánh chìm!' : '🎯 Trúng!')
+              : '💧 Hụt!';
         } else {
           _myGrid[r][c] = hit ? 2 : 3;
           _resultText = hit ? '💥 Tàu bạn bị trúng!' : '💨 Đối thủ hụt!';
@@ -295,7 +308,9 @@ class BattleshipGame extends BaseMiniGame {
         // Pass turn
         if (!sunk) {
           _myTurn = !iMeAttacker;
-          _statusText = _myTurn ? 'Lượt bạn — chọn ô tấn công!' : 'Đợi đối thủ...';
+          _statusText = _myTurn
+              ? 'Lượt bạn — chọn ô tấn công!'
+              : 'Đợi đối thủ...';
         }
         _notify();
 
@@ -322,8 +337,7 @@ class BattleshipGame extends BaseMiniGame {
     super.onDetach();
   }
 
-  Widget buildOverlay(BuildContext context) =>
-      _BattleshipOverlay(game: this);
+  Widget buildOverlay(BuildContext context) => _BattleshipOverlay(game: this);
 }
 
 // ── Data types ─────────────────────────────────────────────────────────────
@@ -383,10 +397,10 @@ class _BattleshipOverlayState extends State<_BattleshipOverlay> {
       child: SafeArea(
         child: switch (g._phase) {
           _Phase.placement || _Phase.waiting => _PlacementView(
-              game: g,
-              hoverCell: _hoverCell,
-              onHover: (c) => setState(() => _hoverCell = c),
-            ),
+            game: g,
+            hoverCell: _hoverCell,
+            onHover: (c) => setState(() => _hoverCell = c),
+          ),
           _Phase.attacking || _Phase.gameOver => _AttackView(game: g),
         },
       ),
@@ -426,7 +440,9 @@ class _PlacementView extends StatelessWidget {
                 child: Text(
                   game.statusText,
                   style: const TextStyle(
-                    color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
@@ -434,7 +450,10 @@ class _PlacementView extends StatelessWidget {
                 GestureDetector(
                   onTap: game.toggleOrientation,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: primary.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(8),
@@ -443,8 +462,11 @@ class _PlacementView extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(game.horizontal ? Icons.swap_horiz : Icons.swap_vert,
-                            color: primary, size: 16),
+                        Icon(
+                          game.horizontal ? Icons.swap_horiz : Icons.swap_vert,
+                          color: primary,
+                          size: 16,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           game.horizontal ? 'Ngang' : 'Dọc',
@@ -517,7 +539,8 @@ class _PlacementView extends StatelessWidget {
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: game._ships.length >= BattleshipGame._shipSizes.length
+                onPressed:
+                    game._ships.length >= BattleshipGame._shipSizes.length
                     ? game.confirmPlacement
                     : null,
                 child: const Text('Xác Nhận ✓'),
@@ -559,8 +582,8 @@ class _ShipDock extends StatelessWidget {
                 color: selected
                     ? primary
                     : placed
-                        ? Colors.green.withValues(alpha: 0.6)
-                        : Colors.white24,
+                    ? Colors.green.withValues(alpha: 0.6)
+                    : Colors.white24,
               ),
             ),
             child: Row(
@@ -575,8 +598,8 @@ class _ShipDock extends StatelessWidget {
                     color: placed
                         ? Colors.green.withValues(alpha: 0.5)
                         : selected
-                            ? primary
-                            : Colors.white24,
+                        ? primary
+                        : Colors.white24,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -619,7 +642,8 @@ class _AttackView extends StatelessWidget {
                 Text(
                   game.resultText,
                   style: TextStyle(
-                    color: game.resultText.contains('Trúng') ||
+                    color:
+                        game.resultText.contains('Trúng') ||
                             game.resultText.contains('chìm') ||
                             game.resultText.contains('thắng')
                         ? secondary
@@ -662,8 +686,10 @@ class _AttackView extends StatelessWidget {
                               color: result == null
                                   ? const Color(0xFF0A1A2A)
                                   : result
-                                      ? const Color(0xFFE53935).withValues(alpha: 0.7)
-                                      : const Color(0xFF1A3A5A),
+                                  ? const Color(
+                                      0xFFE53935,
+                                    ).withValues(alpha: 0.7)
+                                  : const Color(0xFF1A3A5A),
                               borderRadius: BorderRadius.circular(2),
                               border: Border.all(
                                 color: game._myTurn && result == null
@@ -679,7 +705,9 @@ class _AttackView extends StatelessWidget {
                                       result ? '💥' : '•',
                                       style: TextStyle(
                                         fontSize: result ? 9 : 12,
-                                        color: result ? null : Colors.blue.shade300,
+                                        color: result
+                                            ? null
+                                            : Colors.blue.shade300,
                                       ),
                                     ),
                             ),
@@ -729,9 +757,13 @@ class _AttackView extends StatelessWidget {
                           ),
                           child: val == 2
                               ? const Center(
-                                  child: Text('✕',
-                                      style: TextStyle(
-                                          color: Colors.white, fontSize: 8)),
+                                  child: Text(
+                                    '✕',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 8,
+                                    ),
+                                  ),
                                 )
                               : null,
                         );

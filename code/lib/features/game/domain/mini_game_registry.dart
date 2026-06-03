@@ -3,8 +3,11 @@ import 'package:party_game_hub/gen/assets.gen.dart';
 import '../mini_games/air_hockey/air_hockey_game.dart';
 import '../mini_games/battleship/battleship_game.dart';
 import '../mini_games/billiards/billiards_game.dart';
+import '../mini_games/code_breaker/code_breaker_game.dart';
 import '../mini_games/draw_guess/draw_guess_game.dart';
+import '../mini_games/neon_dodge/neon_dodge_game.dart';
 import '../mini_games/hot_potato/hot_potato_game.dart';
+import '../mini_games/liars_dice/liars_dice_game.dart';
 import '../mini_games/minesweeper/minesweeper_game.dart';
 import '../mini_games/reaction_tap/reaction_tap_game.dart';
 import '../mini_games/penalty_shootout/penalty_game.dart';
@@ -97,6 +100,32 @@ abstract class MiniGameRegistry {
       minPlayers: 2,
       maxPlayers: 2,
     ),
+    MiniGameMetadata(
+      id: 'code_breaker',
+      title: 'Phá Mã',
+      description: 'Đoán mã 4 số bí mật của đối thủ trước khi bị phá!',
+      iconPath: 'assets/icons/code_breaker.svg',
+      minPlayers: 2,
+      maxPlayers: 2,
+    ),
+    MiniGameMetadata(
+      id: 'liars_dice',
+      title: 'Xúc Xắc Tố',
+      description: 'Ra giá xúc xắc, bắt bài nói dối của đối thủ!',
+      iconPath: 'assets/icons/liars_dice.svg',
+      minPlayers: 2,
+      maxPlayers: 2,
+    ),
+    // ── Console Mode games ──────────────────────────────────────────────────
+    MiniGameMetadata(
+      id: 'neon_dodge',
+      title: 'Neon Dodge',
+      description: 'Né chướng ngại vật rơi — Host là màn hình, bạn là tay cầm!',
+      iconPath: 'assets/icons/neon_dodge.svg',
+      minPlayers: 2,
+      maxPlayers: 6,
+      supportsConsoleMode: true,
+    ),
   ];
 
   static SvgGenImage iconFor(String gameId) => switch (gameId) {
@@ -107,9 +136,12 @@ abstract class MiniGameRegistry {
     'reaction_tap' => Assets.icons.reactionTap,
     'minesweeper' => Assets.icons.minesweeper,
     'billiards' => Assets.icons.billiards,
-    'draw_guess'  => Assets.icons.drawGuess,
-    'battleship'  => Assets.icons.battleship,
-    'hot_potato'  => Assets.icons.hotPotato,
+    'draw_guess' => Assets.icons.drawGuess,
+    'battleship' => Assets.icons.battleship,
+    'hot_potato' => Assets.icons.hotPotato,
+    'code_breaker' => Assets.icons.codeBreaker,
+    'liars_dice' => Assets.icons.liarsDice,
+    'neon_dodge' => Assets.icons.neonDodge,
     _ => throw ArgumentError('Unknown game id: $gameId'),
   };
 
@@ -135,6 +167,12 @@ abstract class MiniGameRegistry {
         return BattleshipGame(provider);
       case 'hot_potato':
         return HotPotatoGame(provider);
+      case 'code_breaker':
+        return CodeBreakerGame(provider);
+      case 'liars_dice':
+        return LiarsDiceGame(provider);
+      case 'neon_dodge':
+        return NeonDodgeGame(provider);
       default:
         throw Exception('Game ID "$gameId" không tồn tại trong Registry');
     }

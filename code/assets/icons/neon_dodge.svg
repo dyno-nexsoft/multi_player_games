@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <circle cx="32" cy="32" r="28" fill="#1A1A2E"/>
+  <circle cx="32" cy="32" r="28" stroke="#FF6584" stroke-width="2" opacity="0.5"/>
+
+  <!-- Falling obstacles -->
+  <rect x="10" y="12" width="18" height="7" rx="3" fill="#FF6584" opacity="0.9"/>
+  <rect x="36" y="22" width="18" height="7" rx="3" fill="#FFD700" opacity="0.9"/>
+  <rect x="18" y="34" width="14" height="7" rx="3" fill="#FF6B35" opacity="0.9"/>
+
+  <!-- Player entity (glowing circle at bottom) -->
+  <circle cx="32" cy="52" r="7" fill="#6C63FF" opacity="0.25"/>
+  <circle cx="32" cy="52" r="5" fill="#6C63FF"/>
+  <circle cx="32" cy="52" r="2" fill="white" opacity="0.6"/>
+</svg>

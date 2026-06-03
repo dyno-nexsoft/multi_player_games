@@ -35,9 +35,16 @@ dependencies:
   json_annotation: ^4.12.0
   freezed_annotation: ^3.1.0
   flame_audio: ^2.12.1
+  audioplayers: ^6.0.0
   qr_flutter: ^4.1.0
   mobile_scanner: ^7.2.0
   messagepack: ^0.2.1
+
+  # Local persistence (lifetime stats / leaderboard)
+  shared_preferences: ^2.3.2
+
+  # Device sensors (gyroscope for Console Mode controller)
+  sensors_plus: ^4.0.0
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
@@ -68,9 +75,10 @@ flutter:
     - assets/icons/
     - assets/images/
     - assets/audio/
-    - assets/icon/
 
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/icon/app_icon.png"
+  image_path: "assets/images/app_icon.png"
+  adaptive_icon_background: "#1B063A"
+  adaptive_icon_foreground: "assets/images/app_icon.png"

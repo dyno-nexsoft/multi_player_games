@@ -7,6 +7,9 @@ class MiniGameMetadata {
   final int minPlayers;
   final int maxPlayers;
 
+  /// True = game chạy ở chế độ Console (Host là màn hình, Client là tay cầm).
+  final bool supportsConsoleMode;
+
   const MiniGameMetadata({
     required this.id,
     required this.title,
@@ -14,5 +17,6 @@ class MiniGameMetadata {
     required this.iconPath,
     required this.minPlayers,
     required this.maxPlayers,
+    this.supportsConsoleMode = false,
   });
 }

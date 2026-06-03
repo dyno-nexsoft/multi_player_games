@@ -25,6 +25,13 @@ class ConnectionRepository {
 
   OnPacket? onPacketReceived;
   OnClientConnected? onClientConnected;
+
+  /// Host-side: gói tin kèm socket nguồn (để map socket → người chơi).
+  void Function(Socket socket, GamePacket packet)? onClientPacket;
+
+  /// Host-side: một client ngắt kết nối.
+  void Function(Socket socket)? onClientDisconnected;
+
   void Function()? onHostDisconnected;
 
   // ── Host ──────────────────────────────────────────────────────────────────
@@ -42,8 +49,10 @@ class ConnectionRepository {
       onClientConnected?.call(socket);
       _listenSocket(
         socket,
+        onPacket: (packet) => onClientPacket?.call(socket, packet),
         onDone: () {
           _clients.remove(socket);
+          onClientDisconnected?.call(socket);
           AppLogger.info('Client disconnected', tag: 'Connection');
         },
       );
@@ -55,9 +64,16 @@ class ConnectionRepository {
     AppLogger.info('NSD registered: $roomName', tag: 'Connection');
   }
 
-  void broadcastPacket(GamePacket packet) {
+  void broadcastPacket(GamePacket packet) => _broadcast(packet, null);
+
+  /// Relay tới mọi client trừ [except] (dùng cho host mesh-relay gói của client).
+  void broadcastPacketExcept(GamePacket packet, Socket except) =>
+      _broadcast(packet, except);
+
+  void _broadcast(GamePacket packet, Socket? except) {
     final frame = _frame(packet.toBytes());
     for (final s in List.of(_clients)) {
+      if (except != null && identical(s, except)) continue;
       try {
         s.add(frame);
       } catch (e) {
@@ -117,20 +133,24 @@ class ConnectionRepository {
 
   // ── Shared ────────────────────────────────────────────────────────────────
 
-  void _listenSocket(Socket socket, {void Function()? onDone}) {
+  void _listenSocket(
+    Socket socket, {
+    void Function()? onDone,
+    void Function(GamePacket packet)? onPacket,
+  }) {
     final buf = <int>[];
     socket.listen(
       (data) {
         buf.addAll(data);
         while (buf.length >= 4) {
-          final len =
-              ByteData.view(Uint8List.fromList(buf.sublist(0, 4)).buffer)
-                  .getUint32(0, Endian.big);
+          final len = ByteData.view(
+            Uint8List.fromList(buf.sublist(0, 4)).buffer,
+          ).getUint32(0, Endian.big);
           if (buf.length < 4 + len) break;
           final payload = Uint8List.fromList(buf.sublist(4, 4 + len));
           buf.removeRange(0, 4 + len);
           final packet = GamePacket.fromBytes(payload);
-          if (packet != null) onPacketReceived?.call(packet);
+          if (packet != null) (onPacket ?? onPacketReceived)?.call(packet);
         }
       },
       onDone: onDone,

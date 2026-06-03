@@ -1,179 +1,67 @@
-# Party Game Hub — Full Feature Roadmap
+# Party Game Hub — Feature Roadmap & Backlog
 
-## Tổng quan
-
-| Phase       | Nội dung                                    | Độ khó         | Thời gian  |
-| ----------- | ------------------------------------------- | -------------- | ---------- |
-| **Phase 1** | Quick Wins: Haptic, Rematch, Best-of-N      | Thấp           | ~1 ngày    |
-| **Phase 2** | UX Polish: Avatar/màu, QR join, Animation   | Trung bình     | ~2-3 ngày  |
-| **Phase 3** | Network: Prediction, MessagePack, Reconnect | Cao            | ~4-5 ngày  |
-| **Phase 4** | 4 Mini-games mới                            | Trung bình–Cao | ~8-10 ngày |
-| **Phase 5** | 3-4 players + Play Store CI/CD              | Rất cao        | ~5-6 ngày  |
+Tài liệu này lưu trữ tiến độ phát triển và các ý tưởng tính năng (Backlog) chưa được triển khai.
 
 ---
 
-## Phase 1 — Quick Wins
+## 1. 🚀 Tiến Độ & Roadmap Ngắn Hạn
 
-### 1.1 Haptic Feedback
+*Ghi chú: Các Phase 1 (Haptic, Rematch), Phase 2 (QR, Color), Phase 3 (Network) đã hoàn thành 95%.*
 
-`HapticFeedback.lightImpact()` (Flutter built-in, không cần package) tại:
+### Phase 4: Mở rộng Mini-Games (Sắp tới)
+- [ ] **Khúc Côn Cầu Chéo (Cross Air Hockey):** Sân đấu chia đôi 2 thiết bị. Chuyển giao vật lý (Ownership) khi puck bay qua màn hình.
+- [ ] **Đấu Xe Tăng (Tank Fight):** Cơ chế "Fog of War" che khuất tầm nhìn chéo.
+- [ ] **Bắn Cung (Archer Duel):** Bắn cung vượt màn hình theo quỹ đạo Parabol.
+- [ ] **Hải Chiến Không Gian (Battleship):** 2 màn hình riêng biệt, đặt tàu và phán đoán bắn.
+- [ ] **Trốn Tìm Mê Cung (Maze Hide & Seek):** Đuổi bắt với tầm nhìn giới hạn, có dùng skill (Radar, Dash).
+- [ ] **Rà Mìn Cảm Tử (Boomerang Hot Potato):** Ném bom hẹn giờ qua lại giữa 2 thiết bị.
 
-- TugOfWar → `_onLocalTap()`
-- Sumo → `_resolveCollision()` khi va chạm
-- Penalty → `onTapDown` khi sút
-- AirHockey → `_checkPaddleCollision()`
-
-### 1.2 Rematch Button
-
-- Button "Chơi lại" trong `_ScoreboardScreen` (host only)
-- `GameProvider._lastGameId` lưu game vừa chơi
-- Host nhấn → `lobby.startGame(lastGameId)`, reset scores
-
-### 1.3 Best-of-N Series
-
-- Selector 1/3/5 trong `_GameSelector` của RoomScreen
-- PacketType mới: `seriesConfig` broadcast khi host start
-- `GameProvider` track `_wins` per player, kết thúc khi ai đạt `ceil(N/2)`
-- Scoreboard hiển thị "Trận 2/3" + win count
+### Phase 5: Advanced & Scaling
+- [ ] **Hỗ trợ 3-4 Người Chơi:** Mở rộng `ConnectionRepository` và UI Lobby.
+- [ ] **Chế Độ Giải Đấu Xoay Vòng (Roulette Cup):** Quay ngẫu nhiên mini-game, tính điểm Best of 5 với cúp pha lê.
+- [ ] **Play Store CI/CD Deploy:** Đẩy AAB lên Internal Track (Cần setup Secret Keys).
 
 ---
 
-## Phase 2 — UX Polish
+## 2. 📺 Chế Độ Console-Controller (Asymmetric Mode)
 
-### 2.1 Avatar + Color
+Chế độ chia tách 1 thiết bị làm màn hình (Host) và các thiết bị khác làm tay cầm (Client).
 
-- Thêm `color: int` vào `Player` freezed model
-- Color picker 8 màu preset trong LobbyScreen
-- `CircleAvatar(backgroundColor: Color(player.color))` trong PlayerList
-
-### 2.2 QR Code Join
-
-**Packages mới:** `qr_flutter ^4.x`, `mobile_scanner ^5.x`
-
-- Host: hiển thị QR = `{"ip": "...", "port": 4567}` sau `startServer()`
-- Client: nút "Quét QR" → camera scanner → `connectToAddress(ip, port)`
-- `ConnectionRepository.connectToAddress()` bypass mDNS
-
-### 2.3 Animated Transitions
-
-- `Hero` trên game icon/title trong `_GameCard` → `GameHubScreen`
-- `CustomTransitionPage` với `FadeTransition` trong go_router
-- `AnimatedScale` trên lobby action buttons
+*   **Host (TV/Tablet):** Chạy Flame Engine, xử lý đồ họa, tính toán vật lý (Source of Truth). Giao diện TV tối ưu cho Remote (10-foot UI), hiển thị Mã QR to và Sân Khấu Avatar Drop-in.
+*   **Client (Phone):** Chỉ hiển thị **Tay Cầm Vạn Năng** (UI Flutter tĩnh cực nhẹ tiết kiệm pin). 
+    *   *Bố cục:* Joystick trái, 4 nút (A, B, X, Y) phải.
+    *   *Input:* Gửi tọa độ Joystick và trạng thái Nút qua UDP/TCP ở tần số 30-60Hz. Kèm theo dữ liệu Cảm Biến Nghiêng (Gyro) chạy ngầm.
+    *   *Feedback:* Lắng nghe lệnh từ Host để rung (Haptic) hoặc chớp viền.
 
 ---
 
-## Phase 3 — Network & Reliability
+## 3. ✨ Tính Năng Đột Phá (Killer Features)
 
-### 3.1 Client-Side Prediction (TugOfWar)
-
-- Client apply tap locally ngay lập tức (`_ropePosition -= _tapPower`)
-- Blend về server value khi nhận 'state': `lerpDouble(local, server, 0.3)`
-
-### 3.2 MessagePack
-
-**Package mới:** `messagepack ^0.3.x`
-
-- `GamePacket.toWire()` → `Uint8List` (binary, không phải JSON string)
-- 4-byte length prefix framing thay vì newline-delimited
-- Giảm ~60% packet size → quan trọng với AirHockey paddle sync 20Hz
-
-### 3.3 Reconnect Logic
-
-- `ConnectionRepository.onDisconnect` callback khi host ngắt kết nối
-- `LobbyProvider` retry 3 lần với backoff (1s, 2s, 4s)
-- `LobbyState.reconnecting` mới
-- UI overlay "Đang kết nối lại..."
+*   **Mật Khẩu Phòng Emoji:** Thay vì nhập PIN 4 số, người chơi nhập 4 Emoji (vd: 🍎🍕👻👽) qua bàn phím custom. Rút ngắn thời gian giao tiếp, tạo không khí vui nhộn.
+*   **Thẻ Game Thủ (Neon Gamer Cards):** Profile cá nhân dạng 3D/Neon. Có danh hiệu (vd "Vua Sút Phạt"). Slide-in lúc vào phòng và phóng to (Hero transition) khi thắng game.
+*   **Âm Thanh Không Gian (Spatial Audio):** Âm thanh (vd: tiếng bom đếm ngược) di chuyển từ loa máy này sang máy khác cùng với vật thể.
+*   **Chế Độ Khán Giả (Spectator):** Người chơi thứ 5 trở đi khi quét QR sẽ thành khán giả. Có thanh công cụ ném "Tương Cà / Bom Khói" che màn hình người đang chơi (có Cooldown).
+*   **Bắn Cảm Xúc (Emotes):** Vuốt khay emote để ném 1 con gà khổng lồ bay thẳng sang màn hình đối phương.
+*   **Đồng Bộ Rung (Haptic Sync):** Hai thiết bị rung chính xác cùng một mili-giây khi có sự kiện va chạm lớn.
 
 ---
 
-## Phase 4 — New Mini-Games
+## 4. 🎯 Trải Nghiệm Điều Hướng & Onboarding
 
-### 4.1 Reaction Tap _(~1 ngày)_
-
-Pure Flutter (không cần Flame). 5 vòng.
-
-- Host random delay → gửi `flash` → cả 2 tap → host đo thời gian
-- Ai tap nhanh hơn thắng vòng. Nhanh nhất overall thắng match.
-- Files: `reaction_tap/reaction_tap_game.dart`
-
-### 4.2 Minesweeper Race _(~1.5 ngày)_
-
-8×8 board, 10 mìn. Host authoritative. 60 giây.
-
-- Cả 2 tap ô cùng board → host validate → broadcast `reveal`
-- Chạm mìn = -3 điểm. Reveal nhiều ô hơn thắng.
-- Files: `minesweeper/minesweeper_game.dart`, `minesweeper/components/mine_grid.dart`
-
-### 4.3 Billiards Pool _(~3 ngày)_
-
-Turn-based. Flame physics. 8-ball hoặc 9-ball.
-
-- Drag cue → host tính physics → gửi toàn bộ ball positions sau shot
-- Files: `billiards/billiards_game.dart`, `billiards/components/`, `billiards/physics/`
-
-### 4.4 Draw & Guess _(~3 ngày)_
-
-Flutter widget (không phải Flame). Luân phiên vẽ/đoán.
-
-- Người vẽ dùng `GestureDetector + CustomPainter` → stream stroke points 30Hz
-- Người đoán gõ text → host validate → broadcast kết quả
-- 5 từ từ l10n word list. Đoán đúng = +10, vẽ được đoán = +5
-- Files: `draw_guess/draw_guess_game.dart`, `draw_guess/widgets/drawing_canvas.dart`
+*   **First-Time Carousel:** Màn hình hướng dẫn vuốt ngang lúc mới cài App. Quan trọng nhất là yêu cầu "Bật chung WiFi/LAN".
+*   **The 3-Second Rule (Luật 3 giây):** Không có trang text hướng dẫn dài dòng. Trước khi bắt đầu mini-game, hiện 1 màn hình mờ che Flame kèm Lottie animation (Minh họa thao tác) + Chữ to "TAP FAST!". Đếm 3-2-1 rồi chiến.
+*   **Tay Cầm Động (Dynamic Controller Hints):** Nút nào không dùng sẽ bị mờ đi. Nút nào quan trọng sẽ chớp Glow. Host có thể gửi nhãn dán chữ (BẮN, NHẢY) đè lên tay cầm Client.
+*   **Navigation Gestures:** Chặn nút Back hệ thống (`PopScope`). Chơi game bằng thao tác vuốt xuống (Mở Menu Pause), Nhấn giữ (Dừng game), Chụm ngón tay (Thoát nhanh).
 
 ---
 
-## Phase 5 — Advanced
+## 5. 🛠 Chiến Lược Kiểm Thử (QA Checklist)
 
-### 5.1 3-4 Player Support _(~4 ngày)_
+Bắt buộc test thủ công bằng **thiết bị thật** (1 Android, 1 iOS cùng Wi-Fi) do Simulator không hỗ trợ mDNS chính xác.
 
-- `Player` thêm `playerIndex: int`
-- ConnectionRepository đã là List `_clients` — chỉ cần bỏ giới hạn logic
-- Games hỗ trợ 3-4: Reaction Tap, Sumo, Minesweeper
-- Games giữ 2 người: Tug of War, Billiards
-- `MiniGameMetadata.minPlayers/maxPlayers` đã có → dùng để filter trong RoomScreen
-
-### 5.2 Play Store CI/CD _(~half day)_
-
-- Build AAB: `flutter build appbundle --release`
-- `r0adkll/upload-google-play@v1` action
-- GitHub Secrets: `KEYSTORE_FILE`, `KEY_ALIAS`, `KEY_PASSWORD`, `STORE_PASSWORD`, `GOOGLE_PLAY_JSON_KEY`
-- Upload lên **internal track**, promote thủ công lên production
-
----
-
-## New Packages
-
-| Package               | Dùng cho                    | Phase |
-| --------------------- | --------------------------- | ----- |
-| `qr_flutter ^4.1.0`   | Hiển thị QR code            | 2     |
-| `mobile_scanner ^5.x` | Scan QR camera              | 2     |
-| `messagepack ^0.3.x`  | Binary packet serialization | 3     |
-
----
-
-## Key Files Affected
-
-| File                         | Changes                                       |
-| ---------------------------- | --------------------------------------------- |
-| `player.dart`                | + color, playerIndex fields                   |
-| `game_packet.dart`           | + PacketType constants, MessagePack           |
-| `connection_repository.dart` | + connectToAddress, reconnect, binary framing |
-| `lobby_provider.dart`        | + reconnecting state, series config           |
-| `game_provider.dart`         | + lastGameId, series wins tracking            |
-| `mini_game_registry.dart`    | + 4 new games                                 |
-| `room_screen.dart`           | + series selector, avatar display             |
-| `game_hub_screen.dart`       | + rematch button, Draw&Guess embed            |
-| `release_apk.yml`            | + AAB build, Play Store deploy job            |
-
----
-
-## Thứ tự thực hiện khuyến nghị
-
-```
-Phase 1 → Phase 2 → Phase 3.1 (Prediction) → Phase 4.1 (ReactionTap)
-                  → Phase 3.2 (MessagePack) → Phase 4.4 (Draw&Guess)
-                  → Phase 3.3 (Reconnect)
-                  → Phase 4.2 (Minesweeper) → Phase 4.3 (Billiards)
-                  → Phase 5.1 (3-4 players)
-                  → Phase 5.2 (CI/CD) ← có thể làm bất cứ lúc nào
-```
+*   [ ] Host tạo phòng < 3s Client thấy mDNS.
+*   [ ] Client join, danh sách Avatar sync chính xác 2 bên.
+*   [ ] Cả hai vào màn hình Game (Flame) không lệch quá 0.5s.
+*   [ ] Game Tap liên tục không bị crash do nghẽn MessagePack.
+*   [ ] Tắt WiFi Client, Host phải báo Disconnect sau 3-5s.
+*   [ ] iOS: Hộp thoại xin quyền Local Network hiển thị mượt mà.

@@ -57,6 +57,26 @@ class AppAudio {
   static void playGoal() => _play(Assets.audio.goal);
   static void playPuckHit() => _play(Assets.audio.puckHit);
 
+  // ── Looping audio (Spatial Audio) ─────────────────────────────────────────
+
+  static AudioPlayer? _loopPlayer;
+
+  /// Phát âm thanh vòng lặp. Chỉ một âm thanh loop tại một thời điểm.
+  static Future<void> startLoop(String assetPath) async {
+    if (!_enabled) return;
+    try {
+      await _loopPlayer?.stop();
+      _loopPlayer = await FlameAudio.loop(_name(assetPath));
+    } catch (_) {}
+  }
+
+  static Future<void> stopLoop() async {
+    try {
+      await _loopPlayer?.stop();
+      _loopPlayer = null;
+    } catch (_) {}
+  }
+
   // ── Internal ─────────────────────────────────────────────────────────────
 
   static void _play(String assetPath) {

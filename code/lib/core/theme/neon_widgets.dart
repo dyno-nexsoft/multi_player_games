@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/widget_previews.dart';
+import 'package:party_game_hub/core/theme/app_theme.dart';
 import '../../features/game/domain/mini_game_metadata.dart';
 import '../../features/game/domain/mini_game_registry.dart';
 
@@ -22,8 +24,7 @@ class GlassCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accent =
-        borderColor ?? Theme.of(context).colorScheme.primary;
+    final accent = borderColor ?? Theme.of(context).colorScheme.primary;
     return ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
       child: BackdropFilter(
@@ -122,8 +123,9 @@ class _NeonGameCardState extends State<NeonGameCard> {
               children: [
                 Hero(
                   tag: 'game_icon_${widget.game.id}',
-                  child: MiniGameRegistry.iconFor(widget.game.id)
-                      .svg(width: 52, height: 52),
+                  child: MiniGameRegistry.iconFor(
+                    widget.game.id,
+                  ).svg(width: 52, height: 52),
                 ),
                 const SizedBox(height: 10),
                 Text(
@@ -199,8 +201,7 @@ class _PulseButtonState extends State<PulseButton>
 
   @override
   Widget build(BuildContext context) {
-    final glow =
-        widget.glowColor ?? Theme.of(context).colorScheme.primary;
+    final glow = widget.glowColor ?? Theme.of(context).colorScheme.primary;
     return AnimatedBuilder(
       animation: _pulse,
       builder: (_, child) => Container(
@@ -326,9 +327,10 @@ class _FireworksPainter extends CustomPainter {
       if (lt <= 0) continue;
 
       final x = p.sx * size.width + p.vx * lt * size.width;
-      final y = p.sy * size.height
-          + p.vy * lt * size.height
-          + 0.28 * lt * lt * size.height; // gravity
+      final y =
+          p.sy * size.height +
+          p.vy * lt * size.height +
+          0.28 * lt * lt * size.height; // gravity
       final alpha = (1 - lt * 1.1).clamp(0.0, 1.0);
       final radius = p.r * (1 - lt * 0.4);
 
@@ -385,9 +387,8 @@ class _RadarWidgetState extends State<RadarWidget>
       dimension: widget.size,
       child: AnimatedBuilder(
         animation: _ctrl,
-        builder: (context, child) => CustomPaint(
-          painter: _RadarPainter(_ctrl.value, widget.color),
-        ),
+        builder: (context, child) =>
+            CustomPaint(painter: _RadarPainter(_ctrl.value, widget.color)),
       ),
     );
   }
@@ -442,10 +443,7 @@ class _RadarPainter extends CustomPainter {
           center: Alignment.center,
           startAngle: sweepAngle - sectorSpan,
           endAngle: sweepAngle,
-          colors: [
-            color.withValues(alpha: 0),
-            color.withValues(alpha: 0.45),
-          ],
+          colors: [color.withValues(alpha: 0), color.withValues(alpha: 0.45)],
         ).createShader(rect)
         ..style = PaintingStyle.fill,
     );
@@ -523,10 +521,7 @@ class _ScoreboardOverlayState extends State<ScoreboardOverlay>
                 begin: const Offset(0, 0.12),
                 end: Offset.zero,
               ).animate(_slide),
-              child: FadeTransition(
-                opacity: _fade,
-                child: child,
-              ),
+              child: FadeTransition(opacity: _fade, child: child),
             ),
           ],
         );
@@ -563,3 +558,76 @@ class NeonTitle extends StatelessWidget {
     );
   }
 }
+
+// ── Previews ──────────────────────────────────────────────────────────────────
+
+Widget themeWrapper(Widget child) => MaterialApp(
+  theme: AppTheme.light,
+  home: Scaffold(
+    backgroundColor: AppTheme.bgDeep,
+    body: Center(child: child),
+  ),
+);
+
+@Preview(name: 'Neon - GlassCard', wrapper: themeWrapper)
+Widget previewGlassCard() => const Padding(
+  padding: EdgeInsets.all(16.0),
+  child: GlassCard(
+    padding: EdgeInsets.all(24),
+    child: Text(
+      'Glassmorphism Card',
+      style: TextStyle(color: Colors.white, fontSize: 18),
+    ),
+  ),
+);
+
+@Preview(name: 'Neon - GameCard', wrapper: themeWrapper)
+Widget previewNeonGameCard() => Padding(
+  padding: const EdgeInsets.all(16.0),
+  child: SizedBox(
+    width: 140,
+    height: 180,
+    child: NeonGameCard(
+      game: const MiniGameMetadata(
+        id: 'tug_of_war',
+        title: 'Tug of War',
+        description: 'Pull the rope!',
+        iconPath: 'assets/icons/ic_tug_of_war.svg',
+        minPlayers: 2,
+        maxPlayers: 8,
+      ),
+      localizedTitle: 'Kéo Co',
+      onTap: () {},
+    ),
+  ),
+);
+
+@Preview(name: 'Neon - PulseButton', wrapper: themeWrapper)
+Widget previewPulseButton() => Padding(
+  padding: const EdgeInsets.all(16.0),
+  child: PulseButton(
+    child: ElevatedButton(
+      onPressed: () {},
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xFF6C63FF),
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+      ),
+      child: const Text(
+        'Pulsing Button',
+        style: TextStyle(color: Colors.white),
+      ),
+    ),
+  ),
+);
+
+@Preview(name: 'Neon - RadarWidget', wrapper: themeWrapper)
+Widget previewRadarWidget() => const Padding(
+  padding: EdgeInsets.all(16.0),
+  child: RadarWidget(color: Color(0xFF00D9FF)),
+);
+
+@Preview(name: 'Neon - Title', wrapper: themeWrapper)
+Widget previewNeonTitle() => const Padding(
+  padding: EdgeInsets.all(16.0),
+  child: NeonTitle('NEON TITLE', color: Color(0xFFFF6584)),
+);

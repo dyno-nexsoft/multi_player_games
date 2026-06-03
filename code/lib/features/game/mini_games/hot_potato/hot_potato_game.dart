@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
 import 'package:party_game_hub/core/theme/app_theme.dart';
+import 'package:party_game_hub/gen/assets.gen.dart';
 import '../../domain/base_mini_game.dart';
 
 /// Bảo Mìn Hẹn Giờ — quả bom đếm ngược, vuốt để ném sang đối thủ.
@@ -22,7 +23,7 @@ class HotPotatoGame extends BaseMiniGame {
 
   // ── State ──────────────────────────────────────────────────────────────────
 
-  String _holderId = '';          // player id currently holding the bomb
+  String _holderId = ''; // player id currently holding the bomb
   double _timeLeft = _roundDuration;
   double get timeLeft => _timeLeft;
 
@@ -33,11 +34,11 @@ class HotPotatoGame extends BaseMiniGame {
   // Lock mechanic
   bool _locked = false;
   bool get locked => _locked;
-  List<int> _lockSequence = [];   // sequence of color indices to tap
+  List<int> _lockSequence = []; // sequence of color indices to tap
   List<int> get lockSequence => List.unmodifiable(_lockSequence);
   int _lockProgress = 0;
   int get lockProgress => _lockProgress;
-  bool _penaltyActive = false;    // brief delay after wrong tap
+  bool _penaltyActive = false; // brief delay after wrong tap
   double _penaltyTimer = 0;
 
   // Throw swipe state
@@ -72,17 +73,15 @@ class HotPotatoGame extends BaseMiniGame {
 
   void _startRound() {
     final rng = Random();
-    _timeLeft = _minDuration +
-        rng.nextDouble() * (_maxDuration - _minDuration);
+    _timeLeft = _minDuration + rng.nextDouble() * (_maxDuration - _minDuration);
 
     // Host always starts with the bomb
-    _holderId =
-        gameProvider.lobbyProvider.players.firstWhere((p) => p.isHost).id;
+    _holderId = gameProvider.lobbyProvider.players
+        .firstWhere((p) => p.isHost)
+        .id;
 
     final hasLock = rng.nextDouble() < _lockChance;
-    _lockSequence = hasLock
-        ? List.generate(3, (_) => rng.nextInt(4))
-        : [];
+    _lockSequence = hasLock ? List.generate(3, (_) => rng.nextInt(4)) : [];
     _locked = hasLock;
     _lockProgress = 0;
 
@@ -96,7 +95,18 @@ class HotPotatoGame extends BaseMiniGame {
     _statusText = iHoldBomb
         ? (_locked ? '🔒 Mở khóa rồi ném!' : '💣 Ném ngay!')
         : 'Đối thủ đang cầm bom...';
+    _updateTickingSound();
     _notify();
+  }
+
+  /// Phát/tắt tiếng tick dựa trên việc thiết bị này có đang giữ bom không.
+  /// Chỉ loa của người đang giữ bom mới phát tiếng — Spatial Synced Audio.
+  void _updateTickingSound() {
+    if (iHoldBomb && !_gameOver) {
+      AppAudio.startLoop(Assets.audio.countdownBeep);
+    } else {
+      AppAudio.stopLoop();
+    }
   }
 
   // ── Timer (host) ───────────────────────────────────────────────────────────
@@ -187,8 +197,10 @@ class HotPotatoGame extends BaseMiniGame {
     AppAudio.playPuckHit();
 
     final players = gameProvider.lobbyProvider.players;
-    final nextHolder =
-        players.firstWhere((p) => p.id != _holderId, orElse: () => players.first);
+    final nextHolder = players.firstWhere(
+      (p) => p.id != _holderId,
+      orElse: () => players.first,
+    );
 
     if (gameProvider.lobbyProvider.isHost) {
       // Host throws directly
@@ -223,6 +235,7 @@ class HotPotatoGame extends BaseMiniGame {
     _statusText = iHoldBomb
         ? (_locked ? '🔒 Mở khóa rồi ném!' : '💣 Ném ngay!')
         : 'Đối thủ đang cầm bom...';
+    _updateTickingSound();
     _notify();
   }
 
@@ -259,6 +272,7 @@ class HotPotatoGame extends BaseMiniGame {
             : 'Đối thủ đang cầm bom...';
         HapticFeedback.heavyImpact();
         AppAudio.playPuckHit();
+        _updateTickingSound();
         _notify();
 
       case 'explode':
@@ -270,6 +284,7 @@ class HotPotatoGame extends BaseMiniGame {
           raw.forEach((k, v) => _scores[k.toString()] = (v as num).toInt());
           final iLose = loserId == gameProvider.lobbyProvider.localPlayer?.id;
           _statusText = iLose ? '💥 BOM NỔ! Bạn thua!' : '🎉 Đối thủ bị nổ!';
+          AppAudio.stopLoop(); // dừng tick khi bom nổ
           HapticFeedback.heavyImpact();
           iLose ? AppAudio.playLose() : AppAudio.playWin();
           _notify();
@@ -283,11 +298,11 @@ class HotPotatoGame extends BaseMiniGame {
   @override
   void onDetach() {
     _cancelled = true;
+    AppAudio.stopLoop();
     super.onDetach();
   }
 
-  Widget buildOverlay(BuildContext context) =>
-      _HotPotatoOverlay(game: this);
+  Widget buildOverlay(BuildContext context) => _HotPotatoOverlay(game: this);
 }
 
 // ── Overlay ────────────────────────────────────────────────────────────────
@@ -333,27 +348,34 @@ class _HotPotatoOverlayState extends State<_HotPotatoOverlay>
   @override
   Widget build(BuildContext context) {
     final g = widget.game;
-    final timeRatio = (g.timeLeft / HotPotatoGame._roundDuration).clamp(0.0, 1.0);
+    final timeRatio = (g.timeLeft / HotPotatoGame._roundDuration).clamp(
+      0.0,
+      1.0,
+    );
     final urgentColor = Color.lerp(Colors.green, Colors.red, 1 - timeRatio)!;
     final bgColor = g._exploding
         ? Colors.red.shade900
         : g.iHoldBomb
-            ? const Color(0xFF2A1A0A)
-            : AppTheme.bgDeep;
+        ? const Color(0xFF2A1A0A)
+        : AppTheme.bgDeep;
 
     return GestureDetector(
       onVerticalDragEnd: (d) {
         if (d.primaryVelocity != null && d.primaryVelocity!.abs() > 400) {
-          g.onSwipe(d.primaryVelocity! < 0
-              ? DismissDirection.up
-              : DismissDirection.down);
+          g.onSwipe(
+            d.primaryVelocity! < 0
+                ? DismissDirection.up
+                : DismissDirection.down,
+          );
         }
       },
       onHorizontalDragEnd: (d) {
         if (d.primaryVelocity != null && d.primaryVelocity!.abs() > 400) {
-          g.onSwipe(d.primaryVelocity! < 0
-              ? DismissDirection.startToEnd
-              : DismissDirection.endToStart);
+          g.onSwipe(
+            d.primaryVelocity! < 0
+                ? DismissDirection.startToEnd
+                : DismissDirection.endToStart,
+          );
         }
       },
       child: AnimatedContainer(
@@ -456,9 +478,7 @@ class _BombWidget extends StatelessWidget {
             duration: const Duration(milliseconds: 60),
             child: Text(
               exploding ? '💥' : '💣',
-              style: TextStyle(
-                fontSize: iHoldBomb ? 72 : 56,
-              ),
+              style: TextStyle(fontSize: iHoldBomb ? 72 : 56),
             ),
           ),
           // Timer text
@@ -543,8 +563,10 @@ class _LockPanel extends StatelessWidget {
                   ],
                 ),
                 child: Center(
-                  child: Text(_lockLabels[i],
-                      style: const TextStyle(fontSize: 20)),
+                  child: Text(
+                    _lockLabels[i],
+                    style: const TextStyle(fontSize: 20),
+                  ),
                 ),
               ),
             );

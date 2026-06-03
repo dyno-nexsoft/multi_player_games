@@ -111,8 +111,9 @@ class ReactionTapGame extends BaseMiniGame {
     if (_lastReactionTime.length < players.length) return;
 
     // Tìm người nhanh nhất
-    final fastest = _lastReactionTime.entries
-        .reduce((a, b) => a.value < b.value ? a : b);
+    final fastest = _lastReactionTime.entries.reduce(
+      (a, b) => a.value < b.value ? a : b,
+    );
 
     _wins[fastest.key] = (_wins[fastest.key] ?? 0) + 1;
     _waitingForTap = false;
@@ -139,8 +140,10 @@ class ReactionTapGame extends BaseMiniGame {
     final iWin = winnerId == localId;
     _bgColor = iWin ? const Color(0xFF1B5E20) : const Color(0xFF4A1515);
     final winnerName = gameProvider.lobbyProvider.players
-        .firstWhere((p) => p.id == winnerId,
-            orElse: () => gameProvider.lobbyProvider.localPlayer!)
+        .firstWhere(
+          (p) => p.id == winnerId,
+          orElse: () => gameProvider.lobbyProvider.localPlayer!,
+        )
         .name;
     _resultText = '$winnerName thắng vòng này!';
     _statusText = 'Vòng $_currentRound/$_totalRounds';
@@ -218,10 +221,7 @@ class ReactionTapGame extends BaseMiniGame {
   // ── Overlay builder ───────────────────────────────────────────────────────
 
   Widget buildOverlay(BuildContext context) {
-    return _ReactionTapOverlay(
-      game: this,
-      onTap: _onLocalTap,
-    );
+    return _ReactionTapOverlay(game: this, onTap: _onLocalTap);
   }
 }
 
@@ -301,7 +301,7 @@ class _ReactionTapOverlayState extends State<_ReactionTapOverlay> {
                           radius: 14,
                           backgroundColor: Color(p.color),
                           child: Text(
-                            p.name[0],
+                            p.name.isNotEmpty ? p.name[0] : '?',
                             style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,

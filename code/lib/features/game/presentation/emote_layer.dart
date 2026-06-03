@@ -110,19 +110,18 @@ class _EmotePickerButtonState extends State<_EmotePickerButton> {
               decoration: BoxDecoration(
                 color: const Color(0xFF1E1E2E).withValues(alpha: 0.92),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.15),
-                ),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
               ),
               child: Wrap(
                 spacing: 6,
                 runSpacing: 6,
                 children: _emotes
-                    .map((e) => GestureDetector(
-                          onTap: () => _send(context, e),
-                          child: Text(e,
-                              style: const TextStyle(fontSize: 26)),
-                        ))
+                    .map(
+                      (e) => GestureDetector(
+                        onTap: () => _send(context, e),
+                        child: Text(e, style: const TextStyle(fontSize: 26)),
+                      ),
+                    )
                     .toList(),
               ),
             ),
@@ -153,7 +152,7 @@ class _EmoteParticle {
   final double startX;
 
   _EmoteParticle({required this.id, required this.emoji})
-      : startX = 0.3 + Random().nextDouble() * 0.4;
+    : startX = 0.3 + Random().nextDouble() * 0.4;
 }
 
 class _FlyingEmote extends StatefulWidget {
@@ -169,7 +168,7 @@ class _FlyingEmote extends StatefulWidget {
 class _FlyingEmoteState extends State<_FlyingEmote>
     with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
-  late Animation<double> _pos;   // 0 = bottom, 1 = top
+  late Animation<double> _pos; // 0 = bottom, 1 = top
   late Animation<double> _fade;
   late Animation<double> _scale;
 

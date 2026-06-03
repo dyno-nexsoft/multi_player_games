@@ -27,10 +27,18 @@ class TugOfWarGame extends BaseMiniGame {
   bool _cancelled = false;
 
   static final _timerPaintNormal = TextPaint(
-    style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
+    style: const TextStyle(
+      color: Colors.white,
+      fontSize: 28,
+      fontWeight: FontWeight.bold,
+    ),
   );
   static final _timerPaintUrgent = TextPaint(
-    style: const TextStyle(color: Colors.red, fontSize: 28, fontWeight: FontWeight.bold),
+    style: const TextStyle(
+      color: Colors.red,
+      fontSize: 28,
+      fontWeight: FontWeight.bold,
+    ),
   );
 
   late RopeComponent _rope;
@@ -176,8 +184,9 @@ class TugOfWarGame extends BaseMiniGame {
     _rope.ropePosition = _ropePosition;
     _powerBar.ropePosition = _ropePosition;
     _timerText.text = _timeLeft.ceil().toString();
-    _timerText.textRenderer =
-        _timeLeft <= 5 ? _timerPaintUrgent : _timerPaintNormal;
+    _timerText.textRenderer = _timeLeft <= 5
+        ? _timerPaintUrgent
+        : _timerPaintNormal;
   }
 
   void _resolveByTime() {
@@ -199,8 +208,13 @@ class TugOfWarGame extends BaseMiniGame {
         : (l10n?.loseText ?? '😢 THUA!');
 
     if (isHost) {
+      // Khoảnh khắc "dây đứt" — cả hai máy rung đồng bộ.
+      gameProvider.triggerSyncHaptic();
       // Thông báo client kết quả trước khi dừng gửi state packets
-      gameProvider.sendGameData(gameId, {'action': 'game_over', 'host_wins': hostWins});
+      gameProvider.sendGameData(gameId, {
+        'action': 'game_over',
+        'host_wins': hostWins,
+      });
 
       final players = gameProvider.lobbyProvider.players;
       final scores = <String, int>{};
@@ -211,10 +225,8 @@ class TugOfWarGame extends BaseMiniGame {
       Future.delayed(const Duration(seconds: 2), () {
         if (!_cancelled) endMiniGame(scores);
       });
-    } else {
-      // Client tự phát audio vì không đi qua endMiniGame
-      iWin ? AppAudio.playWin() : AppAudio.playLose();
     }
+    // Client: GameProvider phát win/lose audio khi nhận gói end_game từ host.
   }
 
   @override

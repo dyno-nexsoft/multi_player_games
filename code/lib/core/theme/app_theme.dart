@@ -4,16 +4,28 @@ import 'package:google_fonts/google_fonts.dart';
 abstract class AppTheme {
   // ── Brand colours ──────────────────────────────────────────────────────────
   static const neonPurple = Color(0xFF6C63FF);
-  static const neonPink   = Color(0xFFFF6584);
-  static const neonCyan   = Color(0xFF00D9FF);
-  static const bgDeep     = Color(0xFF11111B);
-  static const bgSurface  = Color(0xFF1E1E2E);
+  static const neonPink = Color(0xFFFF6584);
+  static const neonCyan = Color(0xFF00D9FF);
+  static const bgDeep = Color(0xFF11111B);
+  static const bgSurface = Color(0xFF1E1E2E);
 
   // ── Glow helpers ───────────────────────────────────────────────────────────
   /// Returns a `List<BoxShadow>` that creates a neon glow effect.
-  static List<BoxShadow> glowShadow(Color color, {double spread = 0, double blur = 14}) => [
-    BoxShadow(color: color.withValues(alpha: 0.55), blurRadius: blur, spreadRadius: spread),
-    BoxShadow(color: color.withValues(alpha: 0.25), blurRadius: blur * 2, spreadRadius: spread),
+  static List<BoxShadow> glowShadow(
+    Color color, {
+    double spread = 0,
+    double blur = 14,
+  }) => [
+    BoxShadow(
+      color: color.withValues(alpha: 0.55),
+      blurRadius: blur,
+      spreadRadius: spread,
+    ),
+    BoxShadow(
+      color: color.withValues(alpha: 0.25),
+      blurRadius: blur * 2,
+      spreadRadius: spread,
+    ),
   ];
 
   /// BoxDecoration for a glassmorphism surface.

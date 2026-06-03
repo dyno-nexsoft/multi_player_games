@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widget_previews.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
 import 'package:party_game_hub/core/theme/app_theme.dart';
 import '../../game/domain/mini_game_registry.dart';
@@ -17,8 +18,10 @@ Future<String?> showRouletteCup(BuildContext context) {
     transitionBuilder: (ctx, anim, _, child) => FadeTransition(
       opacity: CurvedAnimation(parent: anim, curve: Curves.easeOut),
       child: ScaleTransition(
-        scale: Tween<double>(begin: 0.85, end: 1.0)
-            .animate(CurvedAnimation(parent: anim, curve: Curves.easeOutBack)),
+        scale: Tween<double>(
+          begin: 0.85,
+          end: 1.0,
+        ).animate(CurvedAnimation(parent: anim, curve: Curves.easeOutBack)),
         child: child,
       ),
     ),
@@ -57,7 +60,10 @@ class _RouletteDialogState extends State<_RouletteDialog>
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 3200));
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 3200),
+    );
   }
 
   @override
@@ -80,12 +86,14 @@ class _RouletteDialogState extends State<_RouletteDialog>
     // To land segment [i] under pointer: rotation = -(segAngle * i + segAngle/2) mod 2π
     // Add multiple full rotations for drama
     final fullSpins = 4 + rng.nextInt(3); // 4-6 full spins
-    final targetAngle = fullSpins * 2 * pi +
+    final targetAngle =
+        fullSpins * 2 * pi +
         (2 * pi - (_selectedIndex * segAngle + segAngle / 2));
 
-    _angle = Tween<double>(begin: 0, end: targetAngle).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.decelerate),
-    );
+    _angle = Tween<double>(
+      begin: 0,
+      end: targetAngle,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.decelerate));
 
     _ctrl.forward(from: 0).then((_) {
       if (mounted) {
@@ -138,7 +146,9 @@ class _RouletteDialogState extends State<_RouletteDialog>
                 alignment: Alignment.center,
                 children: [
                   AnimatedBuilder(
-                    animation: _spinning ? _ctrl : const AlwaysStoppedAnimation(0),
+                    animation: _spinning
+                        ? _ctrl
+                        : const AlwaysStoppedAnimation(0),
                     builder: (ctx, child) => Transform.rotate(
                       angle: _spinning ? _angle.value : 0,
                       child: CustomPaint(
@@ -184,8 +194,9 @@ class _RouletteDialogState extends State<_RouletteDialog>
                         Text(
                           selected.title,
                           style: TextStyle(
-                            color: _segmentColors[
-                                _selectedIndex % _segmentColors.length],
+                            color:
+                                _segmentColors[_selectedIndex %
+                                    _segmentColors.length],
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
@@ -194,7 +205,9 @@ class _RouletteDialogState extends State<_RouletteDialog>
                         Text(
                           selected.description,
                           style: const TextStyle(
-                              color: Colors.white54, fontSize: 12),
+                            color: Colors.white54,
+                            fontSize: 12,
+                          ),
                           textAlign: TextAlign.center,
                         ),
                       ],
@@ -226,8 +239,9 @@ class _RouletteDialogState extends State<_RouletteDialog>
                       icon: const Icon(Icons.play_arrow),
                       label: const Text('Chơi!'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            Theme.of(context).colorScheme.secondary,
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.secondary,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
                     ),
@@ -329,3 +343,16 @@ class _PointerPainter extends CustomPainter {
   @override
   bool shouldRepaint(_PointerPainter old) => false;
 }
+
+// ── Previews ──────────────────────────────────────────────────────────────────
+
+Widget themeWrapper(Widget child) => MaterialApp(
+  theme: AppTheme.light,
+  home: Scaffold(
+    backgroundColor: AppTheme.bgDeep,
+    body: Center(child: child),
+  ),
+);
+
+@Preview(name: 'Dialog - Roulette Cup', wrapper: themeWrapper)
+Widget previewRouletteCupDialog() => const _RouletteDialog();

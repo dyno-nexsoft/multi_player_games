@@ -8,7 +8,7 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
 
     <application
-        android:label="party_game_hub"
+        android:label="Party Game Hub"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <activity
