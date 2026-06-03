@@ -1,0 +1,48 @@
+{
+  "@@locale": "en",
+  "appName": "Party Game Hub",
+  "host": "Host",
+  "client": "Client",
+
+  "lobbyTitle": "🎮 Party Game Hub",
+  "yourNameLabel": "Your Name",
+  "roomNameLabel": "Room Name (Host)",
+  "createRoomBtn": "Create Room (Host)",
+  "findRoomBtn": "Find Room (Join)",
+
+  "discoverTitle": "Find Room",
+  "searchingRooms": "Searching for rooms...",
+  "joinBtn": "Join",
+  "unknownRoom": "Unknown Room",
+
+  "roomTitle": "Lobby Room",
+  "selectMiniGame": "Select Mini-Game",
+  "startBtn": "Start",
+
+  "scoreboardTitle": "🏆 Leaderboard",
+  "backToLobbyBtn": "Back to Lobby Room",
+  "pointsText": "{score} pts",
+  "@pointsText": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+
+  "gameTugOfWarTitle": "Speed Tug-of-War",
+  "gameTugOfWarDesc": "Tap repeatedly to pull the rope to your side!",
+  "tugOfWarTapLabel": "TAP NOW! ▼",
+  "winText": "🏆 WIN!",
+  "loseText": "😢 LOSE!",
+
+  "gameSumoBumperTitle": "Sumo Bumper",
+  "gameSumoBumperDesc": "Bump opponents out of the survival circle!",
+
+  "gamePenaltyShootoutTitle": "Penalty Shootout",
+  "gamePenaltyShootoutDesc": "Shoot the ball past the goalkeeper to score!",
+  "penaltyTapToShoot": "Tap to shoot!",
+
+  "gameAirHockeyTitle": "Air Hockey",
+  "gameAirHockeyDesc": "Hit the puck into opponent's screen — each phone is half of the rink!"
+}

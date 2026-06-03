@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:party_game_hub/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../domain/player.dart';
@@ -12,6 +13,7 @@ class RoomScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Consumer<LobbyProvider>(
       builder: (context, lobby, _) {
         if (lobby.state == LobbyState.inGame && lobby.pendingGameId != null) {
@@ -22,7 +24,7 @@ class RoomScreen extends StatelessWidget {
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Phòng Chờ'),
+            title: Text(l10n.roomTitle),
             leading: BackButton(onPressed: () => context.go('/')),
           ),
           body: Column(
@@ -44,6 +46,7 @@ class _PlayerList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: players.length,
@@ -54,7 +57,7 @@ class _PlayerList extends StatelessWidget {
           title: Text(p.name),
           trailing: p.isHost
               ? Chip(
-                  label: const Text('Host'),
+                  label: Text(l10n.host),
                   backgroundColor: Theme.of(context).colorScheme.primary,
                 )
               : null,
@@ -71,13 +74,14 @@ class _GameSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Chọn Mini-Game',
+            l10n.selectMiniGame,
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 12),
@@ -99,15 +103,48 @@ class _GameCard extends StatelessWidget {
 
   const _GameCard({required this.game, required this.lobby});
 
+  String _getGameTitle(BuildContext context, String gameId) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (gameId) {
+      case 'tug_of_war':
+        return l10n.gameTugOfWarTitle;
+      case 'sumo_bumper':
+        return l10n.gameSumoBumperTitle;
+      case 'penalty_shootout':
+        return l10n.gamePenaltyShootoutTitle;
+      case 'air_hockey':
+        return l10n.gameAirHockeyTitle;
+      default:
+        return game.title;
+    }
+  }
+
+  String _getGameDescription(BuildContext context, String gameId) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (gameId) {
+      case 'tug_of_war':
+        return l10n.gameTugOfWarDesc;
+      case 'sumo_bumper':
+        return l10n.gameSumoBumperDesc;
+      case 'penalty_shootout':
+        return l10n.gamePenaltyShootoutDesc;
+      case 'air_hockey':
+        return l10n.gameAirHockeyDesc;
+      default:
+        return game.description;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       child: ListTile(
-        title: Text(game.title),
-        subtitle: Text(game.description),
+        title: Text(_getGameTitle(context, game.id)),
+        subtitle: Text(_getGameDescription(context, game.id)),
         trailing: ElevatedButton(
           onPressed: () => lobby.startGame(game.id),
-          child: const Text('Bắt đầu'),
+          child: Text(l10n.startBtn),
         ),
       ),
     );

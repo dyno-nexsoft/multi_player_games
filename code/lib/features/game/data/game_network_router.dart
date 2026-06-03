@@ -8,9 +8,6 @@ class GameNetworkRouter {
   void route(GamePacket packet) {
     if (activeGame == null) return;
     if (packet.gameId != activeGame!.gameId) return;
-    activeGame!.onNetworkDataReceived(
-      packet.senderId ?? '',
-      packet.payload,
-    );
+    activeGame!.onNetworkDataReceived(packet.senderId ?? '', packet.payload);
   }
 }

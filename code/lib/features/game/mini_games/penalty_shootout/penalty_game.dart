@@ -1,5 +1,6 @@
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
+import 'package:party_game_hub/l10n/app_localizations.dart';
 import '../../domain/base_mini_game.dart';
 import 'components/soccer_ball.dart';
 import 'components/goalkeeper_hand.dart';
@@ -8,6 +9,7 @@ import 'components/goalkeeper_hand.dart';
 class PenaltyGame extends BaseMiniGame with TapCallbacks {
   late SoccerBall _ball;
   late GoalkeeperHand _hand;
+  late TextComponent _shootLabelText;
 
   Vector2 _ballVelocity = Vector2.zero();
   bool _shooting = false;
@@ -31,11 +33,24 @@ class PenaltyGame extends BaseMiniGame with TapCallbacks {
 
     world.add(_ball);
     world.add(_hand);
-    world.add(TextComponent(
-      text: 'Tap để sút!',
+
+    _shootLabelText = TextComponent(
+      text: 'Tap to shoot!',
       position: Vector2(200, 720),
       anchor: Anchor.center,
-    ));
+    );
+    world.add(_shootLabelText);
+  }
+
+  @override
+  void onMount() {
+    super.onMount();
+    if (buildContext != null) {
+      final l10n = AppLocalizations.of(buildContext!);
+      if (l10n != null) {
+        _shootLabelText.text = l10n.penaltyTapToShoot;
+      }
+    }
   }
 
   @override
@@ -46,10 +61,7 @@ class PenaltyGame extends BaseMiniGame with TapCallbacks {
       final dx = (tapX - 200) / 200; // normalize -1..1
       _ballVelocity = Vector2(dx * 80, -300);
       _shooting = true;
-      gameProvider.sendGameData(gameId, {
-        'action': 'shoot',
-        'dx': dx,
-      });
+      gameProvider.sendGameData(gameId, {'action': 'shoot', 'dx': dx});
     }
   }
 

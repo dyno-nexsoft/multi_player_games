@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:party_game_hub/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../../../core/localization/locale_provider.dart';
 import 'lobby_provider.dart';
 
 class LobbyScreen extends StatefulWidget {
@@ -23,38 +25,59 @@ class _LobbyScreenState extends State<LobbyScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                '🎮 Party Game Hub',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+        child: Column(
+          children: [
+            Align(
+              alignment: Alignment.topRight,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 12, right: 24),
+                child: const _LanguageToggle(),
               ),
-              const SizedBox(height: 40),
-              _TextField(controller: _nameController, label: 'Tên của bạn'),
-              const SizedBox(height: 16),
-              _TextField(controller: _roomController, label: 'Tên phòng (Host)'),
-              const SizedBox(height: 32),
-              _ActionButton(
-                label: 'Tạo Phòng (Host)',
-                icon: Icons.wifi_tethering,
-                onPressed: () => _hostRoom(context),
+            ),
+            Expanded(
+              child: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        l10n.lobbyTitle,
+                        style: Theme.of(context).textTheme.headlineMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 40),
+                      _TextField(
+                        controller: _nameController,
+                        label: l10n.yourNameLabel,
+                      ),
+                      const SizedBox(height: 16),
+                      _TextField(
+                        controller: _roomController,
+                        label: l10n.roomNameLabel,
+                      ),
+                      const SizedBox(height: 32),
+                      _ActionButton(
+                        label: l10n.createRoomBtn,
+                        icon: Icons.wifi_tethering,
+                        onPressed: () => _hostRoom(context),
+                      ),
+                      const SizedBox(height: 16),
+                      _ActionButton(
+                        label: l10n.findRoomBtn,
+                        icon: Icons.search,
+                        color: Theme.of(context).colorScheme.secondary,
+                        onPressed: () => _joinRoom(context),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              const SizedBox(height: 16),
-              _ActionButton(
-                label: 'Tìm Phòng (Join)',
-                icon: Icons.search,
-                color: Theme.of(context).colorScheme.secondary,
-                onPressed: () => _joinRoom(context),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -62,7 +85,10 @@ class _LobbyScreenState extends State<LobbyScreen> {
 
   Future<void> _hostRoom(BuildContext context) async {
     final lobby = context.read<LobbyProvider>();
-    await lobby.hostRoom(_nameController.text.trim(), _roomController.text.trim());
+    await lobby.hostRoom(
+      _nameController.text.trim(),
+      _roomController.text.trim(),
+    );
     if (context.mounted) context.push('/room');
   }
 
@@ -70,6 +96,70 @@ class _LobbyScreenState extends State<LobbyScreen> {
     final lobby = context.read<LobbyProvider>();
     await lobby.discoverRooms(_nameController.text.trim());
     if (context.mounted) context.push('/discover');
+  }
+}
+
+class _LanguageToggle extends StatelessWidget {
+  const _LanguageToggle();
+
+  @override
+  Widget build(BuildContext context) {
+    final localeProvider = context.watch<LocaleProvider>();
+    final isVietnamese = localeProvider.locale.languageCode == 'vi';
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => localeProvider.toggleLocale(),
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E1E2E),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 250),
+            transitionBuilder: (child, animation) {
+              return FadeTransition(
+                opacity: animation,
+                child: ScaleTransition(scale: animation, child: child),
+              );
+            },
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              key: ValueKey<bool>(isVietnamese),
+              children: [
+                Text(
+                  isVietnamese ? '🇻🇳' : '🇬🇧',
+                  style: const TextStyle(fontSize: 16),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  isVietnamese ? 'VI' : 'EN',
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 

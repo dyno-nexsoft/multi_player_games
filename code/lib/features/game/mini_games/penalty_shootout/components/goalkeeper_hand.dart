@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class GoalkeeperHand extends PositionComponent {
   GoalkeeperHand({super.position})
-      : super(size: Vector2(60, 40), anchor: Anchor.center);
+    : super(size: Vector2(60, 40), anchor: Anchor.center);
 
   @override
   void render(Canvas canvas) {

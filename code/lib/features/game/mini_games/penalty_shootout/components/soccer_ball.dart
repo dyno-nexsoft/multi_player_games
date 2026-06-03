@@ -2,7 +2,8 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 
 class SoccerBall extends PositionComponent {
-  SoccerBall({super.position}) : super(size: Vector2(30, 30), anchor: Anchor.center);
+  SoccerBall({super.position})
+    : super(size: Vector2(30, 30), anchor: Anchor.center);
 
   @override
   void render(Canvas canvas) {

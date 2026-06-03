@@ -1,5 +1,6 @@
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
+import 'package:party_game_hub/l10n/app_localizations.dart';
 import '../../domain/base_mini_game.dart';
 import 'components/rope_component.dart';
 import 'components/button_component.dart';
@@ -23,6 +24,7 @@ class TugOfWarGame extends BaseMiniGame {
   late RopeComponent _rope;
   late TextComponent _timerText;
   late TextComponent _resultText;
+  late TextComponent _tapLabelText;
   late _PowerBarComponent _powerBar;
 
   TugOfWarGame(super.gameProvider);
@@ -40,24 +42,25 @@ class TugOfWarGame extends BaseMiniGame {
     _rope = RopeComponent()..size = Vector2(400, 800);
     world.add(_rope);
 
-    _powerBar = _PowerBarComponent(
-      position: Vector2(200, 400),
-    );
+    _powerBar = _PowerBarComponent(position: Vector2(200, 400));
     world.add(_powerBar);
 
     // Nút tap — chiếm phần lớn màn hình
-    world.add(TapButtonComponent(
-      size: Vector2(380, 340),
-      position: Vector2(10, 430),
-      onTap: _onLocalTap,
-    ));
+    world.add(
+      TapButtonComponent(
+        size: Vector2(380, 340),
+        position: Vector2(10, 430),
+        onTap: _onLocalTap,
+      ),
+    );
 
     final isHost = gameProvider.lobbyProvider.isHost;
-    final labelColor = isHost ? const Color(0xFF6C63FF) : const Color(0xFFFF6584);
-    final label = isHost ? 'TAP ĐI! ▼' : 'TAP ĐI! ▼';
+    final labelColor = isHost
+        ? const Color(0xFF6C63FF)
+        : const Color(0xFFFF6584);
 
-    world.add(TextComponent(
-      text: label,
+    _tapLabelText = TextComponent(
+      text: 'TAP NOW! ▼',
       position: Vector2(200, 590),
       anchor: Anchor.center,
       textRenderer: TextPaint(
@@ -67,7 +70,8 @@ class TugOfWarGame extends BaseMiniGame {
           fontWeight: FontWeight.bold,
         ),
       ),
-    ));
+    );
+    world.add(_tapLabelText);
 
     _timerText = TextComponent(
       text: '30',
@@ -99,6 +103,17 @@ class TugOfWarGame extends BaseMiniGame {
       ),
     );
     world.add(_resultText);
+  }
+
+  @override
+  void onMount() {
+    super.onMount();
+    if (buildContext != null) {
+      final l10n = AppLocalizations.of(buildContext!);
+      if (l10n != null) {
+        _tapLabelText.text = l10n.tugOfWarTapLabel;
+      }
+    }
   }
 
   void _onLocalTap() {
@@ -164,7 +179,13 @@ class TugOfWarGame extends BaseMiniGame {
 
     final isMe = gameProvider.lobbyProvider.isHost;
     final iWin = (isMe && hostWins) || (!isMe && !hostWins);
-    _resultText.text = iWin ? '🏆 THẮNG!' : '😢 THUA!';
+
+    final l10n = buildContext != null
+        ? AppLocalizations.of(buildContext!)
+        : null;
+    _resultText.text = iWin
+        ? (l10n?.winText ?? '🏆 THẮNG!')
+        : (l10n?.loseText ?? '😢 THUA!');
 
     if (gameProvider.lobbyProvider.isHost) {
       final players = gameProvider.lobbyProvider.players;
@@ -219,7 +240,7 @@ class _PowerBarComponent extends PositionComponent {
   static const double _barH = 12.0;
 
   _PowerBarComponent({required super.position})
-      : super(anchor: Anchor.center, size: Vector2(_barW, _barH));
+    : super(anchor: Anchor.center, size: Vector2(_barW, _barH));
 
   @override
   void render(Canvas canvas) {

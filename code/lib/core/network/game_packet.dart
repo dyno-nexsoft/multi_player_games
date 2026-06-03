@@ -21,7 +21,8 @@ abstract class GamePacket with _$GamePacket {
 
   /// Creates a [GamePacket] instance from a JSON map.
   /// Used for parsing incoming network data packages.
-  factory GamePacket.fromJson(Map<String, dynamic> json) => _$GamePacketFromJson(json);
+  factory GamePacket.fromJson(Map<String, dynamic> json) =>
+      _$GamePacketFromJson(json);
 
   /// Chuyển thành chuỗi JSON kết thúc bằng '\n' để phân tách gói tin trên stream.
   String toWire() => '${jsonEncode(toJson())}\n';
@@ -50,4 +51,3 @@ abstract class PacketType {
   static const String heartbeat = 'heartbeat';
   static const String systemPause = 'system_pause';
 }
-

@@ -153,10 +153,7 @@ class AirHockeyGame extends BaseMiniGame with DragCallbacks {
     );
     _myPaddle.position.x = x;
 
-    gameProvider.sendGameData(gameId, {
-      'action': 'paddle',
-      'x': x / gameW,
-    });
+    gameProvider.sendGameData(gameId, {'action': 'paddle', 'x': x / gameW});
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -206,7 +203,8 @@ class AirHockeyGame extends BaseMiniGame with DragCallbacks {
     if (_checkPaddleCollision(_myPaddle)) {
       _puckVel.y = -_puckVel.y.abs() * _paddleBounce; // bật lên
       // Thêm spin theo offset so với tâm paddle
-      final spin = (_puckPos.x - _myPaddle.position.x) /
+      final spin =
+          (_puckPos.x - _myPaddle.position.x) /
           (PaddleComponent.paddleW / 2) *
           120;
       _puckVel.x = (_puckVel.x + spin).clamp(-_maxSpeed, _maxSpeed);
@@ -216,7 +214,8 @@ class AirHockeyGame extends BaseMiniGame with DragCallbacks {
     // Va "paddle ma" đối thủ (ở trên — đảo Y)
     if (_checkPaddleCollision(_opponentPaddle)) {
       _puckVel.y = _puckVel.y.abs() * _paddleBounce; // bật xuống
-      final spin = (_puckPos.x - _opponentPaddle.position.x) /
+      final spin =
+          (_puckPos.x - _opponentPaddle.position.x) /
           (PaddleComponent.paddleW / 2) *
           120;
       _puckVel.x = (_puckVel.x + spin).clamp(-_maxSpeed, _maxSpeed);
@@ -318,10 +317,7 @@ class AirHockeyGame extends BaseMiniGame with DragCallbacks {
     _puckPos = Vector2(gameW / 2, gameH * 0.65);
 
     if (_isPuckOwner) {
-      _puckVel = Vector2(
-        (math.Random().nextDouble() - 0.5) * 200,
-        -200,
-      );
+      _puckVel = Vector2((math.Random().nextDouble() - 0.5) * 200, -200);
     } else {
       _puckVel = Vector2.zero();
     }

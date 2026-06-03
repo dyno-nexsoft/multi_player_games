@@ -18,5 +18,3 @@ abstract class Player with _$Player {
   /// Necessary for updating local state when player info is received from the network.
   factory Player.fromJson(Map<String, dynamic> json) => _$PlayerFromJson(json);
 }
-
-

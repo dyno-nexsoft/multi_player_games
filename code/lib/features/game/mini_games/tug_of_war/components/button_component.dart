@@ -7,7 +7,11 @@ class TapButtonComponent extends PositionComponent with TapCallbacks {
   final VoidCallback onTap;
   bool _pressed = false;
 
-  TapButtonComponent({required this.onTap, required super.size, super.position});
+  TapButtonComponent({
+    required this.onTap,
+    required super.size,
+    super.position,
+  });
 
   @override
   void onTapDown(TapDownEvent event) {
@@ -21,9 +25,7 @@ class TapButtonComponent extends PositionComponent with TapCallbacks {
   @override
   void render(Canvas canvas) {
     final paint = Paint()
-      ..color = _pressed
-          ? const Color(0x446C63FF)
-          : const Color(0x226C63FF);
+      ..color = _pressed ? const Color(0x446C63FF) : const Color(0x226C63FF);
     canvas.drawRRect(
       RRect.fromRectAndRadius(
         Rect.fromLTWH(0, 0, size.x, size.y),

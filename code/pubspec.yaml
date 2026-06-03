@@ -1,13 +1,14 @@
 name: party_game_hub
 description: Party Game Hub - Local multiplayer mini-games for mobile devices.
-publish_to: 'none'
+publish_to: "none"
 
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.12.1
+  sdk: ^3.12.0
 
 dependencies:
+  # Core & Localization
   flutter:
     sdk: flutter
   flutter_localizations:
@@ -29,13 +30,20 @@ dependencies:
 
   # Navigation
   go_router: ^17.3.0
+
+  # Code Gen Annotations
   json_annotation: ^4.12.0
   freezed_annotation: ^3.1.0
 
 dev_dependencies:
+  # Testing
   flutter_test:
     sdk: flutter
+
+  # Code Quality (Linter)
   flutter_lints: ^6.0.0
+
+  # Code Generation
   build_runner: ^2.15.0
   json_serializable: ^6.14.0
   freezed: ^3.2.5

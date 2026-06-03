@@ -1,5 +1,6 @@
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
+import 'package:party_game_hub/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../lobby/domain/player.dart';
@@ -67,6 +68,7 @@ class _ScoreboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final lobby = context.read<LobbyProvider>();
+    final l10n = AppLocalizations.of(context)!;
     final sortedPlayers = List.of(lobby.players)
       ..sort((a, b) => (scores[b.id] ?? 0).compareTo(scores[a.id] ?? 0));
 
@@ -77,10 +79,10 @@ class _ScoreboardScreen extends StatelessWidget {
           child: Column(
             children: [
               Text(
-                '🏆 Bảng Xếp Hạng',
+                l10n.scoreboardTitle,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 24),
               Expanded(
@@ -101,7 +103,7 @@ class _ScoreboardScreen extends StatelessWidget {
                   lobby.returnToLobby();
                   context.go('/room');
                 },
-                child: const Text('Quay lại Phòng Chờ'),
+                child: Text(l10n.backToLobbyBtn),
               ),
             ],
           ),
@@ -116,16 +118,21 @@ class _RankTile extends StatelessWidget {
   final Player player;
   final int score;
 
-  const _RankTile({required this.rank, required this.player, required this.score});
+  const _RankTile({
+    required this.rank,
+    required this.player,
+    required this.score,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       child: ListTile(
         leading: CircleAvatar(child: Text('$rank')),
         title: Text(player.name),
         trailing: Text(
-          '$score điểm',
+          l10n.pointsText(score),
           style: Theme.of(context).textTheme.titleMedium,
         ),
       ),

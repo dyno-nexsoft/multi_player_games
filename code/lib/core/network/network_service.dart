@@ -39,7 +39,10 @@ class NetworkService {
 
   void _handleIncomingConnection(Socket socket) {
     _connectedClients.add(socket);
-    _listenToSocket(socket, onDisconnect: () => _connectedClients.remove(socket));
+    _listenToSocket(
+      socket,
+      onDisconnect: () => _connectedClients.remove(socket),
+    );
   }
 
   void broadcastToClients(String wireData) {
@@ -74,24 +77,26 @@ class NetworkService {
 
   void _listenToSocket(Socket socket, {void Function()? onDisconnect}) {
     final buffer = StringBuffer();
-    utf8.decoder.bind(socket).listen(
-      (data) {
-        buffer.write(data);
-        final raw = buffer.toString();
-        final lines = raw.split('\n');
-        buffer.clear();
-        if (!raw.endsWith('\n')) {
-          buffer.write(lines.removeLast());
-        } else {
-          lines.removeLast();
-        }
-        for (final line in lines) {
-          if (line.isNotEmpty) onPacketReceived?.call(line);
-        }
-      },
-      onDone: onDisconnect,
-      onError: (_) => onDisconnect?.call(),
-    );
+    utf8.decoder
+        .bind(socket)
+        .listen(
+          (data) {
+            buffer.write(data);
+            final raw = buffer.toString();
+            final lines = raw.split('\n');
+            buffer.clear();
+            if (!raw.endsWith('\n')) {
+              buffer.write(lines.removeLast());
+            } else {
+              lines.removeLast();
+            }
+            for (final line in lines) {
+              if (line.isNotEmpty) onPacketReceived?.call(line);
+            }
+          },
+          onDone: onDisconnect,
+          onError: (_) => onDisconnect?.call(),
+        );
   }
 
   Future<void> dispose() async {

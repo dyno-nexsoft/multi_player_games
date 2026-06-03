@@ -41,10 +41,7 @@ class GameProvider extends ChangeNotifier {
   void _handleGamePacket(GamePacket packet) {
     if (_activeGame == null) return;
     if (packet.gameId != _activeGame!.gameId) return;
-    _activeGame!.onNetworkDataReceived(
-      packet.senderId ?? '',
-      packet.payload,
-    );
+    _activeGame!.onNetworkDataReceived(packet.senderId ?? '', packet.payload);
   }
 
   /// Gửi gói tin game data qua LobbyProvider (Host broadcast / Client send).

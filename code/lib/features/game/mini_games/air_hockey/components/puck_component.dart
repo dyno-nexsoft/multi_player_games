@@ -5,11 +5,11 @@ class PuckComponent extends PositionComponent {
   static const double radius = 22;
 
   PuckComponent({required Vector2 position})
-      : super(
-          position: position,
-          size: Vector2.all(radius * 2),
-          anchor: Anchor.center,
-        );
+    : super(
+        position: position,
+        size: Vector2.all(radius * 2),
+        anchor: Anchor.center,
+      );
 
   @override
   void render(Canvas canvas) {

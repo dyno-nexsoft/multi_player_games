@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:party_game_hub/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nsd/nsd.dart';
 import 'package:provider/provider.dart';
@@ -10,11 +11,12 @@ class DiscoverScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Consumer<LobbyProvider>(
       builder: (context, lobby, _) {
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Tìm Phòng'),
+            title: Text(l10n.discoverTitle),
             leading: BackButton(onPressed: () => context.go('/')),
           ),
           body: lobby.discoveredRooms.isEmpty
@@ -31,13 +33,14 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    final l10n = AppLocalizations.of(context)!;
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(),
-          SizedBox(height: 16),
-          Text('Đang tìm kiếm phòng...'),
+          const CircularProgressIndicator(),
+          const SizedBox(height: 16),
+          Text(l10n.searchingRooms),
         ],
       ),
     );
@@ -52,6 +55,7 @@ class _RoomList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: rooms.length,
@@ -60,13 +64,13 @@ class _RoomList extends StatelessWidget {
         return Card(
           child: ListTile(
             leading: const Icon(Icons.wifi),
-            title: Text(room.name ?? 'Unknown Room'),
+            title: Text(room.name ?? l10n.unknownRoom),
             trailing: ElevatedButton(
               onPressed: () async {
                 await lobby.joinRoom(room);
                 if (context.mounted) context.go('/room');
               },
-              child: const Text('Tham gia'),
+              child: Text(l10n.joinBtn),
             ),
           ),
         );

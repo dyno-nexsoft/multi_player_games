@@ -10,7 +10,17 @@ abstract class AppLogger {
     dev.log('[WARN] $message', name: tag);
   }
 
-  static void error(String message, {Object? error, StackTrace? stackTrace, String tag = 'AppLog'}) {
-    dev.log('[ERROR] $message', name: tag, error: error, stackTrace: stackTrace);
+  static void error(
+    String message, {
+    Object? error,
+    StackTrace? stackTrace,
+    String tag = 'AppLog',
+  }) {
+    dev.log(
+      '[ERROR] $message',
+      name: tag,
+      error: error,
+      stackTrace: stackTrace,
+    );
   }
 }

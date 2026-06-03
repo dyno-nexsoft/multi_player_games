@@ -34,9 +34,10 @@ class _CountdownOverlayState extends State<CountdownOverlay>
       duration: const Duration(milliseconds: 700),
     );
 
-    _scaleAnim = Tween<double>(begin: 1.6, end: 0.9).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
-    );
+    _scaleAnim = Tween<double>(
+      begin: 1.6,
+      end: 0.9,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
     _fadeAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.4)),
     );

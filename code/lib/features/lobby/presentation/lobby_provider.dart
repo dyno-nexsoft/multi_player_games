@@ -107,7 +107,9 @@ class LobbyProvider extends ChangeNotifier {
         if (list != null) {
           _players
             ..clear()
-            ..addAll(list.map((e) => Player.fromJson(e as Map<String, dynamic>)));
+            ..addAll(
+              list.map((e) => Player.fromJson(e as Map<String, dynamic>)),
+            );
           notifyListeners();
         }
       case PacketType.startGame:

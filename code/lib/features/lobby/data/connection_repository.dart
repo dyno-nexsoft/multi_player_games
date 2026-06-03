@@ -33,14 +33,19 @@ class ConnectionRepository {
     AppLogger.info('Server listening on port $_port', tag: 'Connection');
 
     _serverSocket!.listen((socket) {
-      AppLogger.info('Client connected: ${socket.remoteAddress.address}',
-          tag: 'Connection');
+      AppLogger.info(
+        'Client connected: ${socket.remoteAddress.address}',
+        tag: 'Connection',
+      );
       _clients.add(socket);
       onClientConnected?.call(socket);
-      _listenSocket(socket, onDone: () {
-        _clients.remove(socket);
-        AppLogger.info('Client disconnected', tag: 'Connection');
-      });
+      _listenSocket(
+        socket,
+        onDone: () {
+          _clients.remove(socket);
+          AppLogger.info('Client disconnected', tag: 'Connection');
+        },
+      );
     });
 
     _registration = await nsd.register(
@@ -90,29 +95,31 @@ class ConnectionRepository {
 
   void _listenSocket(Socket socket, {void Function()? onDone}) {
     final buffer = StringBuffer();
-    utf8.decoder.bind(socket).listen(
-      (chunk) {
-        buffer.write(chunk);
-        final raw = buffer.toString();
-        final lines = raw.split('\n');
-        buffer.clear();
-        if (!raw.endsWith('\n')) {
-          buffer.write(lines.removeLast());
-        } else {
-          lines.removeLast();
-        }
-        for (final line in lines) {
-          if (line.isEmpty) continue;
-          final packet = GamePacket.tryParse(line);
-          if (packet != null) onPacketReceived?.call(packet);
-        }
-      },
-      onDone: onDone,
-      onError: (e) {
-        AppLogger.error('Socket error', error: e, tag: 'Connection');
-        onDone?.call();
-      },
-    );
+    utf8.decoder
+        .bind(socket)
+        .listen(
+          (chunk) {
+            buffer.write(chunk);
+            final raw = buffer.toString();
+            final lines = raw.split('\n');
+            buffer.clear();
+            if (!raw.endsWith('\n')) {
+              buffer.write(lines.removeLast());
+            } else {
+              lines.removeLast();
+            }
+            for (final line in lines) {
+              if (line.isEmpty) continue;
+              final packet = GamePacket.tryParse(line);
+              if (packet != null) onPacketReceived?.call(packet);
+            }
+          },
+          onDone: onDone,
+          onError: (e) {
+            AppLogger.error('Socket error', error: e, tag: 'Connection');
+            onDone?.call();
+          },
+        );
   }
 
   Future<void> dispose() async {

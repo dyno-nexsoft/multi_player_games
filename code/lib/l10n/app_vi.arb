@@ -1,0 +1,48 @@
+{
+  "@@locale": "vi",
+  "appName": "Party Game Hub",
+  "host": "Host",
+  "client": "Client",
+
+  "lobbyTitle": "🎮 Party Game Hub",
+  "yourNameLabel": "Tên của bạn",
+  "roomNameLabel": "Tên phòng (Host)",
+  "createRoomBtn": "Tạo Phòng (Host)",
+  "findRoomBtn": "Tìm Phòng (Join)",
+
+  "discoverTitle": "Tìm Phòng",
+  "searchingRooms": "Đang tìm kiếm phòng...",
+  "joinBtn": "Tham gia",
+  "unknownRoom": "Phòng không xác định",
+
+  "roomTitle": "Phòng Chờ",
+  "selectMiniGame": "Chọn Mini-Game",
+  "startBtn": "Bắt đầu",
+
+  "scoreboardTitle": "🏆 Bảng Xếp Hạng",
+  "backToLobbyBtn": "Quay lại Phòng Chờ",
+  "pointsText": "{score} điểm",
+  "@pointsText": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+
+  "gameTugOfWarTitle": "Kéo Co Tốc Độ",
+  "gameTugOfWarDesc": "Nhấn nút liên tục để kéo sợi dây về phía bạn!",
+  "tugOfWarTapLabel": "TAP ĐI! ▼",
+  "winText": "🏆 THẮNG!",
+  "loseText": "😢 THUA!",
+
+  "gameSumoBumperTitle": "Húc Bóng Sinh Tồn",
+  "gameSumoBumperDesc": "Húc bay đối thủ ra khỏi vòng tròn sinh tồn!",
+
+  "gamePenaltyShootoutTitle": "Sút Phạt Đền",
+  "gamePenaltyShootoutDesc": "Sút bóng qua thủ môn để ghi bàn!",
+  "penaltyTapToShoot": "Tap để sút!",
+
+  "gameAirHockeyTitle": "Khúc Côn Cầu",
+  "gameAirHockeyDesc": "Đánh puck qua màn hình đối thủ — mỗi máy là một nửa sân!"
+}

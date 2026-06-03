@@ -9,11 +9,11 @@ class PaddleComponent extends PositionComponent {
   final Color color;
 
   PaddleComponent({required Vector2 position, required this.color})
-      : super(
-          position: position,
-          size: Vector2(paddleW, paddleH),
-          anchor: Anchor.center,
-        );
+    : super(
+        position: position,
+        size: Vector2(paddleW, paddleH),
+        anchor: Anchor.center,
+      );
 
   @override
   void render(Canvas canvas) {
