@@ -1,4 +1,5 @@
 import 'package:flame/game.dart';
+import 'package:party_game_hub/core/audio/audio_service.dart';
 import '../presentation/game_provider.dart';
 
 /// Interface chuẩn cho mọi mini-game Flame trong hệ thống.
@@ -16,6 +17,10 @@ abstract class BaseMiniGame extends FlameGame {
 
   /// Kết thúc trận đấu và báo kết quả lên GameProvider.
   void endMiniGame(Map<String, int> playerScores) {
+    final localId = gameProvider.lobbyProvider.localPlayer?.id;
+    final myScore = localId != null ? (playerScores[localId] ?? 0) : 0;
+    final best = playerScores.values.fold(0, (a, b) => a > b ? a : b);
+    myScore >= best ? AppAudio.playWin() : AppAudio.playLose();
     gameProvider.onMiniGameEnded(playerScores);
   }
 }

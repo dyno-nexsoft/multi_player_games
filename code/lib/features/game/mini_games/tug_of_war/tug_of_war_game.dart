@@ -1,5 +1,6 @@
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
+import 'package:party_game_hub/core/audio/audio_service.dart';
 import 'package:party_game_hub/l10n/app_localizations.dart';
 import '../../domain/base_mini_game.dart';
 import 'components/rope_component.dart';
@@ -118,6 +119,7 @@ class TugOfWarGame extends BaseMiniGame {
 
   void _onLocalTap() {
     if (_gameEnded) return;
+    AppAudio.playTap();
     if (gameProvider.lobbyProvider.isHost) {
       _ropePosition = (_ropePosition + _tapPower).clamp(-1.0, 1.0);
     } else {
@@ -179,6 +181,7 @@ class TugOfWarGame extends BaseMiniGame {
 
     final isMe = gameProvider.lobbyProvider.isHost;
     final iWin = (isMe && hostWins) || (!isMe && !hostWins);
+    iWin ? AppAudio.playWin() : AppAudio.playLose();
 
     final l10n = buildContext != null
         ? AppLocalizations.of(buildContext!)

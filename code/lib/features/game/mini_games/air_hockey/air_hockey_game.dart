@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flutter/material.dart';
+import 'package:party_game_hub/core/audio/audio_service.dart';
 
 import '../../domain/base_mini_game.dart';
 import 'components/paddle_component.dart';
@@ -201,6 +202,7 @@ class AirHockeyGame extends BaseMiniGame with DragCallbacks {
 
     // Va paddle mình (ở dưới)
     if (_checkPaddleCollision(_myPaddle)) {
+      AppAudio.playPuckHit();
       _puckVel.y = -_puckVel.y.abs() * _paddleBounce; // bật lên
       // Thêm spin theo offset so với tâm paddle
       final spin =
@@ -298,6 +300,7 @@ class AirHockeyGame extends BaseMiniGame with DragCallbacks {
   }
 
   void _onGoalScored() {
+    AppAudio.playGoal();
     // Đối thủ bị ghi bàn → mình +1
     _myScore++;
     _myScoreText.text = '$_myScore';

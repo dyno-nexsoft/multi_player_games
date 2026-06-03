@@ -1,5 +1,6 @@
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
+import 'package:party_game_hub/core/audio/audio_service.dart';
 import '../../domain/base_mini_game.dart';
 
 /// Húc Bóng Sinh Tồn — Host authoritative physics, Client gửi input joystick.
@@ -64,6 +65,7 @@ class SumoGame extends BaseMiniGame {
       _p2Pos += normal * (overlap / 2);
       final relVel = (_p2Vel - _p1Vel).dot(normal);
       if (relVel < 0) {
+        AppAudio.playBump();
         _p1Vel -= normal * relVel;
         _p2Vel += normal * relVel;
       }

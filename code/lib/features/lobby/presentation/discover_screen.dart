@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widget_previews.dart';
 import 'package:party_game_hub/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nsd/nsd.dart';
@@ -78,3 +79,38 @@ class _RoomList extends StatelessWidget {
     );
   }
 }
+
+// ── Previews ──────────────────────────────────────────────────────────────────
+
+Widget discoverPreviewWrapper(Widget child) => MaterialApp(
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  home: child,
+);
+
+@Preview(name: 'Discover – đang tìm phòng', wrapper: discoverPreviewWrapper)
+Widget previewDiscoverSearching() => const Scaffold(body: _EmptyState());
+
+@Preview(name: 'Discover – tìm thấy phòng', wrapper: discoverPreviewWrapper)
+Widget previewDiscoverRoomFound() => Scaffold(
+  appBar: AppBar(title: const Text('Tìm phòng')),
+  body: ListView(
+    padding: const EdgeInsets.all(16),
+    children: [
+      Card(
+        child: ListTile(
+          leading: const Icon(Icons.wifi),
+          title: const Text("Alice's Room"),
+          trailing: ElevatedButton(onPressed: null, child: const Text('Vào')),
+        ),
+      ),
+      Card(
+        child: ListTile(
+          leading: const Icon(Icons.wifi),
+          title: const Text("Bob's Room"),
+          trailing: ElevatedButton(onPressed: null, child: const Text('Vào')),
+        ),
+      ),
+    ],
+  ),
+);

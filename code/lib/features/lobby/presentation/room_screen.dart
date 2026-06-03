@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widget_previews.dart';
 import 'package:party_game_hub/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -140,6 +141,7 @@ class _GameCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     return Card(
       child: ListTile(
+        leading: MiniGameRegistry.iconFor(game.id).svg(width: 40, height: 40),
         title: Text(_getGameTitle(context, game.id)),
         subtitle: Text(_getGameDescription(context, game.id)),
         trailing: ElevatedButton(
@@ -150,3 +152,34 @@ class _GameCard extends StatelessWidget {
     );
   }
 }
+
+// ── Previews ──────────────────────────────────────────────────────────────────
+
+Widget roomPreviewWrapper(Widget child) => MaterialApp(
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  home: child,
+);
+
+@Preview(name: 'Player List – 3 người chơi', wrapper: roomPreviewWrapper)
+Widget previewPlayerList() => Scaffold(
+  appBar: AppBar(title: const Text('Phòng chờ')),
+  body: _PlayerList(
+    players: const [
+      Player(id: '1', name: 'Alice', isHost: true),
+      Player(id: '2', name: 'Bob'),
+      Player(id: '3', name: 'Charlie'),
+    ],
+  ),
+);
+
+@Preview(name: 'Game Card – Kéo Co', wrapper: roomPreviewWrapper)
+Widget previewGameCard() => Scaffold(
+  body: Padding(
+    padding: const EdgeInsets.all(16),
+    child: _GameCard(
+      game: MiniGameRegistry.availableGames.first,
+      lobby: LobbyProvider(),
+    ),
+  ),
+);

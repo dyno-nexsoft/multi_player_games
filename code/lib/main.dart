@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:party_game_hub/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
+import 'core/audio/audio_service.dart';
 import 'core/localization/locale_provider.dart';
 import 'core/theme/app_theme.dart';
 import 'features/game/presentation/game_provider.dart';
 import 'features/lobby/presentation/lobby_provider.dart';
 import 'router.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await AppAudio.preload();
   runApp(const PartyGameHubApp());
 }
 

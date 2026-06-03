@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/widget_previews.dart';
+import 'package:party_game_hub/core/audio/audio_service.dart';
 
 /// Overlay đếm ngược 3-2-1-GO! hiển thị trước khi game bắt đầu.
 /// Dùng chung cho mọi mini-game qua GameWidget overlayBuilderMap.
@@ -47,6 +49,12 @@ class _CountdownOverlayState extends State<CountdownOverlay>
 
   void _startStep() {
     _controller.forward(from: 0);
+    final isGo = _index == _steps.length - 1;
+    if (isGo) {
+      AppAudio.playCountdownGo();
+    } else {
+      AppAudio.playCountdownBeep();
+    }
     _stepTimer = Timer(const Duration(milliseconds: 900), () {
       if (!mounted) return;
       if (_index < _steps.length - 1) {
@@ -99,3 +107,19 @@ class _CountdownOverlayState extends State<CountdownOverlay>
     );
   }
 }
+
+// ── Previews ──────────────────────────────────────────────────────────────────
+
+void _countdownNoOp() {}
+
+@Preview(name: 'Countdown Overlay – animated')
+Widget previewCountdownOverlay() => MaterialApp(
+  theme: ThemeData.dark(),
+  home: Scaffold(
+    body: SizedBox(
+      width: 375,
+      height: 667,
+      child: CountdownOverlay(onComplete: _countdownNoOp),
+    ),
+  ),
+);

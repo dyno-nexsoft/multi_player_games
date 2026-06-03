@@ -1,5 +1,6 @@
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
+import 'package:party_game_hub/core/audio/audio_service.dart';
 import 'package:party_game_hub/l10n/app_localizations.dart';
 import '../../domain/base_mini_game.dart';
 import 'components/soccer_ball.dart';
@@ -61,6 +62,7 @@ class PenaltyGame extends BaseMiniGame with TapCallbacks {
       final dx = (tapX - 200) / 200; // normalize -1..1
       _ballVelocity = Vector2(dx * 80, -300);
       _shooting = true;
+      AppAudio.playKick();
       gameProvider.sendGameData(gameId, {'action': 'shoot', 'dx': dx});
     }
   }
@@ -83,7 +85,10 @@ class PenaltyGame extends BaseMiniGame with TapCallbacks {
     final handX = _hand.position.x;
     final saved = (ballX - handX).abs() < 50;
 
-    if (!saved) _score++;
+    if (!saved) {
+      _score++;
+      AppAudio.playGoal();
+    }
     _round++;
 
     if (_round >= _maxRounds) {

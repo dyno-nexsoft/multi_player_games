@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widget_previews.dart';
 import 'package:party_game_hub/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -118,12 +119,16 @@ class _LanguageToggle extends StatelessWidget {
             color: const Color(0xFF1E1E2E),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.3),
               width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.1),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -209,3 +214,65 @@ class _ActionButton extends StatelessWidget {
     );
   }
 }
+
+// ── Previews ──────────────────────────────────────────────────────────────────
+
+Widget lobbyPreviewWrapper(Widget child) => ChangeNotifierProvider(
+  create: (_) => LocaleProvider(),
+  child: MaterialApp(
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
+    home: child,
+  ),
+);
+
+@Preview(name: 'Lobby Screen', wrapper: lobbyPreviewWrapper)
+Widget previewLobbyScreen() => const LobbyScreen();
+
+@Preview(name: 'Action Button – Create Room')
+Widget previewActionButtonCreate() => MaterialApp(
+  home: Scaffold(
+    body: Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: _ActionButton(
+          label: 'Create Room',
+          icon: Icons.wifi_tethering,
+          onPressed: () {},
+        ),
+      ),
+    ),
+  ),
+);
+
+@Preview(name: 'Action Button – Find Room')
+Widget previewActionButtonFind() => MaterialApp(
+  home: Scaffold(
+    body: Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: _ActionButton(
+          label: 'Find Room',
+          icon: Icons.search,
+          onPressed: () {},
+          color: Colors.deepPurple,
+        ),
+      ),
+    ),
+  ),
+);
+
+@Preview(name: 'Text Field – Player Name')
+Widget previewTextField() => MaterialApp(
+  home: Scaffold(
+    body: Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: _TextField(
+          controller: TextEditingController(text: 'Player 1'),
+          label: 'Your Name',
+        ),
+      ),
+    ),
+  ),
+);

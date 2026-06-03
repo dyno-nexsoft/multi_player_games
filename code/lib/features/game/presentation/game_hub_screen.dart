@@ -1,5 +1,6 @@
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widget_previews.dart';
 import 'package:party_game_hub/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -139,3 +140,33 @@ class _RankTile extends StatelessWidget {
     );
   }
 }
+
+// ── Previews ──────────────────────────────────────────────────────────────────
+
+Widget gameHubPreviewWrapper(Widget child) => ChangeNotifierProvider(
+  create: (_) => LobbyProvider(),
+  child: MaterialApp(
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
+    home: child,
+  ),
+);
+
+@Preview(name: 'Rank Tile – top 3', wrapper: gameHubPreviewWrapper)
+Widget previewRankTiles() => Scaffold(
+  body: Padding(
+    padding: const EdgeInsets.all(16),
+    child: Column(
+      children: const [
+        _RankTile(rank: 1, player: Player(id: '1', name: 'Alice', isHost: true), score: 150),
+        _RankTile(rank: 2, player: Player(id: '2', name: 'Bob'), score: 90),
+        _RankTile(rank: 3, player: Player(id: '3', name: 'Charlie'), score: 60),
+      ],
+    ),
+  ),
+);
+
+@Preview(name: 'Scoreboard – bảng điểm', wrapper: gameHubPreviewWrapper)
+Widget previewScoreboard() => _ScoreboardScreen(
+  scores: const {'1': 150, '2': 90, '3': 60},
+);
