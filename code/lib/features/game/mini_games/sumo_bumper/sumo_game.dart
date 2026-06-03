@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
@@ -97,8 +99,8 @@ class SumoGame extends BaseMiniGame {
       final angle = (payload['angle'] as num).toDouble();
       final forceMag = (payload['force'] as num).toDouble();
       _p2Vel += Vector2(
-        forceMag * _force * (angle * 0.1),
-        forceMag * _force * (angle * 0.1),
+        forceMag * _force * math.cos(angle) * 0.1,
+        forceMag * _force * math.sin(angle) * 0.1,
       );
     } else if (action == 'sync') {
       final p1 = payload['p1'] as List;

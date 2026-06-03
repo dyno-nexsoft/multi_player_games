@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:nsd/nsd.dart';
+
 import '../../../core/network/game_packet.dart';
 import '../../../core/utils/app_logger.dart';
 import '../data/connection_repository.dart';
@@ -24,6 +25,8 @@ class LobbyProvider extends ChangeNotifier {
 
   final List<Service> _discoveredRooms = [];
   List<Service> get discoveredRooms => List.unmodifiable(_discoveredRooms);
+
+  StreamSubscription<Service>? _discoverySubscription;
 
   String? _pendingGameId;
   String? get pendingGameId => _pendingGameId;
@@ -67,7 +70,8 @@ class LobbyProvider extends ChangeNotifier {
     _discoveredRooms.clear();
     _repo.onPacketReceived = _handleIncomingPacket;
 
-    _repo.discoveredServices.listen((service) {
+    await _discoverySubscription?.cancel();
+    _discoverySubscription = _repo.discoveredServices.listen((service) {
       _discoveredRooms.add(service);
       notifyListeners();
     });
@@ -149,6 +153,7 @@ class LobbyProvider extends ChangeNotifier {
 
   @override
   void dispose() {
+    _discoverySubscription?.cancel();
     _repo.dispose();
     super.dispose();
   }

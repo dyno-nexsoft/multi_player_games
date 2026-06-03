@@ -21,6 +21,14 @@ class TugOfWarGame extends BaseMiniGame {
   double _syncTimer = 0;
   double _timeLeft = _gameDuration;
   bool _gameEnded = false;
+  bool _cancelled = false;
+
+  static final _timerPaintNormal = TextPaint(
+    style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
+  );
+  static final _timerPaintUrgent = TextPaint(
+    style: const TextStyle(color: Colors.red, fontSize: 28, fontWeight: FontWeight.bold),
+  );
 
   late RopeComponent _rope;
   late TextComponent _timerText;
@@ -162,13 +170,8 @@ class TugOfWarGame extends BaseMiniGame {
     _rope.ropePosition = _ropePosition;
     _powerBar.ropePosition = _ropePosition;
     _timerText.text = _timeLeft.ceil().toString();
-    _timerText.textRenderer = TextPaint(
-      style: TextStyle(
-        color: _timeLeft <= 5 ? Colors.red : Colors.white,
-        fontSize: 28,
-        fontWeight: FontWeight.bold,
-      ),
-    );
+    _timerText.textRenderer =
+        _timeLeft <= 5 ? _timerPaintUrgent : _timerPaintNormal;
   }
 
   void _resolveByTime() {
@@ -179,9 +182,8 @@ class TugOfWarGame extends BaseMiniGame {
     if (_gameEnded) return;
     _gameEnded = true;
 
-    final isMe = gameProvider.lobbyProvider.isHost;
-    final iWin = (isMe && hostWins) || (!isMe && !hostWins);
-    iWin ? AppAudio.playWin() : AppAudio.playLose();
+    final isHost = gameProvider.lobbyProvider.isHost;
+    final iWin = (isHost && hostWins) || (!isHost && !hostWins);
 
     final l10n = buildContext != null
         ? AppLocalizations.of(buildContext!)
@@ -190,14 +192,29 @@ class TugOfWarGame extends BaseMiniGame {
         ? (l10n?.winText ?? '🏆 THẮNG!')
         : (l10n?.loseText ?? '😢 THUA!');
 
-    if (gameProvider.lobbyProvider.isHost) {
+    if (isHost) {
+      // Thông báo client kết quả trước khi dừng gửi state packets
+      gameProvider.sendGameData(gameId, {'action': 'game_over', 'host_wins': hostWins});
+
       final players = gameProvider.lobbyProvider.players;
       final scores = <String, int>{};
       for (final p in players) {
         scores[p.id] = (p.isHost == hostWins) ? 100 : 0;
       }
-      Future.delayed(const Duration(seconds: 2), () => endMiniGame(scores));
+      // endMiniGame trong base class sẽ phát win/lose audio cho host
+      Future.delayed(const Duration(seconds: 2), () {
+        if (!_cancelled) endMiniGame(scores);
+      });
+    } else {
+      // Client tự phát audio vì không đi qua endMiniGame
+      iWin ? AppAudio.playWin() : AppAudio.playLose();
     }
+  }
+
+  @override
+  void onDetach() {
+    _cancelled = true;
+    super.onDetach();
   }
 
   @override
@@ -208,6 +225,9 @@ class TugOfWarGame extends BaseMiniGame {
     } else if (action == 'state') {
       _ropePosition = (payload['rope'] as num).toDouble();
       _timeLeft = (payload['time'] as num).toDouble();
+    } else if (action == 'game_over') {
+      final hostWins = payload['host_wins'] as bool;
+      _endGame(hostWins: hostWins);
     }
   }
 }

@@ -20,7 +20,10 @@ abstract class BaseMiniGame extends FlameGame {
     final localId = gameProvider.lobbyProvider.localPlayer?.id;
     final myScore = localId != null ? (playerScores[localId] ?? 0) : 0;
     final best = playerScores.values.fold(0, (a, b) => a > b ? a : b);
-    myScore >= best ? AppAudio.playWin() : AppAudio.playLose();
+    // Không phát audio nếu tất cả điểm bằng 0 (hòa / không có ai ghi điểm)
+    if (best > 0) {
+      myScore >= best ? AppAudio.playWin() : AppAudio.playLose();
+    }
     gameProvider.onMiniGameEnded(playerScores);
   }
 }

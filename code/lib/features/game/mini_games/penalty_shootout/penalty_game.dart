@@ -101,6 +101,7 @@ class PenaltyGame extends BaseMiniGame with TapCallbacks {
 
   void _finishGame() {
     _roundOver = true;
+    if (!gameProvider.lobbyProvider.isHost) return;
     final players = gameProvider.lobbyProvider.players;
     final scores = <String, int>{};
     for (final p in players) {

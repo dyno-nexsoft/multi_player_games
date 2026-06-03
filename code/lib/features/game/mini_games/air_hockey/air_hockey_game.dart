@@ -49,6 +49,9 @@ class AirHockeyGame extends BaseMiniGame with DragCallbacks {
   // ── Timers ───────────────────────────────────────────────────────────────
   double _syncTimer = 0;
   double _resetTimer = -1; // >= 0 → đang đếm reset sau khi ghi bàn
+  double _paddleSyncTimer = 0;
+  double? _pendingPaddleX; // buffered by onDragUpdate, flushed at 20Hz
+  static const double _paddleSyncHz = 1 / 20;
 
   // ── Components ───────────────────────────────────────────────────────────
   late PuckComponent _puckComp;
@@ -153,8 +156,7 @@ class AirHockeyGame extends BaseMiniGame with DragCallbacks {
       gameW - PaddleComponent.paddleW / 2,
     );
     _myPaddle.position.x = x;
-
-    gameProvider.sendGameData(gameId, {'action': 'paddle', 'x': x / gameW});
+    _pendingPaddleX = x / gameW; // buffer — flushed at 20Hz in update()
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -168,6 +170,16 @@ class AirHockeyGame extends BaseMiniGame with DragCallbacks {
       _resetTimer -= dt;
       if (_resetTimer < 0) _doReset();
       return;
+    }
+
+    // Paddle position — rate-limited to 20Hz
+    if (_pendingPaddleX != null) {
+      _paddleSyncTimer += dt;
+      if (_paddleSyncTimer >= _paddleSyncHz) {
+        _paddleSyncTimer = 0;
+        gameProvider.sendGameData(gameId, {'action': 'paddle', 'x': _pendingPaddleX!});
+        _pendingPaddleX = null;
+      }
     }
 
     if (_isPuckOwner) {
