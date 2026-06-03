@@ -60,7 +60,13 @@ class _LobbyScreenState extends State<LobbyScreen> {
                         controller: _roomController,
                         label: l10n.roomNameLabel,
                       ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 20),
+                      _ColorPicker(
+                        selected: context.watch<LobbyProvider>().selectedColor,
+                        onChanged: (c) =>
+                            context.read<LobbyProvider>().setColor(c),
+                      ),
+                      const SizedBox(height: 24),
                       _ActionButton(
                         label: l10n.createRoomBtn,
                         icon: Icons.wifi_tethering,
@@ -72,6 +78,13 @@ class _LobbyScreenState extends State<LobbyScreen> {
                         icon: Icons.search,
                         color: Theme.of(context).colorScheme.secondary,
                         onPressed: () => _joinRoom(context),
+                      ),
+                      const SizedBox(height: 12),
+                      _ActionButton(
+                        label: l10n.scanQrBtn,
+                        icon: Icons.qr_code_scanner,
+                        color: Theme.of(context).colorScheme.tertiary,
+                        onPressed: () => _scanQr(context),
                       ),
                     ],
                   ),
@@ -97,6 +110,13 @@ class _LobbyScreenState extends State<LobbyScreen> {
     final lobby = context.read<LobbyProvider>();
     await lobby.discoverRooms(_nameController.text.trim());
     if (context.mounted) context.push('/discover');
+  }
+
+  Future<void> _scanQr(BuildContext context) async {
+    final lobby = context.read<LobbyProvider>();
+    // Khởi tạo local player trước khi mở scanner
+    await lobby.discoverRooms(_nameController.text.trim());
+    if (context.mounted) context.push('/qr-scan');
   }
 }
 
@@ -186,7 +206,7 @@ class _TextField extends StatelessWidget {
   }
 }
 
-class _ActionButton extends StatelessWidget {
+class _ActionButton extends StatefulWidget {
   final String label;
   final IconData icon;
   final VoidCallback onPressed;
@@ -200,17 +220,80 @@ class _ActionButton extends StatelessWidget {
   });
 
   @override
+  State<_ActionButton> createState() => _ActionButtonState();
+}
+
+class _ActionButtonState extends State<_ActionButton> {
+  bool _pressed = false;
+
+  @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton.icon(
-        onPressed: onPressed,
-        icon: Icon(icon),
-        label: Text(label),
-        style: color != null
-            ? ElevatedButton.styleFrom(backgroundColor: color)
-            : null,
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) => setState(() => _pressed = false),
+      onTapCancel: () => setState(() => _pressed = false),
+      child: AnimatedScale(
+        scale: _pressed ? 0.96 : 1.0,
+        duration: const Duration(milliseconds: 80),
+        child: SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: widget.onPressed,
+            icon: Icon(widget.icon),
+            label: Text(widget.label),
+            style: widget.color != null
+                ? ElevatedButton.styleFrom(backgroundColor: widget.color)
+                : null,
+          ),
+        ),
       ),
+    );
+  }
+}
+
+class _ColorPicker extends StatelessWidget {
+  static const _colors = [
+    0xFF6C63FF, // purple
+    0xFFFF6584, // pink
+    0xFFFF6B35, // orange
+    0xFF4CAF50, // green
+    0xFF2196F3, // blue
+    0xFFFFD700, // yellow
+    0xFFE53935, // red
+    0xFF009688, // teal
+  ];
+
+  final int selected;
+  final ValueChanged<int> onChanged;
+
+  const _ColorPicker({required this.selected, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: _colors.map((c) {
+        final isSelected = c == selected;
+        return GestureDetector(
+          onTap: () => onChanged(c),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            margin: const EdgeInsets.symmetric(horizontal: 5),
+            width: isSelected ? 36 : 28,
+            height: isSelected ? 36 : 28,
+            decoration: BoxDecoration(
+              color: Color(c),
+              shape: BoxShape.circle,
+              border: isSelected
+                  ? Border.all(color: Colors.white, width: 3)
+                  : null,
+              boxShadow: isSelected
+                  ? [BoxShadow(color: Color(c).withValues(alpha: 0.6), blurRadius: 8)]
+                  : null,
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 }

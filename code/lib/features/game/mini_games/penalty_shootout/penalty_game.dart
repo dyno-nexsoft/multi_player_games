@@ -1,5 +1,6 @@
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
+import 'package:flutter/services.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
 import 'package:party_game_hub/l10n/app_localizations.dart';
 import '../../domain/base_mini_game.dart';
@@ -63,6 +64,7 @@ class PenaltyGame extends BaseMiniGame with TapCallbacks {
       _ballVelocity = Vector2(dx * 80, -300);
       _shooting = true;
       AppAudio.playKick();
+      HapticFeedback.mediumImpact();
       gameProvider.sendGameData(gameId, {'action': 'shoot', 'dx': dx});
     }
   }

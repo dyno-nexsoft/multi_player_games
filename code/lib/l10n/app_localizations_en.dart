@@ -33,6 +33,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get findRoomBtn => 'Find Room (Join)';
 
   @override
+  String get scanQrBtn => 'Scan QR to Join';
+
+  @override
   String get discoverTitle => 'Find Room';
 
   @override
@@ -58,6 +61,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backToLobbyBtn => 'Back to Lobby Room';
+
+  @override
+  String get rematchBtn => 'Play Again';
+
+  @override
+  String get nextRoundBtn => 'Next Round';
+
+  @override
+  String seriesRound(int current, int total) {
+    return 'Round $current/$total';
+  }
+
+  @override
+  String seriesWins(int wins) {
+    return '$wins wins';
+  }
 
   @override
   String pointsText(int score) {
@@ -102,4 +121,46 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get gameAirHockeyDesc =>
       'Hit the puck into opponent\'s screen — each phone is half of the rink!';
+
+  @override
+  String get gameDrawGuessTitle => 'Draw & Guess';
+
+  @override
+  String get gameDrawGuessDesc =>
+      'Draw a word, opponent guesses — alternate roles across 5 words!';
+
+  @override
+  String get gameReactionTapTitle => 'Reaction Tap';
+
+  @override
+  String get gameReactionTapDesc =>
+      'Tap the moment the screen flashes — fastest wins the round!';
+
+  @override
+  String get gameMinesweeperTitle => 'Minesweeper Race';
+
+  @override
+  String get gameMinesweeperDesc =>
+      'Reveal the most safe cells in 60s — avoid the mines!';
+
+  @override
+  String get gameBilliardsTitle => '9-Ball Billiards';
+
+  @override
+  String get gameBilliardsDesc =>
+      'Pocket balls in order — score more than your opponent to win!';
+
+  @override
+  String get gameBattleshipTitle => 'Space Naval Battle';
+
+  @override
+  String get gameBattleshipDesc =>
+      'Place ships secretly, then hunt down the enemy fleet!';
+
+  @override
+  String get gameHotPotatoTitle => 'Hot Potato Bomb';
+
+  @override
+  String get gameHotPotatoDesc =>
+      'Swipe to throw the ticking bomb before it explodes!';
 }

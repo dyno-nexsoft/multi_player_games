@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <rect x="6" y="6" width="52" height="52" rx="4" fill="#1A1A2E" stroke="#6C63FF" stroke-width="1.5"/>
+  <!-- Grid lines -->
+  <line x1="19" y1="6" x2="19" y2="58" stroke="#6C63FF" stroke-width="0.5" opacity="0.4"/>
+  <line x1="32" y1="6" x2="32" y2="58" stroke="#6C63FF" stroke-width="0.5" opacity="0.4"/>
+  <line x1="45" y1="6" x2="45" y2="58" stroke="#6C63FF" stroke-width="0.5" opacity="0.4"/>
+  <line x1="6" y1="19" x2="58" y2="19" stroke="#6C63FF" stroke-width="0.5" opacity="0.4"/>
+  <line x1="6" y1="32" x2="58" y2="32" stroke="#6C63FF" stroke-width="0.5" opacity="0.4"/>
+  <line x1="6" y1="45" x2="58" y2="45" stroke="#6C63FF" stroke-width="0.5" opacity="0.4"/>
+  <!-- Revealed cells -->
+  <rect x="7" y="7" width="11" height="11" rx="2" fill="#2D2D44"/>
+  <text x="12.5" y="17" font-size="9" fill="#2196F3" text-anchor="middle" font-weight="bold">2</text>
+  <rect x="20" y="7" width="11" height="11" rx="2" fill="#2D2D44"/>
+  <text x="25.5" y="17" font-size="9" fill="#4CAF50" text-anchor="middle" font-weight="bold">1</text>
+  <!-- Mine cell -->
+  <rect x="33" y="20" width="11" height="11" rx="2" fill="#4A1515"/>
+  <circle cx="38.5" cy="25.5" r="4" fill="#E53935"/>
+  <line x1="38.5" y1="20" x2="38.5" y2="22" stroke="#E53935" stroke-width="1.5"/>
+  <line x1="38.5" y1="29" x2="38.5" y2="31" stroke="#E53935" stroke-width="1.5"/>
+  <line x1="33" y1="25.5" x2="35" y2="25.5" stroke="#E53935" stroke-width="1.5"/>
+  <line x1="42" y1="25.5" x2="44" y2="25.5" stroke="#E53935" stroke-width="1.5"/>
+  <!-- Flag -->
+  <rect x="46" y="33" width="11" height="11" rx="2" fill="#2D2D44"/>
+  <line x1="50" y1="42" x2="50" y2="35" stroke="#aaa" stroke-width="1.5"/>
+  <path d="M50 35 L55 37.5 L50 40 Z" fill="#FF6B35"/>
+</svg>

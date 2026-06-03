@@ -12,6 +12,9 @@ abstract class Player with _$Player {
     required String name,
     @Default(false) bool isHost,
     @Default(0) int score,
+    @Default(0xFF6C63FF) int color,
+    /// 0-based seat index — used by games to assign roles for 3+ players.
+    @Default(0) int playerIndex,
   }) = _Player;
 
   /// Creates a [Player] instance from a JSON map.

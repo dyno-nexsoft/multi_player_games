@@ -2,23 +2,55 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 abstract class AppTheme {
+  // ── Brand colours ──────────────────────────────────────────────────────────
+  static const neonPurple = Color(0xFF6C63FF);
+  static const neonPink   = Color(0xFFFF6584);
+  static const neonCyan   = Color(0xFF00D9FF);
+  static const bgDeep     = Color(0xFF11111B);
+  static const bgSurface  = Color(0xFF1E1E2E);
+
+  // ── Glow helpers ───────────────────────────────────────────────────────────
+  /// Returns a `List<BoxShadow>` that creates a neon glow effect.
+  static List<BoxShadow> glowShadow(Color color, {double spread = 0, double blur = 14}) => [
+    BoxShadow(color: color.withValues(alpha: 0.55), blurRadius: blur, spreadRadius: spread),
+    BoxShadow(color: color.withValues(alpha: 0.25), blurRadius: blur * 2, spreadRadius: spread),
+  ];
+
+  /// BoxDecoration for a glassmorphism surface.
+  static BoxDecoration glassmorphism({
+    Color? borderColor,
+    double borderRadius = 16,
+    double bgOpacity = 0.72,
+  }) {
+    final b = borderColor ?? neonPurple;
+    return BoxDecoration(
+      color: bgSurface.withValues(alpha: bgOpacity),
+      borderRadius: BorderRadius.circular(borderRadius),
+      border: Border.all(color: b.withValues(alpha: 0.35), width: 1.5),
+      boxShadow: [BoxShadow(color: b.withValues(alpha: 0.10), blurRadius: 12)],
+    );
+  }
+
+  // ── Theme ──────────────────────────────────────────────────────────────────
   static ThemeData get light {
     const colorScheme = ColorScheme(
       brightness: Brightness.dark,
-      primary: Color(0xFF6C63FF),
+      primary: neonPurple,
       onPrimary: Colors.white,
-      secondary: Color(0xFFFF6584),
+      secondary: neonPink,
       onSecondary: Colors.white,
+      tertiary: neonCyan,
+      onTertiary: Colors.black,
       error: Color(0xFFCF6679),
       onError: Colors.white,
-      surface: Color(0xFF1E1E2E),
+      surface: bgSurface,
       onSurface: Color(0xFFCDD6F4),
     );
 
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: const Color(0xFF11111B),
+      scaffoldBackgroundColor: bgDeep,
       textTheme: GoogleFonts.nunitoTextTheme(
         ThemeData(brightness: Brightness.dark).textTheme,
       ),
@@ -37,9 +69,28 @@ abstract class AppTheme {
         ),
       ),
       cardTheme: CardThemeData(
-        color: const Color(0xFF1E1E2E),
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        color: bgSurface,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: neonPurple.withValues(alpha: 0.2), width: 1),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: bgSurface,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: neonPurple.withValues(alpha: 0.3)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: neonPurple.withValues(alpha: 0.25)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: neonPurple, width: 1.5),
+        ),
       ),
     );
   }

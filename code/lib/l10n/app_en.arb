@@ -9,6 +9,7 @@
   "roomNameLabel": "Room Name (Host)",
   "createRoomBtn": "Create Room (Host)",
   "findRoomBtn": "Find Room (Join)",
+  "scanQrBtn": "Scan QR to Join",
 
   "discoverTitle": "Find Room",
   "searchingRooms": "Searching for rooms...",
@@ -21,6 +22,21 @@
 
   "scoreboardTitle": "🏆 Leaderboard",
   "backToLobbyBtn": "Back to Lobby Room",
+  "rematchBtn": "Play Again",
+  "nextRoundBtn": "Next Round",
+  "seriesRound": "Round {current}/{total}",
+  "@seriesRound": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "seriesWins": "{wins} wins",
+  "@seriesWins": {
+    "placeholders": {
+      "wins": { "type": "int" }
+    }
+  },
   "pointsText": "{score} pts",
   "@pointsText": {
     "placeholders": {
@@ -44,5 +60,23 @@
   "penaltyTapToShoot": "Tap to shoot!",
 
   "gameAirHockeyTitle": "Air Hockey",
-  "gameAirHockeyDesc": "Hit the puck into opponent's screen — each phone is half of the rink!"
+  "gameAirHockeyDesc": "Hit the puck into opponent's screen — each phone is half of the rink!",
+
+  "gameDrawGuessTitle": "Draw & Guess",
+  "gameDrawGuessDesc": "Draw a word, opponent guesses — alternate roles across 5 words!",
+
+  "gameReactionTapTitle": "Reaction Tap",
+  "gameReactionTapDesc": "Tap the moment the screen flashes — fastest wins the round!",
+
+  "gameMinesweeperTitle": "Minesweeper Race",
+  "gameMinesweeperDesc": "Reveal the most safe cells in 60s — avoid the mines!",
+
+  "gameBilliardsTitle": "9-Ball Billiards",
+  "gameBilliardsDesc": "Pocket balls in order — score more than your opponent to win!",
+
+  "gameBattleshipTitle": "Space Naval Battle",
+  "gameBattleshipDesc": "Place ships secretly, then hunt down the enemy fleet!",
+
+  "gameHotPotatoTitle": "Hot Potato Bomb",
+  "gameHotPotatoDesc": "Swipe to throw the ticking bomb before it explodes!"
 }

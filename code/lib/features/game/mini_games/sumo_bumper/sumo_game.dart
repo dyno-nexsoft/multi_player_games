@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
 import '../../domain/base_mini_game.dart';
 
@@ -68,6 +69,7 @@ class SumoGame extends BaseMiniGame {
       final relVel = (_p2Vel - _p1Vel).dot(normal);
       if (relVel < 0) {
         AppAudio.playBump();
+        HapticFeedback.mediumImpact();
         _p1Vel -= normal * relVel;
         _p2Vel += normal * relVel;
       }

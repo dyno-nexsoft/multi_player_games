@@ -9,6 +9,7 @@
   "roomNameLabel": "Tên phòng (Host)",
   "createRoomBtn": "Tạo Phòng (Host)",
   "findRoomBtn": "Tìm Phòng (Join)",
+  "scanQrBtn": "Quét QR để vào phòng",
 
   "discoverTitle": "Tìm Phòng",
   "searchingRooms": "Đang tìm kiếm phòng...",
@@ -21,6 +22,21 @@
 
   "scoreboardTitle": "🏆 Bảng Xếp Hạng",
   "backToLobbyBtn": "Quay lại Phòng Chờ",
+  "rematchBtn": "Chơi Lại",
+  "nextRoundBtn": "Hiệp Tiếp",
+  "seriesRound": "Hiệp {current}/{total}",
+  "@seriesRound": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "seriesWins": "{wins} thắng",
+  "@seriesWins": {
+    "placeholders": {
+      "wins": { "type": "int" }
+    }
+  },
   "pointsText": "{score} điểm",
   "@pointsText": {
     "placeholders": {
@@ -44,5 +60,23 @@
   "penaltyTapToShoot": "Tap để sút!",
 
   "gameAirHockeyTitle": "Khúc Côn Cầu",
-  "gameAirHockeyDesc": "Đánh puck qua màn hình đối thủ — mỗi máy là một nửa sân!"
+  "gameAirHockeyDesc": "Đánh puck qua màn hình đối thủ — mỗi máy là một nửa sân!",
+
+  "gameDrawGuessTitle": "Vẽ & Đoán",
+  "gameDrawGuessDesc": "Vẽ hình, đối thủ đoán từ — xen kẽ vai trò qua 5 từ!",
+
+  "gameReactionTapTitle": "Phản Xạ Thần Tốc",
+  "gameReactionTapDesc": "Tap ngay khi màn hình sáng lên — ai nhanh hơn thắng!",
+
+  "gameMinesweeperTitle": "Dò Mìn Tốc Độ",
+  "gameMinesweeperDesc": "Reveal ô trống nhiều nhất trong 60s, tránh mìn!",
+
+  "gameBilliardsTitle": "Bi-a 9 Ball",
+  "gameBilliardsDesc": "Bỏ túi ball theo thứ tự — ai gom điểm nhiều hơn thắng!",
+
+  "gameBattleshipTitle": "Hải Chiến Không Gian",
+  "gameBattleshipDesc": "Đặt tàu bí mật, bắn hạ hạm đội đối thủ!",
+
+  "gameHotPotatoTitle": "Bảo Mìn Hẹn Giờ",
+  "gameHotPotatoDesc": "Vuốt để ném bom sang đối thủ trước khi nổ!"
 }

@@ -146,6 +146,12 @@ abstract class AppLocalizations {
   /// **'Tìm Phòng (Join)'**
   String get findRoomBtn;
 
+  /// No description provided for @scanQrBtn.
+  ///
+  /// In vi, this message translates to:
+  /// **'Quét QR để vào phòng'**
+  String get scanQrBtn;
+
   /// No description provided for @discoverTitle.
   ///
   /// In vi, this message translates to:
@@ -199,6 +205,30 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'Quay lại Phòng Chờ'**
   String get backToLobbyBtn;
+
+  /// No description provided for @rematchBtn.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chơi Lại'**
+  String get rematchBtn;
+
+  /// No description provided for @nextRoundBtn.
+  ///
+  /// In vi, this message translates to:
+  /// **'Hiệp Tiếp'**
+  String get nextRoundBtn;
+
+  /// No description provided for @seriesRound.
+  ///
+  /// In vi, this message translates to:
+  /// **'Hiệp {current}/{total}'**
+  String seriesRound(int current, int total);
+
+  /// No description provided for @seriesWins.
+  ///
+  /// In vi, this message translates to:
+  /// **'{wins} thắng'**
+  String seriesWins(int wins);
 
   /// No description provided for @pointsText.
   ///
@@ -277,6 +307,78 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'Đánh puck qua màn hình đối thủ — mỗi máy là một nửa sân!'**
   String get gameAirHockeyDesc;
+
+  /// No description provided for @gameDrawGuessTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Vẽ & Đoán'**
+  String get gameDrawGuessTitle;
+
+  /// No description provided for @gameDrawGuessDesc.
+  ///
+  /// In vi, this message translates to:
+  /// **'Vẽ hình, đối thủ đoán từ — xen kẽ vai trò qua 5 từ!'**
+  String get gameDrawGuessDesc;
+
+  /// No description provided for @gameReactionTapTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Phản Xạ Thần Tốc'**
+  String get gameReactionTapTitle;
+
+  /// No description provided for @gameReactionTapDesc.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tap ngay khi màn hình sáng lên — ai nhanh hơn thắng!'**
+  String get gameReactionTapDesc;
+
+  /// No description provided for @gameMinesweeperTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Dò Mìn Tốc Độ'**
+  String get gameMinesweeperTitle;
+
+  /// No description provided for @gameMinesweeperDesc.
+  ///
+  /// In vi, this message translates to:
+  /// **'Reveal ô trống nhiều nhất trong 60s, tránh mìn!'**
+  String get gameMinesweeperDesc;
+
+  /// No description provided for @gameBilliardsTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bi-a 9 Ball'**
+  String get gameBilliardsTitle;
+
+  /// No description provided for @gameBilliardsDesc.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bỏ túi ball theo thứ tự — ai gom điểm nhiều hơn thắng!'**
+  String get gameBilliardsDesc;
+
+  /// No description provided for @gameBattleshipTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Hải Chiến Không Gian'**
+  String get gameBattleshipTitle;
+
+  /// No description provided for @gameBattleshipDesc.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đặt tàu bí mật, bắn hạ hạm đội đối thủ!'**
+  String get gameBattleshipDesc;
+
+  /// No description provided for @gameHotPotatoTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bảo Mìn Hẹn Giờ'**
+  String get gameHotPotatoTitle;
+
+  /// No description provided for @gameHotPotatoDesc.
+  ///
+  /// In vi, this message translates to:
+  /// **'Vuốt để ném bom sang đối thủ trước khi nổ!'**
+  String get gameHotPotatoDesc;
 }
 
 class _AppLocalizationsDelegate

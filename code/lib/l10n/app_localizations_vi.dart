@@ -33,6 +33,9 @@ class AppLocalizationsVi extends AppLocalizations {
   String get findRoomBtn => 'Tìm Phòng (Join)';
 
   @override
+  String get scanQrBtn => 'Quét QR để vào phòng';
+
+  @override
   String get discoverTitle => 'Tìm Phòng';
 
   @override
@@ -58,6 +61,22 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get backToLobbyBtn => 'Quay lại Phòng Chờ';
+
+  @override
+  String get rematchBtn => 'Chơi Lại';
+
+  @override
+  String get nextRoundBtn => 'Hiệp Tiếp';
+
+  @override
+  String seriesRound(int current, int total) {
+    return 'Hiệp $current/$total';
+  }
+
+  @override
+  String seriesWins(int wins) {
+    return '$wins thắng';
+  }
 
   @override
   String pointsText(int score) {
@@ -102,4 +121,44 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get gameAirHockeyDesc =>
       'Đánh puck qua màn hình đối thủ — mỗi máy là một nửa sân!';
+
+  @override
+  String get gameDrawGuessTitle => 'Vẽ & Đoán';
+
+  @override
+  String get gameDrawGuessDesc =>
+      'Vẽ hình, đối thủ đoán từ — xen kẽ vai trò qua 5 từ!';
+
+  @override
+  String get gameReactionTapTitle => 'Phản Xạ Thần Tốc';
+
+  @override
+  String get gameReactionTapDesc =>
+      'Tap ngay khi màn hình sáng lên — ai nhanh hơn thắng!';
+
+  @override
+  String get gameMinesweeperTitle => 'Dò Mìn Tốc Độ';
+
+  @override
+  String get gameMinesweeperDesc =>
+      'Reveal ô trống nhiều nhất trong 60s, tránh mìn!';
+
+  @override
+  String get gameBilliardsTitle => 'Bi-a 9 Ball';
+
+  @override
+  String get gameBilliardsDesc =>
+      'Bỏ túi ball theo thứ tự — ai gom điểm nhiều hơn thắng!';
+
+  @override
+  String get gameBattleshipTitle => 'Hải Chiến Không Gian';
+
+  @override
+  String get gameBattleshipDesc => 'Đặt tàu bí mật, bắn hạ hạm đội đối thủ!';
+
+  @override
+  String get gameHotPotatoTitle => 'Bảo Mìn Hẹn Giờ';
+
+  @override
+  String get gameHotPotatoDesc => 'Vuốt để ném bom sang đối thủ trước khi nổ!';
 }

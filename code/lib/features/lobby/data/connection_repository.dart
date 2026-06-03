@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:nsd/nsd.dart' as nsd;
 import '../../../core/network/game_packet.dart';
 import '../../../core/utils/app_logger.dart';
@@ -25,6 +25,7 @@ class ConnectionRepository {
 
   OnPacket? onPacketReceived;
   OnClientConnected? onClientConnected;
+  void Function()? onHostDisconnected;
 
   // ── Host ──────────────────────────────────────────────────────────────────
 
@@ -55,14 +56,20 @@ class ConnectionRepository {
   }
 
   void broadcastPacket(GamePacket packet) {
-    final wire = packet.toWire();
+    final frame = _frame(packet.toBytes());
     for (final s in List.of(_clients)) {
       try {
-        s.write(wire);
+        s.add(frame);
       } catch (e) {
         AppLogger.warning('Broadcast failed: $e', tag: 'Connection');
       }
     }
+  }
+
+  static Uint8List _frame(Uint8List payload) {
+    final header = Uint8List(4);
+    ByteData.view(header.buffer).setUint32(0, payload.length, Endian.big);
+    return Uint8List.fromList([...header, ...payload]);
   }
 
   // ── Client ────────────────────────────────────────────────────────────────
@@ -84,42 +91,54 @@ class ConnectionRepository {
 
     _hostSocket = await Socket.connect(host, port);
     AppLogger.info('Connected to host $host:$port', tag: 'Connection');
-    _listenSocket(_hostSocket!);
+    _listenSocket(_hostSocket!, onDone: () => onHostDisconnected?.call());
+  }
+
+  Future<void> connectToAddress(String ip, int port) async {
+    _hostSocket = await Socket.connect(ip, port);
+    AppLogger.info('QR-connected to $ip:$port', tag: 'Connection');
+    _listenSocket(_hostSocket!, onDone: () => onHostDisconnected?.call());
+  }
+
+  static Future<String?> localIpAddress() async {
+    for (final iface in await NetworkInterface.list()) {
+      for (final addr in iface.addresses) {
+        if (addr.type == InternetAddressType.IPv4 && !addr.isLoopback) {
+          return addr.address;
+        }
+      }
+    }
+    return null;
   }
 
   void sendPacket(GamePacket packet) {
-    _hostSocket?.write(packet.toWire());
+    _hostSocket?.add(_frame(packet.toBytes()));
   }
 
   // ── Shared ────────────────────────────────────────────────────────────────
 
   void _listenSocket(Socket socket, {void Function()? onDone}) {
-    final buffer = StringBuffer();
-    utf8.decoder
-        .bind(socket)
-        .listen(
-          (chunk) {
-            buffer.write(chunk);
-            final raw = buffer.toString();
-            final lines = raw.split('\n');
-            buffer.clear();
-            if (!raw.endsWith('\n')) {
-              buffer.write(lines.removeLast());
-            } else {
-              lines.removeLast();
-            }
-            for (final line in lines) {
-              if (line.isEmpty) continue;
-              final packet = GamePacket.tryParse(line);
-              if (packet != null) onPacketReceived?.call(packet);
-            }
-          },
-          onDone: onDone,
-          onError: (e) {
-            AppLogger.error('Socket error', error: e, tag: 'Connection');
-            onDone?.call();
-          },
-        );
+    final buf = <int>[];
+    socket.listen(
+      (data) {
+        buf.addAll(data);
+        while (buf.length >= 4) {
+          final len =
+              ByteData.view(Uint8List.fromList(buf.sublist(0, 4)).buffer)
+                  .getUint32(0, Endian.big);
+          if (buf.length < 4 + len) break;
+          final payload = Uint8List.fromList(buf.sublist(4, 4 + len));
+          buf.removeRange(0, 4 + len);
+          final packet = GamePacket.fromBytes(payload);
+          if (packet != null) onPacketReceived?.call(packet);
+        }
+      },
+      onDone: onDone,
+      onError: (e) {
+        AppLogger.error('Socket error', error: e, tag: 'Connection');
+        onDone?.call();
+      },
+    );
   }
 
   Future<void> dispose() async {

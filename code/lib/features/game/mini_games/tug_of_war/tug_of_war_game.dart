@@ -1,5 +1,8 @@
+import 'dart:ui' show lerpDouble;
+
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
 import 'package:party_game_hub/l10n/app_localizations.dart';
 import '../../domain/base_mini_game.dart';
@@ -128,9 +131,12 @@ class TugOfWarGame extends BaseMiniGame {
   void _onLocalTap() {
     if (_gameEnded) return;
     AppAudio.playTap();
+    HapticFeedback.lightImpact();
     if (gameProvider.lobbyProvider.isHost) {
       _ropePosition = (_ropePosition + _tapPower).clamp(-1.0, 1.0);
     } else {
+      // Client-side prediction: apply locally, server sẽ correct qua lerp
+      _ropePosition = (_ropePosition - _tapPower).clamp(-1.0, 1.0);
       gameProvider.sendGameData(gameId, {'action': 'tap'});
     }
   }
@@ -223,7 +229,9 @@ class TugOfWarGame extends BaseMiniGame {
     if (action == 'tap' && gameProvider.lobbyProvider.isHost) {
       _ropePosition = (_ropePosition - _tapPower).clamp(-1.0, 1.0);
     } else if (action == 'state') {
-      _ropePosition = (payload['rope'] as num).toDouble();
+      // Blend prediction về giá trị authoritative từ host
+      final serverPos = (payload['rope'] as num).toDouble();
+      _ropePosition = lerpDouble(_ropePosition, serverPos, 0.3)!;
       _timeLeft = (payload['time'] as num).toDouble();
     } else if (action == 'game_over') {
       final hostWins = payload['host_wins'] as bool;
