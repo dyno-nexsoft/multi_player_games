@@ -1,0 +1,21 @@
+{
+  "dart.flutterSdkPath": "code/.fvm/versions/stable",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+  },
+  "[dart]": {
+    "editor.defaultFormatter": "Dart-Code.dart-code",
+    "editor.formatOnSave": true,
+    "editor.suggestSelection": "first"
+  },
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    "*.dart": "${capture}.freezed.dart, ${capture}.g.dart"
+  },
+  "search.exclude": {
+    "**/build/": true,
+    "**/.dart_tool/": true,
+    "**/.fvm/": true
+  }
+}

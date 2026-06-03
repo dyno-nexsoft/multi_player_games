@@ -1,43 +1,33 @@
 import 'dart:convert';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'game_packet.freezed.dart';
+part 'game_packet.g.dart';
 
 /// Gói tin truyền nhận qua socket TCP giữa Host và Client.
 /// Tất cả giao tiếp mạng đều đi qua cấu trúc này để đảm bảo nhất quán.
-class GamePacket {
-  final String type;
-  final String? gameId;
-  final String? senderId;
-  final int timestamp;
-  final Map<String, dynamic> payload;
+@freezed
+abstract class GamePacket with _$GamePacket {
+  @JsonSerializable(fieldRename: FieldRename.snake)
+  const factory GamePacket({
+    required String type,
+    @JsonKey(includeIfNull: false) String? gameId,
+    @JsonKey(includeIfNull: false) String? senderId,
+    @Default(0) int timestamp,
+    @Default(<String, dynamic>{}) Map<String, dynamic> payload,
+  }) = _GamePacket;
 
-  const GamePacket({
-    required this.type,
-    this.gameId,
-    this.senderId,
-    required this.timestamp,
-    required this.payload,
-  });
+  const GamePacket._();
 
-  factory GamePacket.fromJson(Map<String, dynamic> json) {
-    return GamePacket(
-      type: json['type'] as String,
-      gameId: json['game_id'] as String?,
-      senderId: json['sender_id'] as String?,
-      timestamp: json['timestamp'] as int? ?? 0,
-      payload: json['payload'] as Map<String, dynamic>? ?? {},
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-        'type': type,
-        if (gameId != null) 'game_id': gameId,
-        if (senderId != null) 'sender_id': senderId,
-        'timestamp': timestamp,
-        'payload': payload,
-      };
+  /// Creates a [GamePacket] instance from a JSON map.
+  /// Used for parsing incoming network data packages.
+  factory GamePacket.fromJson(Map<String, dynamic> json) => _$GamePacketFromJson(json);
 
   /// Chuyển thành chuỗi JSON kết thúc bằng '\n' để phân tách gói tin trên stream.
   String toWire() => '${jsonEncode(toJson())}\n';
 
+  /// Tries to parse a raw string payload into a [GamePacket].
+  /// Returns null if serialization fails.
   static GamePacket? tryParse(String raw) {
     try {
       final json = jsonDecode(raw.trim()) as Map<String, dynamic>;
@@ -60,3 +50,4 @@ abstract class PacketType {
   static const String heartbeat = 'heartbeat';
   static const String systemPause = 'system_pause';
 }
+

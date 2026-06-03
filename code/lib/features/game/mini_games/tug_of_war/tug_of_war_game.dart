@@ -19,8 +19,6 @@ class TugOfWarGame extends BaseMiniGame {
   double _syncTimer = 0;
   double _timeLeft = _gameDuration;
   bool _gameEnded = false;
-  bool _flashActive = false;
-  double _flashTimer = 0;
 
   late RopeComponent _rope;
   late TextComponent _timerText;
@@ -110,23 +108,12 @@ class TugOfWarGame extends BaseMiniGame {
     } else {
       gameProvider.sendGameData(gameId, {'action': 'tap'});
     }
-    _triggerFlash();
-  }
-
-  void _triggerFlash() {
-    _flashActive = true;
-    _flashTimer = 0.12;
   }
 
   @override
   void update(double dt) {
     super.update(dt);
     if (_gameEnded) return;
-
-    if (_flashTimer > 0) {
-      _flashTimer -= dt;
-      if (_flashTimer <= 0) _flashActive = false;
-    }
 
     if (gameProvider.lobbyProvider.isHost) {
       _timeLeft -= dt;

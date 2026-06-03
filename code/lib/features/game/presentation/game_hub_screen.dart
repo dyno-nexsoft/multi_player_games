@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../lobby/domain/player.dart';
 import '../../lobby/presentation/lobby_provider.dart';
 import 'game_provider.dart';
+import 'overlays/countdown_overlay.dart';
 
 /// Màn hình chính của game — gắn FlameGame vào Flutter hoặc hiển thị bảng điểm.
 class GameHubScreen extends StatefulWidget {
@@ -15,6 +16,8 @@ class GameHubScreen extends StatefulWidget {
 }
 
 class _GameHubScreenState extends State<GameHubScreen> {
+  bool _showCountdown = true;
+
   @override
   void initState() {
     super.initState();
@@ -42,7 +45,15 @@ class _GameHubScreenState extends State<GameHubScreen> {
           );
         }
 
-        return GameWidget(game: game);
+        return Stack(
+          children: [
+            GameWidget(game: game),
+            if (_showCountdown)
+              CountdownOverlay(
+                onComplete: () => setState(() => _showCountdown = false),
+              ),
+          ],
+        );
       },
     );
   }
