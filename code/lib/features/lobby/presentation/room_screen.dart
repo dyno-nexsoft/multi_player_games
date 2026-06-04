@@ -319,6 +319,7 @@ class _GameSelector extends StatelessWidget {
                   child: ElevatedButton.icon(
                     onPressed: () {
                       final randomGame = games[Random().nextInt(games.length)];
+                      lobby.setTournamentMode(false);
                       lobby.startGame(randomGame.id);
                     },
                     icon: const Icon(Icons.shuffle, size: 16),
@@ -340,6 +341,7 @@ class _GameSelector extends StatelessWidget {
                     onPressed: () async {
                       final gameId = await showRouletteCup(context);
                       if (gameId != null && context.mounted) {
+                        lobby.setTournamentMode(true);
                         lobby.startGame(gameId);
                       }
                     },

@@ -108,4 +108,6 @@ abstract class PacketType {
   static const String disruption = 'disruption';
   // Spatial audio
   static const String spatialAudio = 'spatial_audio';
+  // Archer Duel
+  static const String arrowTransfer = 'arrow_transfer';
 }

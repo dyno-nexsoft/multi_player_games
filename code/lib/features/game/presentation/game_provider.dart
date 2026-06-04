@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
 import 'package:party_game_hub/core/storage/stats_service.dart';
@@ -7,6 +7,7 @@ import '../../../core/network/game_packet.dart';
 import '../../lobby/presentation/lobby_provider.dart';
 import '../domain/base_mini_game.dart';
 import '../domain/mini_game_registry.dart';
+import '../../lobby/presentation/roulette_cup_dialog.dart';
 
 /// Quản lý vòng lặp tournament (nhiều vòng chơi), điểm tổng kết và mini-game đang active.
 class GameProvider extends ChangeNotifier {
@@ -16,6 +17,7 @@ class GameProvider extends ChangeNotifier {
     lobbyProvider.onGamePacket = _handleGamePacket;
     lobbyProvider.onGameEnded = _handleEndGamePacket;
     lobbyProvider.onHapticReceived = () => HapticFeedback.heavyImpact();
+    lobbyProvider.onControllerInput = _handleControllerInput;
   }
 
   /// Phát rung cục bộ ngay lập tức và yêu cầu các thiết bị khác rung cùng lúc.
@@ -80,9 +82,21 @@ class GameProvider extends ChangeNotifier {
   }
 
   /// Host gọi khi muốn bắt đầu hiệp tiếp trong series.
-  void startNextRound() {
-    if (_lastGameId == null || !lobbyProvider.isHost) return;
-    lobbyProvider.startGame(_lastGameId!);
+  void startNextRound(BuildContext context) async {
+    if (!lobbyProvider.isHost) return;
+    if (lobbyProvider.isTournamentMode) {
+      importRouletteCup() async {
+        final gameId = await showRouletteCup(context);
+        if (gameId != null && context.mounted) {
+          lobbyProvider.startGame(gameId);
+        }
+      }
+
+      importRouletteCup();
+    } else {
+      if (_lastGameId == null) return;
+      lobbyProvider.startGame(_lastGameId!);
+    }
     notifyListeners();
   }
 
@@ -192,8 +206,15 @@ class GameProvider extends ChangeNotifier {
 
   void _handleGamePacket(GamePacket packet) {
     if (_activeGame == null) return;
-    if (packet.gameId != _activeGame!.gameId) return;
+    if (packet.gameId != _activeGame!.gameId && packet.gameId != null) return;
     _activeGame!.onNetworkDataReceived(packet.senderId ?? '', packet.payload);
+  }
+
+  void _handleControllerInput(String senderId, Map<String, dynamic> payload) {
+    if (_activeGame == null) return;
+    final augmentedPayload = Map<String, dynamic>.from(payload);
+    augmentedPayload['action'] = 'controller';
+    _activeGame!.onNetworkDataReceived(senderId, augmentedPayload);
   }
 
   void pauseActiveGame() => _activeGame?.pauseEngine();
@@ -242,6 +263,7 @@ class GameProvider extends ChangeNotifier {
     lobbyProvider.onGamePacket = null;
     lobbyProvider.onGameEnded = null;
     lobbyProvider.onHapticReceived = null;
+    lobbyProvider.onControllerInput = null;
     super.dispose();
   }
 }

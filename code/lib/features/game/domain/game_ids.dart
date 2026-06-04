@@ -16,4 +16,7 @@ abstract class GameIds {
   static const codeBreaker = 'code_breaker';
   static const liarsDice = 'liars_dice';
   static const neonDodge = 'neon_dodge';
+  static const archerDuel = 'archer_duel';
+  static const tankFight = 'tank_fight';
+  static const mazeHideSeek = 'maze_hide_seek';
 }

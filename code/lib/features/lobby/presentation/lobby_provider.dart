@@ -58,6 +58,20 @@ class LobbyProvider extends ChangeNotifier {
   int _seriesLength = 1;
   int get seriesLength => _seriesLength;
 
+  bool _isTournamentMode = false;
+  bool get isTournamentMode => _isTournamentMode;
+
+  void setTournamentMode(bool enabled) {
+    if (!isHost) return;
+    _isTournamentMode = enabled;
+    if (enabled) {
+      _seriesLength = 5; // Best of 5
+    } else {
+      _seriesLength = 1;
+    }
+    notifyListeners();
+  }
+
   void setSeriesLength(int n) {
     if (!isHost) return;
     _seriesLength = n;
@@ -279,6 +293,7 @@ class LobbyProvider extends ChangeNotifier {
       payload: {
         'game_id': gameId,
         'series_length': _seriesLength,
+        'tournament_mode': _isTournamentMode,
         'console_mode': _isConsoleMode,
       },
     );
@@ -398,6 +413,7 @@ class LobbyProvider extends ChangeNotifier {
       case PacketType.startGame:
         _pendingGameId = packet.payload['game_id'] as String?;
         _seriesLength = (packet.payload['series_length'] as int?) ?? 1;
+        _isTournamentMode = (packet.payload['tournament_mode'] as bool?) ?? false;
         _isConsoleMode = (packet.payload['console_mode'] as bool?) ?? false;
         _gameStartToken++;
         // Client trong console mode → trở thành tay cầm, không chạy Flame.

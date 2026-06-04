@@ -13,6 +13,9 @@ import '../mini_games/reaction_tap/reaction_tap_game.dart';
 import '../mini_games/penalty_shootout/penalty_game.dart';
 import '../mini_games/sumo_bumper/sumo_game.dart';
 import '../mini_games/tug_of_war/tug_of_war_game.dart';
+import '../mini_games/archer_duel/archer_duel_game.dart';
+import '../mini_games/tank_fight/tank_game.dart';
+import '../mini_games/maze_hide_seek/maze_game.dart';
 import '../presentation/game_provider.dart';
 import 'base_mini_game.dart';
 import 'game_ids.dart';
@@ -31,11 +34,12 @@ abstract class MiniGameRegistry {
     ),
     MiniGameMetadata(
       id: GameIds.sumoBumper,
-      title: 'Húc Bóng Sinh Tồn',
-      description: 'Húc bay đối thủ ra khỏi vòng tròn sinh tồn!',
+      title: 'Đẩy Nhau (Sumo Bumper)',
+      description: 'Điều khiển con quay đẩy đối thủ văng khỏi sàn đấu!',
       iconPath: 'assets/icons/sumo_bumper.svg',
       minPlayers: 2,
-      maxPlayers: 2,
+      maxPlayers: 4,
+      supportsConsoleMode: true,
     ),
     MiniGameMetadata(
       id: GameIds.penaltyShootout,
@@ -127,6 +131,32 @@ abstract class MiniGameRegistry {
       maxPlayers: 6,
       supportsConsoleMode: true,
     ),
+    MiniGameMetadata(
+      id: GameIds.archerDuel,
+      title: 'Bắn Cung Xuyên Không',
+      description: 'Căn lực và góc để bắn cung xuyên qua màn hình đối thủ!',
+      iconPath: 'assets/icons/archer_duel.svg',
+      minPlayers: 2,
+      maxPlayers: 2,
+    ),
+    MiniGameMetadata(
+      id: GameIds.tankFight,
+      title: 'Đấu Xe Tăng',
+      description: 'Sương mù chiến tranh che khuất tầm nhìn, bắn đạn nổ tung!',
+      iconPath: 'assets/icons/tank_fight.svg',
+      minPlayers: 2,
+      maxPlayers: 4,
+      supportsConsoleMode: true,
+    ),
+    MiniGameMetadata(
+      id: GameIds.mazeHideSeek,
+      title: 'Trốn Tìm Mê Cung',
+      description: 'Cảnh sát truy bắt kẻ trộm trong mê cung tối tăm với Radar và Dash!',
+      iconPath: 'assets/icons/maze_hide_seek.svg',
+      minPlayers: 2,
+      maxPlayers: 4,
+      supportsConsoleMode: true,
+    ),
   ];
 
   static SvgGenImage iconFor(String gameId) => switch (gameId) {
@@ -143,6 +173,9 @@ abstract class MiniGameRegistry {
     GameIds.codeBreaker => Assets.icons.codeBreaker,
     GameIds.liarsDice => Assets.icons.liarsDice,
     GameIds.neonDodge => Assets.icons.neonDodge,
+    GameIds.archerDuel => Assets.icons.archerDuel,
+    GameIds.tankFight => Assets.icons.tankFight,
+    GameIds.mazeHideSeek => Assets.icons.mazeHideSeek,
     _ => throw ArgumentError('Unknown game id: $gameId'),
   };
 
@@ -174,6 +207,12 @@ abstract class MiniGameRegistry {
         return LiarsDiceGame(provider);
       case GameIds.neonDodge:
         return NeonDodgeGame(provider);
+      case GameIds.archerDuel:
+        return ArcherDuelGame(provider);
+      case GameIds.tankFight:
+        return TankGame(provider);
+      case GameIds.mazeHideSeek:
+        return MazeGame(provider);
       default:
         throw Exception('Game ID "$gameId" không tồn tại trong Registry');
     }

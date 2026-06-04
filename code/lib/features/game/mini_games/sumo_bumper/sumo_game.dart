@@ -6,7 +6,16 @@ import 'package:flutter/services.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
 import '../../domain/base_mini_game.dart';
 
-/// Húc Bóng Sinh Tồn — Host authoritative physics, Client gửi input joystick.
+class SumoBumperData {
+  final String id;
+  final Color color;
+  Vector2 pos;
+  Vector2 vel = Vector2.zero();
+  bool eliminated = false;
+
+  SumoBumperData(this.id, this.color, this.pos);
+}
+
 class SumoGame extends BaseMiniGame {
   static const double _arenaRadius = 160.0;
   static const double _ballRadius = 24.0;
@@ -14,10 +23,7 @@ class SumoGame extends BaseMiniGame {
   static const double _force = 180.0;
   static const Offset _arenaCenter = Offset(200, 400);
 
-  Vector2 _p1Pos = Vector2(120, 400);
-  Vector2 _p2Pos = Vector2(280, 400);
-  Vector2 _p1Vel = Vector2.zero();
-  Vector2 _p2Vel = Vector2.zero();
+  final Map<String, SumoBumperData> bumpers = {};
 
   double _syncTimer = 0;
   bool _gameOver = false;
@@ -31,6 +37,21 @@ class SumoGame extends BaseMiniGame {
   Future<void> onLoad() async {
     await super.onLoad();
     camera.viewfinder.visibleGameSize = Vector2(400, 800);
+
+    final players = gameProvider.lobbyProvider.players;
+    final spawnPoints = [
+      Vector2(120, 400), // Left
+      Vector2(280, 400), // Right
+      Vector2(200, 320), // Top
+      Vector2(200, 480), // Bottom
+    ];
+
+    for (int i = 0; i < players.length; i++) {
+      final p = players[i];
+      final pt = spawnPoints[i % spawnPoints.length];
+      bumpers[p.id] = SumoBumperData(p.id, Color(p.color), pt.clone());
+    }
+
     world.add(_SumoRenderer(game: this));
   }
 
@@ -39,56 +60,75 @@ class SumoGame extends BaseMiniGame {
     super.update(dt);
     if (_gameOver || !gameProvider.lobbyProvider.isHost) return;
 
-    _p1Vel.scale(0.92);
-    _p2Vel.scale(0.92);
-    _p1Pos += _p1Vel * dt;
-    _p2Pos += _p2Vel * dt;
-    _resolveCollision();
+    for (final b in bumpers.values) {
+      if (b.eliminated) continue;
+      b.vel.scale(0.92);
+      b.pos += b.vel * dt;
+    }
+
+    _resolveCollisions();
 
     _syncTimer += dt;
     if (_syncTimer >= _syncRate) {
       _syncTimer = 0;
-      gameProvider.sendGameData(gameId, {
-        'action': 'sync',
-        'p1': [_p1Pos.x, _p1Pos.y],
-        'p2': [_p2Pos.x, _p2Pos.y],
-      });
+      final syncState = {};
+      for (final b in bumpers.values) {
+        syncState[b.id] = {'x': b.pos.x, 'y': b.pos.y, 'e': b.eliminated};
+      }
+      gameProvider.sendGameData(gameId, {'action': 'sync', 'state': syncState});
     }
 
     _checkElimination();
   }
 
-  void _resolveCollision() {
-    final diff = _p2Pos - _p1Pos;
-    final dist = diff.length;
-    if (dist < _ballRadius * 2 && dist > 0) {
-      final normal = diff.normalized();
-      final overlap = _ballRadius * 2 - dist;
-      _p1Pos -= normal * (overlap / 2);
-      _p2Pos += normal * (overlap / 2);
-      final relVel = (_p2Vel - _p1Vel).dot(normal);
-      if (relVel < 0) {
-        AppAudio.playBump();
-        HapticFeedback.mediumImpact();
-        _p1Vel -= normal * relVel;
-        _p2Vel += normal * relVel;
+  void _resolveCollisions() {
+    final activeBumpers = bumpers.values.where((b) => !b.eliminated).toList();
+    for (int i = 0; i < activeBumpers.length; i++) {
+      for (int j = i + 1; j < activeBumpers.length; j++) {
+        final b1 = activeBumpers[i];
+        final b2 = activeBumpers[j];
+
+        final diff = b2.pos - b1.pos;
+        final dist = diff.length;
+        if (dist < _ballRadius * 2 && dist > 0) {
+          final normal = diff.normalized();
+          final overlap = _ballRadius * 2 - dist;
+          b1.pos -= normal * (overlap / 2);
+          b2.pos += normal * (overlap / 2);
+
+          final relVel = (b2.vel - b1.vel).dot(normal);
+          if (relVel < 0) {
+            AppAudio.playBump();
+            HapticFeedback.mediumImpact();
+            b1.vel -= normal * relVel;
+            b2.vel += normal * relVel;
+          }
+        }
       }
     }
   }
 
   void _checkElimination() {
-    final p1Center = Offset(_p1Pos.x, _p1Pos.y);
-    final p2Center = Offset(_p2Pos.x, _p2Pos.y);
-    final p1Out = (p1Center - _arenaCenter).distance > _arenaRadius;
-    final p2Out = (p2Center - _arenaCenter).distance > _arenaRadius;
+    int aliveCount = 0;
+    String? winnerId;
 
-    if (p1Out || p2Out) {
+    for (final b in bumpers.values) {
+      if (b.eliminated) continue;
+
+      final pCenter = Offset(b.pos.x, b.pos.y);
+      if ((pCenter - _arenaCenter).distance > _arenaRadius) {
+        b.eliminated = true;
+      } else {
+        aliveCount++;
+        winnerId = b.id;
+      }
+    }
+
+    if (aliveCount <= 1 && bumpers.length > 1) {
       _gameOver = true;
-      final players = gameProvider.lobbyProvider.players;
       final scores = <String, int>{};
-      for (final p in players) {
-        final isP1 = p.isHost;
-        scores[p.id] = (isP1 && !p1Out) || (!isP1 && !p2Out) ? 100 : 0;
+      for (final b in bumpers.values) {
+        scores[b.id] = (b.id == winnerId && aliveCount == 1) ? 100 : 0;
       }
       endMiniGame(scores);
     }
@@ -98,29 +138,31 @@ class SumoGame extends BaseMiniGame {
   void onNetworkDataReceived(String senderId, Map<String, dynamic> payload) {
     final action = payload['action'] as String?;
     if (action == 'input' && gameProvider.lobbyProvider.isHost) {
-      // 6.4 — clamp force to [0,1] so a cheating client cannot send huge values.
-      final angle = (payload['angle'] as num).toDouble();
-      final forceMag = ((payload['force'] as num).toDouble()).clamp(0.0, 1.0);
-      _p2Vel += Vector2(
-        forceMag * _force * math.cos(angle) * 0.1,
-        forceMag * _force * math.sin(angle) * 0.1,
-      );
-    } else if (action == 'sync') {
-      // 5.1 — guard against null or truncated payloads from a dropped/corrupt packet.
-      final p1 = payload['p1'] as List?;
-      final p2 = payload['p2'] as List?;
-      if (p1 != null && p1.length >= 2) {
-        _p1Pos = Vector2((p1[0] as num).toDouble(), (p1[1] as num).toDouble());
+      final bumper = bumpers[senderId];
+      if (bumper != null && !bumper.eliminated) {
+        final angle = (payload['angle'] as num).toDouble();
+        final forceMag = ((payload['force'] as num).toDouble()).clamp(0.0, 1.0);
+        bumper.vel += Vector2(
+          forceMag * _force * math.cos(angle) * 0.1,
+          forceMag * _force * math.sin(angle) * 0.1,
+        );
       }
-      if (p2 != null && p2.length >= 2) {
-        _p2Pos = Vector2((p2[0] as num).toDouble(), (p2[1] as num).toDouble());
+    } else if (action == 'sync') {
+      final state = payload['state'] as Map?;
+      if (state == null) return;
+      for (final pId in state.keys) {
+        final data = state[pId] as Map;
+        final bumper = bumpers[pId.toString()];
+        if (bumper != null) {
+          bumper.pos = Vector2(
+            (data['x'] as num).toDouble(),
+            (data['y'] as num).toDouble(),
+          );
+          bumper.eliminated = data['e'] as bool;
+        }
       }
     }
   }
-
-  // Expose state for renderer
-  Offset get p1Offset => Offset(_p1Pos.x, _p1Pos.y);
-  Offset get p2Offset => Offset(_p2Pos.x, _p2Pos.y);
 }
 
 class _SumoRenderer extends Component with HasGameReference<SumoGame> {
@@ -146,15 +188,13 @@ class _SumoRenderer extends Component with HasGameReference<SumoGame> {
         ..strokeWidth = 4,
     );
 
-    canvas.drawCircle(
-      game.p1Offset,
-      SumoGame._ballRadius,
-      Paint()..color = const Color(0xFF6C63FF),
-    );
-    canvas.drawCircle(
-      game.p2Offset,
-      SumoGame._ballRadius,
-      Paint()..color = const Color(0xFFFF6584),
-    );
+    for (final b in game.bumpers.values) {
+      if (b.eliminated) continue;
+      canvas.drawCircle(
+        Offset(b.pos.x, b.pos.y),
+        SumoGame._ballRadius,
+        Paint()..color = b.color,
+      );
+    }
   }
 }

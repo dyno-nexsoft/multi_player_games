@@ -410,7 +410,7 @@ class _ScoreboardContent extends StatelessWidget {
                   child: SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: () => gp.startNextRound(),
+                      onPressed: () => gp.startNextRound(context),
                       icon: const Icon(Icons.arrow_forward),
                       label: Text(l10n.nextRoundBtn),
                     ),
