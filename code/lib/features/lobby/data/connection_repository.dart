@@ -10,8 +10,10 @@ typedef OnClientConnected = void Function(Socket socket);
 
 /// Tầng data: quản lý TCP socket và mDNS discovery trực tiếp.
 class ConnectionRepository {
+  /// Public constant so other layers can reference the port without coupling to ConnectionRepository internals.
+  static const int kPort = 4567;
   static const String _serviceType = '_pgamehub._tcp';
-  static const int _port = 4567;
+  static const int _port = kPort;
 
   nsd.Registration? _registration;
   nsd.Discovery? _discovery;
@@ -72,13 +74,21 @@ class ConnectionRepository {
 
   void _broadcast(GamePacket packet, Socket? except) {
     final frame = _frame(packet.toBytes());
+    // 5.3 — Accumulate dead sockets; remove after iteration to avoid modifying
+    // the list while iterating and to stop re-broadcasting to closed sockets.
+    final deadSockets = <Socket>[];
     for (final s in List.of(_clients)) {
       if (except != null && identical(s, except)) continue;
       try {
         s.add(frame);
       } catch (e) {
         AppLogger.warning('Broadcast failed: $e', tag: 'Connection');
+        deadSockets.add(s);
       }
+    }
+    for (final s in deadSockets) {
+      _clients.remove(s);
+      s.close().ignore();
     }
   }
 
@@ -105,13 +115,24 @@ class ConnectionRepository {
     final port = service.port ?? _port;
     if (host == null) throw Exception('Cannot resolve host address');
 
-    _hostSocket = await Socket.connect(host, port);
+    // 5.4 — Timeout prevents hanging forever when the host is unreachable.
+    _hostSocket = await Socket.connect(host, port).timeout(
+      const Duration(seconds: 10),
+      onTimeout: () => throw TimeoutException(
+        'Connection to $host:$port timed out after 10s',
+      ),
+    );
     AppLogger.info('Connected to host $host:$port', tag: 'Connection');
     _listenSocket(_hostSocket!, onDone: () => onHostDisconnected?.call());
   }
 
   Future<void> connectToAddress(String ip, int port) async {
-    _hostSocket = await Socket.connect(ip, port);
+    // 5.4 — Timeout prevents hanging forever when the host is unreachable.
+    _hostSocket = await Socket.connect(ip, port).timeout(
+      const Duration(seconds: 10),
+      onTimeout: () =>
+          throw TimeoutException('QR-connect to $ip:$port timed out after 10s'),
+    );
     AppLogger.info('QR-connected to $ip:$port', tag: 'Connection');
     _listenSocket(_hostSocket!, onDone: () => onHostDisconnected?.call());
   }
@@ -125,6 +146,18 @@ class ConnectionRepository {
       }
     }
     return null;
+  }
+
+  /// 4.3 — Send a packet directly to one specific client socket (unicast).
+  /// Used by host to target a single controller without broadcasting to all.
+  void sendToClient(Socket socket, GamePacket packet) {
+    try {
+      socket.add(_frame(packet.toBytes()));
+    } catch (e) {
+      AppLogger.warning('sendToClient failed: $e', tag: 'Connection');
+      _clients.remove(socket);
+      socket.close().ignore();
+    }
   }
 
   void sendPacket(GamePacket packet) {

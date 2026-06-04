@@ -1,8 +1,11 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
+
+import '../data/connection_repository.dart';
 import 'lobby_provider.dart';
 
 /// Màn hình quét QR code để join phòng host mà không cần mDNS discovery.
@@ -23,7 +26,8 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
     try {
       final data = jsonDecode(rawValue) as Map<String, dynamic>;
       final ip = data['ip'] as String;
-      final port = (data['port'] as int?) ?? 4567;
+      // 5.5 — Fallback to kPort constant for consistency.
+      final port = (data['port'] as int?) ?? ConnectionRepository.kPort;
 
       final lobby = context.read<LobbyProvider>();
       await lobby.joinRoomByAddress(ip, port);

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:party_game_hub/core/theme/app_colors.dart';
 import 'package:party_game_hub/core/theme/app_theme.dart';
 import '../../lobby/presentation/lobby_provider.dart';
 import 'console_provider.dart';
@@ -43,7 +44,8 @@ class _GamepadScreenState extends State<GamepadScreen> {
   @override
   Widget build(BuildContext context) {
     final player = context.read<LobbyProvider>().localPlayer;
-    final playerColor = Color(player?.color ?? 0xFF6C63FF);
+    final colors = Theme.of(context).extension<AppColors>()!;
+    final playerColor = Color(player?.color ?? colors.neonPurple.toARGB32());
 
     return ChangeNotifierProvider.value(
       value: _console,
@@ -300,22 +302,23 @@ class _ActionButtonCluster extends StatelessWidget {
 
   static const _btnSize = 58.0;
 
-  static const _defs = [
-    ('Y', Color(0xFF6C63FF), Alignment.topCenter),
-    ('X', Color(0xFF4CAF50), Alignment.centerLeft),
-    ('B', Color(0xFFFF6584), Alignment.centerRight),
-    ('A', Color(0xFFFFD700), Alignment.bottomCenter),
+  static List<(String, Color, Alignment)> _defs(AppColors colors) => [
+    ('Y', colors.neonPurple, Alignment.topCenter),
+    ('X', const Color(0xFF4CAF50), Alignment.centerLeft),
+    ('B', colors.neonPink, Alignment.centerRight),
+    ('A', const Color(0xFFFFD700), Alignment.bottomCenter),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<AppColors>()!;
     const total = _btnSize * 3 + 10.0 * 2;
     return SizedBox(
       width: total,
       height: total,
       child: Stack(
         alignment: Alignment.center,
-        children: _defs.map((def) {
+        children: _defs(colors).map((def) {
           final (key, btnColor, align) = def;
           final isA = key == 'A';
           final size = isA ? _btnSize * 1.2 : _btnSize;
@@ -478,7 +481,7 @@ class _GamepadButtonState extends State<_GamepadButton>
 // ── Previews ──────────────────────────────────────────────────────────────────
 
 Widget themeWrapper(Widget child) => MaterialApp(
-  theme: AppTheme.light,
+  theme: AppTheme.dark,
   home: Scaffold(
     backgroundColor: AppTheme.bgDeep,
     body: Center(child: child),

@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../domain/player.dart';
 import 'lobby_provider.dart';
+import '../data/connection_repository.dart';
 import 'package:party_game_hub/core/theme/gamer_card.dart';
 import '../../game/domain/mini_game_metadata.dart';
 import '../../game/domain/mini_game_registry.dart';
@@ -17,7 +18,11 @@ import '../../game/domain/mini_game_registry.dart';
 Future<void> _showQrDialog(BuildContext context, LobbyProvider lobby) async {
   final ip = await lobby.getHostIp();
   if (!context.mounted) return;
-  final qrData = jsonEncode({'ip': ip ?? '?', 'port': 4567});
+  final qrData = jsonEncode({
+    'ip': ip ?? '?',
+    'port': ConnectionRepository.kPort,
+  });
+  // 5.5 — Use ConnectionRepository.kPort constant to stay in sync with the server port.
   showDialog<void>(
     context: context,
     builder: (_) => AlertDialog(

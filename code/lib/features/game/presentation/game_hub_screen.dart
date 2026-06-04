@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
@@ -41,6 +42,8 @@ class _GameHubScreenState extends State<GameHubScreen> {
 
   // ── Disruption overlay state ──────────────────────────────────────────────
   String? _activeDisruption; // 'tomato' | 'smoke' | 'ice'
+  // 6.1 — Timer is cancelable in dispose(); Future.delayed is not.
+  Timer? _disruptionTimer;
 
   @override
   void initState() {
@@ -51,8 +54,9 @@ class _GameHubScreenState extends State<GameHubScreen> {
     };
     lobby.onDisruption = (type) {
       if (!mounted) return;
+      _disruptionTimer?.cancel();
       setState(() => _activeDisruption = type);
-      Future.delayed(const Duration(seconds: 2), () {
+      _disruptionTimer = Timer(const Duration(seconds: 2), () {
         if (mounted) setState(() => _activeDisruption = null);
       });
     };
@@ -63,6 +67,7 @@ class _GameHubScreenState extends State<GameHubScreen> {
     final lobby = context.read<LobbyProvider>();
     lobby.onCountdownTick = null;
     lobby.onDisruption = null;
+    _disruptionTimer?.cancel(); // 6.1 — prevent setState after unmount
     _externalTick.dispose();
     super.dispose();
   }
@@ -349,8 +354,9 @@ class _ScoreboardContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final lobby = context.read<LobbyProvider>();
-    final gp = context.read<GameProvider>();
+    // 5.2 — Use watch so the scoreboard rebuilds when round/series state changes.
+    final lobby = context.watch<LobbyProvider>();
+    final gp = context.watch<GameProvider>();
     final l10n = AppLocalizations.of(context)!;
     final isSeries = gp.seriesLength > 1;
 
@@ -702,7 +708,7 @@ Widget gameHubPreviewWrapper(Widget child) => ChangeNotifierProvider(
   child: MaterialApp(
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
-    theme: AppTheme.light,
+    theme: AppTheme.dark,
     home: child,
   ),
 );

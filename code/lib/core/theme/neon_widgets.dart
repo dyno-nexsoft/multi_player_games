@@ -5,6 +5,7 @@ import 'package:flutter/widget_previews.dart';
 import 'package:party_game_hub/core/theme/app_theme.dart';
 import '../../features/game/domain/mini_game_metadata.dart';
 import '../../features/game/domain/mini_game_registry.dart';
+import 'app_colors.dart';
 
 // ── GlassCard ──────────────────────────────────────────────────────────────
 /// Glassmorphism card — blur backdrop + neon border.
@@ -24,7 +25,8 @@ class GlassCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accent = borderColor ?? Theme.of(context).colorScheme.primary;
+    final colors = Theme.of(context).extension<AppColors>()!;
+    final accent = borderColor ?? colors.neonPurple;
     return ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
       child: BackdropFilter(
@@ -32,7 +34,7 @@ class GlassCard extends StatelessWidget {
         child: Container(
           padding: padding,
           decoration: BoxDecoration(
-            color: const Color(0xFF1E1E2E).withValues(alpha: 0.72),
+            color: colors.bgSurface.withValues(alpha: 0.72),
             borderRadius: BorderRadius.circular(borderRadius),
             border: Border.all(
               color: accent.withValues(alpha: 0.35),
@@ -74,21 +76,22 @@ class NeonGameCard extends StatefulWidget {
 class _NeonGameCardState extends State<NeonGameCard> {
   bool _pressed = false;
 
-  static Color _accent(String id) => switch (id) {
-    'tug_of_war' => const Color(0xFF6C63FF),
+  static Color _accent(String id, AppColors colors) => switch (id) {
+    'tug_of_war' => colors.neonPurple,
     'sumo_bumper' => const Color(0xFFFF6B35),
     'penalty_shootout' => const Color(0xFF4CAF50),
-    'air_hockey' => const Color(0xFF00D9FF),
+    'air_hockey' => colors.neonCyan,
     'reaction_tap' => const Color(0xFFFFD700),
     'minesweeper' => const Color(0xFFE53935),
     'billiards' => const Color(0xFFCD853F),
-    'draw_guess' => const Color(0xFFFF6584),
-    _ => const Color(0xFF6C63FF),
+    'draw_guess' => colors.neonPink,
+    _ => colors.neonPurple,
   };
 
   @override
   Widget build(BuildContext context) {
-    final accent = _accent(widget.game.id);
+    final colors = Theme.of(context).extension<AppColors>()!;
+    final accent = _accent(widget.game.id, colors);
     return GestureDetector(
       onTapDown: (_) => setState(() => _pressed = true),
       onTapUp: (_) {
@@ -562,7 +565,7 @@ class NeonTitle extends StatelessWidget {
 // ── Previews ──────────────────────────────────────────────────────────────────
 
 Widget themeWrapper(Widget child) => MaterialApp(
-  theme: AppTheme.light,
+  theme: AppTheme.dark,
   home: Scaffold(
     backgroundColor: AppTheme.bgDeep,
     body: Center(child: child),

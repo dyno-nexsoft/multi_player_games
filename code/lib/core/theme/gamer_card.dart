@@ -214,7 +214,7 @@ class _SlideInGamerCardState extends State<SlideInGamerCard>
 // ── Previews ──────────────────────────────────────────────────────────────────
 
 Widget themeWrapper(Widget child) => MaterialApp(
-  theme: AppTheme.light,
+  theme: AppTheme.dark,
   home: Scaffold(
     backgroundColor: AppTheme.bgDeep,
     body: Center(child: child),

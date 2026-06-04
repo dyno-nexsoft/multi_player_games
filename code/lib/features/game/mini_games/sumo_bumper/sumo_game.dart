@@ -98,17 +98,23 @@ class SumoGame extends BaseMiniGame {
   void onNetworkDataReceived(String senderId, Map<String, dynamic> payload) {
     final action = payload['action'] as String?;
     if (action == 'input' && gameProvider.lobbyProvider.isHost) {
+      // 6.4 — clamp force to [0,1] so a cheating client cannot send huge values.
       final angle = (payload['angle'] as num).toDouble();
-      final forceMag = (payload['force'] as num).toDouble();
+      final forceMag = ((payload['force'] as num).toDouble()).clamp(0.0, 1.0);
       _p2Vel += Vector2(
         forceMag * _force * math.cos(angle) * 0.1,
         forceMag * _force * math.sin(angle) * 0.1,
       );
     } else if (action == 'sync') {
-      final p1 = payload['p1'] as List;
-      final p2 = payload['p2'] as List;
-      _p1Pos = Vector2((p1[0] as num).toDouble(), (p1[1] as num).toDouble());
-      _p2Pos = Vector2((p2[0] as num).toDouble(), (p2[1] as num).toDouble());
+      // 5.1 — guard against null or truncated payloads from a dropped/corrupt packet.
+      final p1 = payload['p1'] as List?;
+      final p2 = payload['p2'] as List?;
+      if (p1 != null && p1.length >= 2) {
+        _p1Pos = Vector2((p1[0] as num).toDouble(), (p1[1] as num).toDouble());
+      }
+      if (p2 != null && p2.length >= 2) {
+        _p2Pos = Vector2((p2[0] as num).toDouble(), (p2[1] as num).toDouble());
+      }
     }
   }
 

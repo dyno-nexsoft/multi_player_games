@@ -31,7 +31,7 @@ dependencies:
 
   # Networking & Data Serialization
   nsd: ^5.0.1
-  messagepack: ^0.2.1
+  message_pack_dart: ^2.0.1
 
   # Hardware & Device Sensors
   sensors_plus: ^7.0.0

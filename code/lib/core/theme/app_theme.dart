@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'app_colors.dart';
+import 'app_dimensions.dart';
+
 abstract class AppTheme {
   // ── Brand colours ──────────────────────────────────────────────────────────
   static const neonPurple = Color(0xFF6C63FF);
@@ -44,7 +47,8 @@ abstract class AppTheme {
   }
 
   // ── Theme ──────────────────────────────────────────────────────────────────
-  static ThemeData get light {
+  /// 5.3 — Renamed from `light` to `dark` to match Brightness.dark accurately.
+  static ThemeData get dark {
     const colorScheme = ColorScheme(
       brightness: Brightness.dark,
       primary: neonPurple,
@@ -63,6 +67,16 @@ abstract class AppTheme {
       useMaterial3: true,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: bgDeep,
+      extensions: const [
+        AppColors(
+          neonPurple: neonPurple,
+          neonPink: neonPink,
+          neonCyan: neonCyan,
+          bgDeep: bgDeep,
+          bgSurface: bgSurface,
+        ),
+        AppDimensions(),
+      ],
       textTheme: GoogleFonts.nunitoTextTheme(
         ThemeData(brightness: Brightness.dark).textTheme,
       ),

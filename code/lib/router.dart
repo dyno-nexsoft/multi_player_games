@@ -11,6 +11,9 @@ import 'features/lobby/presentation/emoji_join_screen.dart';
 import 'features/game/presentation/spectator_screen.dart';
 
 part 'router.g.dart';
+part 'features/lobby/presentation/lobby_routes.dart';
+part 'features/game/presentation/game_routes.dart';
+part 'features/console/presentation/console_routes.dart';
 
 // ── Shared transition helper ───────────────────────────────────────────────
 
@@ -36,98 +39,6 @@ CustomTransitionPage<void> _fadeScale(
         ),
       );
     },
-  );
-}
-
-// ── Routes ─────────────────────────────────────────────────────────────────
-
-@TypedGoRoute<LobbyRoute>(path: '/')
-class LobbyRoute extends GoRouteData with $LobbyRoute {
-  const LobbyRoute();
-
-  @override
-  Widget build(BuildContext context, GoRouterState state) =>
-      const LobbyScreen();
-}
-
-@TypedGoRoute<DiscoverRoute>(path: '/discover')
-class DiscoverRoute extends GoRouteData with $DiscoverRoute {
-  const DiscoverRoute();
-
-  @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) =>
-      _fadeScale(state, const DiscoverScreen());
-}
-
-@TypedGoRoute<RoomRoute>(path: '/room')
-class RoomRoute extends GoRouteData with $RoomRoute {
-  const RoomRoute();
-
-  @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) =>
-      _fadeScale(state, const RoomScreen());
-}
-
-@TypedGoRoute<GameRoute>(path: '/game')
-class GameRoute extends GoRouteData with $GameRoute {
-  const GameRoute();
-
-  @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) => _fadeScale(
-    state,
-    const GameHubScreen(),
-    duration: const Duration(milliseconds: 500),
-  );
-}
-
-@TypedGoRoute<QrScanRoute>(path: '/qr-scan')
-class QrScanRoute extends GoRouteData with $QrScanRoute {
-  const QrScanRoute();
-
-  @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) =>
-      _fadeScale(state, const QrScannerScreen());
-}
-
-@TypedGoRoute<OnboardingRoute>(path: '/onboarding')
-class OnboardingRoute extends GoRouteData with $OnboardingRoute {
-  const OnboardingRoute();
-
-  @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) =>
-      _fadeScale(state, const OnboardingScreen());
-}
-
-@TypedGoRoute<GamepadRoute>(path: '/gamepad')
-class GamepadRoute extends GoRouteData with $GamepadRoute {
-  const GamepadRoute();
-
-  @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) => _fadeScale(
-    state,
-    const GamepadScreen(),
-    duration: const Duration(milliseconds: 400),
-  );
-}
-
-@TypedGoRoute<EmojiJoinRoute>(path: '/emoji-join')
-class EmojiJoinRoute extends GoRouteData with $EmojiJoinRoute {
-  const EmojiJoinRoute();
-
-  @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) =>
-      _fadeScale(state, const EmojiJoinScreen());
-}
-
-@TypedGoRoute<SpectatorRoute>(path: '/spectate')
-class SpectatorRoute extends GoRouteData with $SpectatorRoute {
-  const SpectatorRoute();
-
-  @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) => _fadeScale(
-    state,
-    const SpectatorScreen(),
-    duration: const Duration(milliseconds: 400),
   );
 }
 

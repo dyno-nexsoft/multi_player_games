@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:nsd/nsd.dart';
 
@@ -145,20 +146,30 @@ class LobbyProvider extends ChangeNotifier {
   }
 
   /// Host gửi feedback rung/chớp tới một tay cầm cụ thể.
+  /// 4.3 — Unicast trực tiếp tới socket của target, không broadcast tới mọi client.
   void sendControllerFeedback(
     String targetPlayerId, {
     required String hapticType,
     int? flashColor,
   }) {
     if (!isHost) return;
-    _repo.broadcastPacket(
-      GamePacket(
-        type: PacketType.controllerFeedback,
-        senderId: _localPlayer?.id,
-        timestamp: _now(),
-        payload: {'target': targetPlayerId, 'h': hapticType, 'c': flashColor},
-      ),
+    // Tìm socket tương ứng với targetPlayerId trong map.
+    final targetSocket = _socketPlayers.entries
+        .where((e) => e.value == targetPlayerId)
+        .map((e) => e.key)
+        .firstOrNull;
+    final packet = GamePacket(
+      type: PacketType.controllerFeedback,
+      senderId: _localPlayer?.id,
+      timestamp: _now(),
+      payload: {'h': hapticType, 'c': flashColor},
     );
+    if (targetSocket != null) {
+      _repo.sendToClient(targetSocket, packet);
+    } else {
+      // Fallback: broadcast nếu socket chưa được map (console mode, spectator, v.v.)
+      _repo.broadcastPacket(packet);
+    }
   }
 
   /// Callback để EmoteLayer nhận emoji từ đối thủ.
@@ -399,13 +410,10 @@ class LobbyProvider extends ChangeNotifier {
         // Cũng route qua onGamePacket để các game xử lý nếu muốn.
         onGamePacket?.call(packet);
       case PacketType.controllerFeedback:
-        // Client kiểm tra target, phản hồi nếu đúng mình.
-        final target = packet.payload['target'] as String?;
-        if (target == null || target == _localPlayer?.id) {
-          final hapticType = packet.payload['h'] as String? ?? 'light';
-          final flashColor = packet.payload['c'] as int?;
-          onControllerFeedback?.call(hapticType, flashColor);
-        }
+        // 4.3 — Packet is now unicast: if we received it, it's addressed to us.
+        final hapticType = packet.payload['h'] as String? ?? 'light';
+        final flashColor = packet.payload['c'] as int?;
+        onControllerFeedback?.call(hapticType, flashColor);
       case PacketType.countdownTick:
         final tick = packet.payload['tick'] as int?;
         if (tick != null) onCountdownTick?.call(tick);
@@ -501,16 +509,22 @@ class LobbyProvider extends ChangeNotifier {
   }
 
   Future<void> _scheduleReconnect() async {
+    if (_disposed) return;
     final delay = _reconnectDelays[_reconnectAttempts.clamp(0, 2)];
     _reconnectAttempts++;
     await Future.delayed(Duration(seconds: delay));
+    // 4.2 / 5.4 — provider may have been disposed while waiting; bail out.
+    if (_disposed) return;
+    final local = _localPlayer;
+    final service = _lastJoinedService;
+    if (local == null || service == null) return;
     try {
-      await _repo.connectToService(_lastJoinedService!);
+      await _repo.connectToService(service);
       final packet = GamePacket(
         type: PacketType.join,
-        senderId: _localPlayer!.id,
+        senderId: local.id,
         timestamp: _now(),
-        payload: {'name': _localPlayer!.name, 'color': _localPlayer!.color},
+        payload: {'name': local.name, 'color': local.color},
       );
       _repo.sendPacket(packet);
       _reconnectAttempts = 0;
@@ -519,11 +533,14 @@ class LobbyProvider extends ChangeNotifier {
     } catch (_) {
       _onHostDisconnected(); // retry
     }
-    notifyListeners();
+    if (!_disposed) notifyListeners();
   }
+
+  bool _disposed = false;
 
   @override
   void dispose() {
+    _disposed = true;
     _discoverySubscription?.cancel();
     _repo.dispose();
     super.dispose();
@@ -535,8 +552,16 @@ class LobbyProvider extends ChangeNotifier {
     return trimmed.isEmpty ? 'Player' : trimmed;
   }
 
-  String _generateId() =>
-      DateTime.now().millisecondsSinceEpoch.toRadixString(16);
+  /// 4.1 — Combine timestamp + secure random suffix to avoid ID collisions
+  /// when two devices join within the same millisecond.
+  String _generateId() {
+    final ts = DateTime.now().millisecondsSinceEpoch.toRadixString(16);
+    final rand = math.Random.secure()
+        .nextInt(0xFFFF)
+        .toRadixString(16)
+        .padLeft(4, '0');
+    return '$ts$rand';
+  }
 
   int _now() => DateTime.now().millisecondsSinceEpoch;
 }

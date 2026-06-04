@@ -1,4 +1,5 @@
 import 'package:flame_audio/flame_audio.dart';
+import 'package:party_game_hub/core/utils/app_logger.dart';
 import 'package:party_game_hub/gen/assets.gen.dart';
 
 /// Wrapper tập trung cho toàn bộ âm thanh trong game.
@@ -32,7 +33,10 @@ class AppAudio {
     for (final path in files) {
       try {
         await FlameAudio.audioCache.load(_name(path));
-      } catch (_) {}
+      } catch (e) {
+        // 4.4 — Log so missing audio files are visible during development.
+        AppLogger.warning('Failed to preload audio "$path": $e', tag: 'Audio');
+      }
     }
   }
 

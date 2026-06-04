@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
@@ -123,7 +124,8 @@ class GameProvider extends ChangeNotifier {
     }
     final raw = packet.payload['scores'] as Map<String, dynamic>?;
     if (raw == null) return;
-    final scores = raw.map((k, v) => MapEntry(k, (v as num).toInt()));
+    // 5.2 — v is dynamic from the network; guard against null / wrong type.
+    final scores = raw.map((k, v) => MapEntry(k, v is num ? v.toInt() : 0));
 
     // Phát win/lose cho client ở các game host-authoritative (client không
     // đi qua BaseMiniGame.endMiniGame).
@@ -173,7 +175,8 @@ class GameProvider extends ChangeNotifier {
           top > 0 &&
           topCount == 1 &&
           (_totalScores[localId] ?? 0) == top;
-      StatsService.recordResult(won: won); // fire-and-forget
+      // 6.2 — fire-and-forget: wrap with unawaited() to make intent clear and silence lint.
+      unawaited(StatsService.recordResult(won: won));
     }
 
     // Không null activeGame — giữ Flame canvas hiển thị dưới scoreboard overlay.

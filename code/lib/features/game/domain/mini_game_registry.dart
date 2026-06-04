@@ -15,13 +15,14 @@ import '../mini_games/sumo_bumper/sumo_game.dart';
 import '../mini_games/tug_of_war/tug_of_war_game.dart';
 import '../presentation/game_provider.dart';
 import 'base_mini_game.dart';
+import 'game_ids.dart';
 import 'mini_game_metadata.dart';
 
 /// Đăng ký toàn bộ mini-game có sẵn trong ứng dụng.
 abstract class MiniGameRegistry {
   static const List<MiniGameMetadata> availableGames = [
     MiniGameMetadata(
-      id: 'tug_of_war',
+      id: GameIds.tugOfWar,
       title: 'Kéo Co Tốc Độ',
       description: 'Nhấn nút liên tục để kéo sợi dây về phía bạn!',
       iconPath: 'assets/icons/tug_of_war.svg',
@@ -29,7 +30,7 @@ abstract class MiniGameRegistry {
       maxPlayers: 2,
     ),
     MiniGameMetadata(
-      id: 'sumo_bumper',
+      id: GameIds.sumoBumper,
       title: 'Húc Bóng Sinh Tồn',
       description: 'Húc bay đối thủ ra khỏi vòng tròn sinh tồn!',
       iconPath: 'assets/icons/sumo_bumper.svg',
@@ -37,7 +38,7 @@ abstract class MiniGameRegistry {
       maxPlayers: 2,
     ),
     MiniGameMetadata(
-      id: 'penalty_shootout',
+      id: GameIds.penaltyShootout,
       title: 'Sút Phạt Đền',
       description: 'Sút bóng qua thủ môn để ghi bàn!',
       iconPath: 'assets/icons/penalty.svg',
@@ -45,7 +46,7 @@ abstract class MiniGameRegistry {
       maxPlayers: 2,
     ),
     MiniGameMetadata(
-      id: 'air_hockey',
+      id: GameIds.airHockey,
       title: 'Khúc Côn Cầu',
       description: 'Đánh puck qua màn hình đối thủ — mỗi máy là một nửa sân!',
       iconPath: 'assets/icons/air_hockey.svg',
@@ -53,7 +54,7 @@ abstract class MiniGameRegistry {
       maxPlayers: 2,
     ),
     MiniGameMetadata(
-      id: 'reaction_tap',
+      id: GameIds.reactionTap,
       title: 'Phản Xạ Thần Tốc',
       description: 'Tap ngay khi màn hình sáng lên — ai nhanh hơn thắng!',
       iconPath: 'assets/icons/reaction_tap.svg',
@@ -61,7 +62,7 @@ abstract class MiniGameRegistry {
       maxPlayers: 4,
     ),
     MiniGameMetadata(
-      id: 'minesweeper',
+      id: GameIds.minesweeper,
       title: 'Dò Mìn Tốc Độ',
       description: 'Reveal ô trống nhiều nhất trong 60s, tránh mìn!',
       iconPath: 'assets/icons/minesweeper.svg',
@@ -69,7 +70,7 @@ abstract class MiniGameRegistry {
       maxPlayers: 4,
     ),
     MiniGameMetadata(
-      id: 'billiards',
+      id: GameIds.billiards,
       title: 'Bi-a 9 Ball',
       description: 'Bỏ túi ball theo thứ tự — ai gom điểm nhiều hơn thắng!',
       iconPath: 'assets/icons/billiards.svg',
@@ -77,7 +78,7 @@ abstract class MiniGameRegistry {
       maxPlayers: 2,
     ),
     MiniGameMetadata(
-      id: 'draw_guess',
+      id: GameIds.drawGuess,
       title: 'Vẽ & Đoán',
       description: 'Vẽ hình, đối thủ đoán từ — xen kẽ vai trò qua 5 từ!',
       iconPath: 'assets/icons/draw_guess.svg',
@@ -85,7 +86,7 @@ abstract class MiniGameRegistry {
       maxPlayers: 2,
     ),
     MiniGameMetadata(
-      id: 'battleship',
+      id: GameIds.battleship,
       title: 'Hải Chiến Không Gian',
       description: 'Đặt tàu bí mật, bắn hạ hạm đội đối thủ!',
       iconPath: 'assets/icons/battleship.svg',
@@ -93,7 +94,7 @@ abstract class MiniGameRegistry {
       maxPlayers: 2,
     ),
     MiniGameMetadata(
-      id: 'hot_potato',
+      id: GameIds.hotPotato,
       title: 'Bảo Mìn Hẹn Giờ',
       description: 'Vuốt để ném bom sang đối thủ trước khi nổ!',
       iconPath: 'assets/icons/hot_potato.svg',
@@ -101,7 +102,7 @@ abstract class MiniGameRegistry {
       maxPlayers: 2,
     ),
     MiniGameMetadata(
-      id: 'code_breaker',
+      id: GameIds.codeBreaker,
       title: 'Phá Mã',
       description: 'Đoán mã 4 số bí mật của đối thủ trước khi bị phá!',
       iconPath: 'assets/icons/code_breaker.svg',
@@ -109,7 +110,7 @@ abstract class MiniGameRegistry {
       maxPlayers: 2,
     ),
     MiniGameMetadata(
-      id: 'liars_dice',
+      id: GameIds.liarsDice,
       title: 'Xúc Xắc Tố',
       description: 'Ra giá xúc xắc, bắt bài nói dối của đối thủ!',
       iconPath: 'assets/icons/liars_dice.svg',
@@ -118,7 +119,7 @@ abstract class MiniGameRegistry {
     ),
     // ── Console Mode games ──────────────────────────────────────────────────
     MiniGameMetadata(
-      id: 'neon_dodge',
+      id: GameIds.neonDodge,
       title: 'Neon Dodge',
       description: 'Né chướng ngại vật rơi — Host là màn hình, bạn là tay cầm!',
       iconPath: 'assets/icons/neon_dodge.svg',
@@ -129,49 +130,49 @@ abstract class MiniGameRegistry {
   ];
 
   static SvgGenImage iconFor(String gameId) => switch (gameId) {
-    'tug_of_war' => Assets.icons.tugOfWar,
-    'sumo_bumper' => Assets.icons.sumoBumper,
-    'penalty_shootout' => Assets.icons.penalty,
-    'air_hockey' => Assets.icons.airHockey,
-    'reaction_tap' => Assets.icons.reactionTap,
-    'minesweeper' => Assets.icons.minesweeper,
-    'billiards' => Assets.icons.billiards,
-    'draw_guess' => Assets.icons.drawGuess,
-    'battleship' => Assets.icons.battleship,
-    'hot_potato' => Assets.icons.hotPotato,
-    'code_breaker' => Assets.icons.codeBreaker,
-    'liars_dice' => Assets.icons.liarsDice,
-    'neon_dodge' => Assets.icons.neonDodge,
+    GameIds.tugOfWar => Assets.icons.tugOfWar,
+    GameIds.sumoBumper => Assets.icons.sumoBumper,
+    GameIds.penaltyShootout => Assets.icons.penalty,
+    GameIds.airHockey => Assets.icons.airHockey,
+    GameIds.reactionTap => Assets.icons.reactionTap,
+    GameIds.minesweeper => Assets.icons.minesweeper,
+    GameIds.billiards => Assets.icons.billiards,
+    GameIds.drawGuess => Assets.icons.drawGuess,
+    GameIds.battleship => Assets.icons.battleship,
+    GameIds.hotPotato => Assets.icons.hotPotato,
+    GameIds.codeBreaker => Assets.icons.codeBreaker,
+    GameIds.liarsDice => Assets.icons.liarsDice,
+    GameIds.neonDodge => Assets.icons.neonDodge,
     _ => throw ArgumentError('Unknown game id: $gameId'),
   };
 
   static BaseMiniGame createGame(String gameId, GameProvider provider) {
     switch (gameId) {
-      case 'tug_of_war':
+      case GameIds.tugOfWar:
         return TugOfWarGame(provider);
-      case 'sumo_bumper':
+      case GameIds.sumoBumper:
         return SumoGame(provider);
-      case 'penalty_shootout':
+      case GameIds.penaltyShootout:
         return PenaltyGame(provider);
-      case 'air_hockey':
+      case GameIds.airHockey:
         return AirHockeyGame(provider);
-      case 'reaction_tap':
+      case GameIds.reactionTap:
         return ReactionTapGame(provider);
-      case 'minesweeper':
+      case GameIds.minesweeper:
         return MinesweeperGame(provider);
-      case 'billiards':
+      case GameIds.billiards:
         return BilliardsGame(provider);
-      case 'draw_guess':
+      case GameIds.drawGuess:
         return DrawGuessGame(provider);
-      case 'battleship':
+      case GameIds.battleship:
         return BattleshipGame(provider);
-      case 'hot_potato':
+      case GameIds.hotPotato:
         return HotPotatoGame(provider);
-      case 'code_breaker':
+      case GameIds.codeBreaker:
         return CodeBreakerGame(provider);
-      case 'liars_dice':
+      case GameIds.liarsDice:
         return LiarsDiceGame(provider);
-      case 'neon_dodge':
+      case GameIds.neonDodge:
         return NeonDodgeGame(provider);
       default:
         throw Exception('Game ID "$gameId" không tồn tại trong Registry');
