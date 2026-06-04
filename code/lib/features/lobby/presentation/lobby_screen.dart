@@ -35,6 +35,8 @@ class _LobbyScreenState extends State<LobbyScreen> {
       if (!mounted) return;
       final size = MediaQuery.of(context).size;
       if (size.width > size.height && size.width > 900) {
+        _nameController.text = 'TV Host';
+        _roomController.text = 'TV Room';
         setState(() => _tvMode = true);
       }
     });
@@ -114,29 +116,31 @@ class _LobbyScreenState extends State<LobbyScreen> {
                     const _StatsBar(),
                     const SizedBox(height: 32),
 
-                    // Profile Section
-                    _GlassCard(
-                      title: l10n.profileSectionTitle,
-                      icon: Icons.person_outline,
-                      child: Column(
-                        children: [
-                          _GlassTextField(
-                            controller: _nameController,
-                            label: l10n.yourNameLabel,
-                            icon: Icons.badge_outlined,
-                          ),
-                          const SizedBox(height: 20),
-                          _ColorPicker(
-                            selected: context
-                                .watch<LobbyProvider>()
-                                .selectedColor,
-                            onChanged: (c) =>
-                                context.read<LobbyProvider>().setColor(c),
-                          ),
-                        ],
+                    // Profile Section — hidden on TV (no keyboard input)
+                    if (!_tvMode) ...[
+                      _GlassCard(
+                        title: l10n.profileSectionTitle,
+                        icon: Icons.person_outline,
+                        child: Column(
+                          children: [
+                            _GlassTextField(
+                              controller: _nameController,
+                              label: l10n.yourNameLabel,
+                              icon: Icons.badge_outlined,
+                            ),
+                            const SizedBox(height: 20),
+                            _ColorPicker(
+                              selected: context
+                                  .watch<LobbyProvider>()
+                                  .selectedColor,
+                              onChanged: (c) =>
+                                  context.read<LobbyProvider>().setColor(c),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 24),
+                      const SizedBox(height: 24),
+                    ],
 
                     // Host Section
                     _GlassCard(
@@ -144,12 +148,14 @@ class _LobbyScreenState extends State<LobbyScreen> {
                       icon: Icons.add_home_outlined,
                       child: Column(
                         children: [
-                          _GlassTextField(
-                            controller: _roomController,
-                            label: l10n.roomNameLabel,
-                            icon: Icons.meeting_room_outlined,
-                          ),
-                          const SizedBox(height: 16),
+                          if (!_tvMode) ...[
+                            _GlassTextField(
+                              controller: _roomController,
+                              label: l10n.roomNameLabel,
+                              icon: Icons.meeting_room_outlined,
+                            ),
+                            const SizedBox(height: 16),
+                          ],
                           Row(
                             children: [
                               Icon(Icons.tv, color: Colors.white70, size: 20),
@@ -165,8 +171,13 @@ class _LobbyScreenState extends State<LobbyScreen> {
                               ),
                               Switch(
                                 value: _tvMode,
-                                onChanged: (val) =>
-                                    setState(() => _tvMode = val),
+                                onChanged: (val) {
+                                  setState(() => _tvMode = val);
+                                  if (!val) {
+                                    _nameController.text = 'Player';
+                                    _roomController.text = 'My Room';
+                                  }
+                                },
                                 activeTrackColor: Colors.cyanAccent.withValues(
                                   alpha: 0.5,
                                 ),
@@ -197,57 +208,58 @@ class _LobbyScreenState extends State<LobbyScreen> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 24),
-
-                    // Join Section
-                    _GlassCard(
-                      title: l10n.joinSectionTitle,
-                      icon: Icons.login_outlined,
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _SecondaryGridButton(
-                                  label: l10n.findLanBtn,
-                                  icon: Icons.radar,
-                                  color: Colors.blueAccent,
-                                  onPressed: () => _joinRoom(context),
+                    // Join Section — hidden on TV (TV is always Host, never Client)
+                    if (!_tvMode) ...[
+                      const SizedBox(height: 24),
+                      _GlassCard(
+                        title: l10n.joinSectionTitle,
+                        icon: Icons.login_outlined,
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _SecondaryGridButton(
+                                    label: l10n.findLanBtn,
+                                    icon: Icons.radar,
+                                    color: Colors.blueAccent,
+                                    onPressed: () => _joinRoom(context),
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: _SecondaryGridButton(
-                                  label: l10n.scanQrLabel,
-                                  icon: Icons.qr_code_scanner,
-                                  color: Colors.pinkAccent,
-                                  onPressed: () => _scanQr(context),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: _SecondaryGridButton(
+                                    label: l10n.scanQrLabel,
+                                    icon: Icons.qr_code_scanner,
+                                    color: Colors.pinkAccent,
+                                    onPressed: () => _scanQr(context),
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: _SecondaryGridButton(
-                                  label: l10n.enterEmojiBtn,
-                                  icon: Icons.tag_faces,
-                                  color: Colors.greenAccent,
-                                  onPressed: () async {
-                                    final lobby = context.read<LobbyProvider>();
-                                    if (lobby.localPlayer == null) {
-                                      await lobby.discoverRooms(
-                                        _nameController.text.trim(),
-                                      );
-                                    }
-                                    if (context.mounted) {
-                                      const EmojiJoinRoute().push(context);
-                                    }
-                                  },
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: _SecondaryGridButton(
+                                    label: l10n.enterEmojiBtn,
+                                    icon: Icons.tag_faces,
+                                    color: Colors.greenAccent,
+                                    onPressed: () async {
+                                      final lobby = context.read<LobbyProvider>();
+                                      if (lobby.localPlayer == null) {
+                                        await lobby.discoverRooms(
+                                          _nameController.text.trim(),
+                                        );
+                                      }
+                                      if (context.mounted) {
+                                        const EmojiJoinRoute().push(context);
+                                      }
+                                    },
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ),

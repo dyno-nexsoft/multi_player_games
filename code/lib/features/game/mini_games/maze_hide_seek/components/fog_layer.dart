@@ -5,10 +5,10 @@ import '../maze_game.dart';
 class FogLayer extends Component with HasGameReference<MazeGame> {
   @override
   void render(Canvas canvas) {
-    if (!game.isHost) return;
+    final lobby = game.gameProvider.lobbyProvider;
+    final localId = lobby.localPlayer?.id;
 
     final rect = game.camera.visibleWorldRect;
-
     canvas.saveLayer(rect, Paint());
     canvas.drawRect(
       rect,
@@ -21,9 +21,13 @@ class FogLayer extends Component with HasGameReference<MazeGame> {
 
     for (final p in game.players.values) {
       if (p.eliminated) continue;
+      // Console mode: TV audience sees all. P2P mode: each device sees only its player.
+      if (!lobby.isConsoleMode && p.playerId != localId) continue;
+
       double radius = p.isSeeker ? 120.0 : 90.0;
 
-      if (!p.isSeeker && game.radarActiveTime > 0) {
+      // Radar ability expands the seeker's vision circle.
+      if (p.isSeeker && game.radarActiveTime > 0) {
         radius = 200.0;
       }
 

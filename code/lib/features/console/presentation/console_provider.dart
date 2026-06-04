@@ -65,6 +65,10 @@ class ConsoleProvider extends ChangeNotifier {
   double _gyroX = 0;
   double _gyroY = 0;
 
+  /// True whenever input has changed since the last packet was sent.
+  /// Cleared after each send so idle ticks are suppressed.
+  bool _inputDirty = false;
+
   /// Màu nền hiện tại — chớp khi nhận feedback từ host.
   Color bgColor = const Color(0xFF0D0D1A);
 
@@ -76,11 +80,12 @@ class ConsoleProvider extends ChangeNotifier {
   void updateJoystick(Offset raw) {
     final len = raw.distance;
     _joystick = len > 1.0 ? raw / len : raw;
-    // Không gọi notifyListeners — joystick chỉ là input, UI joystick tự render.
+    _inputDirty = true;
   }
 
   void resetJoystick() {
     _joystick = Offset.zero;
+    _inputDirty = true;
   }
 
   // ── Buttons ────────────────────────────────────────────────────────────────
@@ -88,6 +93,7 @@ class ConsoleProvider extends ChangeNotifier {
   void setButton(String key, bool pressed) {
     if (_buttons[key] == pressed) return;
     _buttons[key] = pressed;
+    _inputDirty = true;
     if (pressed) HapticFeedback.selectionClick();
     notifyListeners();
   }
@@ -102,8 +108,9 @@ class ConsoleProvider extends ChangeNotifier {
         (event) {
           _gyroX = event.x;
           _gyroY = event.y;
+          _inputDirty = true;
         },
-        onError: (_) {}, // thiết bị thiếu gyro → im lặng
+        onError: (_) {},
       );
     } catch (_) {}
   }
@@ -120,6 +127,11 @@ class ConsoleProvider extends ChangeNotifier {
   }
 
   void _sendInput() {
+    final joystickActive = _joystick.distance > 0.01;
+    final buttonActive = _buttons.values.any((pressed) => pressed);
+    // Skip the packet when fully idle and nothing has changed since last send.
+    if (!joystickActive && !buttonActive && !_inputDirty) return;
+    _inputDirty = false;
     lobbyProvider.sendGamePacket(
       GamePacket(
         type: PacketType.controllerInput,

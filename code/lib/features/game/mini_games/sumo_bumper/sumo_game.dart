@@ -109,16 +109,20 @@ class SumoGame extends BaseMiniGame {
   }
 
   void _checkElimination() {
-    int aliveCount = 0;
-    String? winnerId;
+    if (_gameOver) return;
 
     for (final b in bumpers.values) {
       if (b.eliminated) continue;
-
       final pCenter = Offset(b.pos.x, b.pos.y);
       if ((pCenter - _arenaCenter).distance > _arenaRadius) {
         b.eliminated = true;
-      } else {
+      }
+    }
+
+    int aliveCount = 0;
+    String? winnerId;
+    for (final b in bumpers.values) {
+      if (!b.eliminated) {
         aliveCount++;
         winnerId = b.id;
       }
@@ -126,10 +130,10 @@ class SumoGame extends BaseMiniGame {
 
     if (aliveCount <= 1 && bumpers.length > 1) {
       _gameOver = true;
-      final scores = <String, int>{};
-      for (final b in bumpers.values) {
-        scores[b.id] = (b.id == winnerId && aliveCount == 1) ? 100 : 0;
-      }
+      final scores = <String, int>{
+        for (final b in bumpers.values)
+          b.id: (b.id == winnerId && aliveCount == 1) ? 100 : 0,
+      };
       endMiniGame(scores);
     }
   }
@@ -140,8 +144,8 @@ class SumoGame extends BaseMiniGame {
     if (action == 'input' && gameProvider.lobbyProvider.isHost) {
       final bumper = bumpers[senderId];
       if (bumper != null && !bumper.eliminated) {
-        final angle = (payload['angle'] as num).toDouble();
-        final forceMag = ((payload['force'] as num).toDouble()).clamp(0.0, 1.0);
+        final angle = (payload['angle'] as num?)?.toDouble() ?? 0.0;
+        final forceMag = ((payload['force'] as num?)?.toDouble() ?? 0.0).clamp(0.0, 1.0);
         bumper.vel += Vector2(
           forceMag * _force * math.cos(angle) * 0.1,
           forceMag * _force * math.sin(angle) * 0.1,
@@ -151,14 +155,15 @@ class SumoGame extends BaseMiniGame {
       final state = payload['state'] as Map?;
       if (state == null) return;
       for (final pId in state.keys) {
-        final data = state[pId] as Map;
+        final data = state[pId] as Map?;
+        if (data == null) continue;
         final bumper = bumpers[pId.toString()];
         if (bumper != null) {
           bumper.pos = Vector2(
-            (data['x'] as num).toDouble(),
-            (data['y'] as num).toDouble(),
+            (data['x'] as num?)?.toDouble() ?? bumper.pos.x,
+            (data['y'] as num?)?.toDouble() ?? bumper.pos.y,
           );
-          bumper.eliminated = data['e'] as bool;
+          bumper.eliminated = (data['e'] as bool?) ?? bumper.eliminated;
         }
       }
     }

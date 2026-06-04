@@ -239,6 +239,7 @@ class LobbyProvider extends ChangeNotifier {
     String roomName, {
     bool consoleMode = false,
   }) async {
+    if (_state == LobbyState.hosting || _state == LobbyState.inRoom) return;
     _isConsoleMode = consoleMode;
     _localPlayer = Player(
       id: _generateId(),
@@ -344,6 +345,7 @@ class LobbyProvider extends ChangeNotifier {
   Service? _lastJoinedService;
 
   Future<void> joinRoom(Service service) async {
+    if (_state == LobbyState.inRoom) return;
     _lastJoinedService = service;
     _reconnectAttempts = 0;
     _repo.onPacketReceived = _handleIncomingPacket;
@@ -521,10 +523,14 @@ class LobbyProvider extends ChangeNotifier {
   }
 
   void leaveRoom() {
+    _discoverySubscription?.cancel();
+    _discoverySubscription = null;
     _repo.dispose();
     _repo = ConnectionRepository();
     _players.clear();
     _pendingGameId = null;
+    _iAmSpectator = false;
+    _isConsoleMode = false;
     _state = LobbyState.idle;
     notifyListeners();
   }

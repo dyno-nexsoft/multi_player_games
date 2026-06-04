@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:flame/game.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
 import 'package:party_game_hub/core/theme/app_theme.dart';
@@ -49,6 +50,8 @@ class _GameHubScreenState extends State<GameHubScreen> {
   void initState() {
     super.initState();
     final lobby = context.read<LobbyProvider>();
+    final gameProvider = context.read<GameProvider>();
+    if (lobby.isConsoleMode) WakelockPlus.enable();
     lobby.onCountdownTick = (tick) {
       if (mounted) _externalTick.value = tick;
     };
@@ -60,6 +63,12 @@ class _GameHubScreenState extends State<GameHubScreen> {
         if (mounted) setState(() => _activeDisruption = null);
       });
     };
+    lobby.onSystemPause = () {
+      if (!mounted) return;
+      if (ModalRoute.of(context)?.isCurrent ?? true) {
+        _showPauseMenu(context, lobby, gameProvider);
+      }
+    };
   }
 
   @override
@@ -67,7 +76,9 @@ class _GameHubScreenState extends State<GameHubScreen> {
     final lobby = context.read<LobbyProvider>();
     lobby.onCountdownTick = null;
     lobby.onDisruption = null;
-    _disruptionTimer?.cancel(); // 6.1 — prevent setState after unmount
+    lobby.onSystemPause = null;
+    if (lobby.isConsoleMode) WakelockPlus.disable();
+    _disruptionTimer?.cancel();
     _externalTick.dispose();
     super.dispose();
   }
@@ -150,12 +161,6 @@ class _GameHubScreenState extends State<GameHubScreen> {
           // Wire emote callback → EmoteLayer
           lobby.onEmoteReceived = (emoji) =>
               EmoteLayer.of(context)?.showEmote(emoji);
-
-          lobby.onSystemPause = () {
-            if (ModalRoute.of(context)?.isCurrent ?? true) {
-              _showPauseMenu(context, lobby, gameProvider);
-            }
-          };
 
           return EmoteLayer(
             child: Stack(

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  TV Launcher banner placeholder — 320×180dp dark background.
+  Replace this file with a real PNG (320×180px) named tv_banner.png in the same folder
+  and remove this XML to display a proper banner in the Android TV launcher.
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Dark neon background matching app theme (#1B063A) -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#1B063A" />
+        </shape>
+    </item>
+    <!-- Subtle neon accent border -->
+    <item>
+        <shape android:shape="rectangle">
+            <stroke android:width="2dp" android:color="#6C63FF" />
+            <solid android:color="#00000000" />
+        </shape>
+    </item>
+</layer-list>

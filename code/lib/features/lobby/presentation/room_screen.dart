@@ -116,7 +116,7 @@ class _RoomScreenState extends State<RoomScreen> {
         }
 
         return PopScope(
-          canPop: false,
+          canPop: !lobby.isHost,
           onPopInvokedWithResult: (didPop, result) async {
             if (didPop) return;
             final shouldLeave = await showDialog<bool>(
@@ -202,9 +202,7 @@ class _RoomScreenState extends State<RoomScreen> {
                   ],
                 ],
               ),
-              leading: BackButton(
-                onPressed: () => const LobbyRoute().go(context),
-              ),
+              leading: const BackButton(),
               actions: [
                 if (lobby.isHost)
                   IconButton(

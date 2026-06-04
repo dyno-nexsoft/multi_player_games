@@ -161,7 +161,13 @@ class ConnectionRepository {
   }
 
   void sendPacket(GamePacket packet) {
-    _hostSocket?.add(_frame(packet.toBytes()));
+    try {
+      _hostSocket?.add(_frame(packet.toBytes()));
+    } catch (e) {
+      AppLogger.warning('sendPacket failed: $e', tag: 'Connection');
+      _hostSocket?.close().ignore();
+      _hostSocket = null;
+    }
   }
 
   // ── Shared ────────────────────────────────────────────────────────────────

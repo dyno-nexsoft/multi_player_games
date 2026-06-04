@@ -47,16 +47,37 @@ class _TvLobbyScreenState extends State<TvLobbyScreen>
       DeviceOrientation.landscapeRight,
     ]);
     _loadQrData();
+    // Register listener before the first build so _syncNewPlayers fires
+    // before Consumer.builder, ensuring dropAnimations is populated by the
+    // time the builder reads _dropAnimations.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<LobbyProvider>().addListener(_onLobbyChanged);
+        // Sync the initial player list (e.g. Host is already present).
+        _syncNewPlayers(context.read<LobbyProvider>().players);
+      }
+    });
   }
 
   @override
   void dispose() {
-    WakelockPlus.disable();
+    // Keep wakelock alive when transitioning to the game — GameHubScreen
+    // will re-enable it in initState and release it in its own dispose().
+    if (!_goingToGame) WakelockPlus.disable();
     SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     for (final ctrl in _dropControllers.values) {
       ctrl.dispose();
     }
+    // Safe: context.read is valid until after super.dispose().
+    if (mounted) {
+      context.read<LobbyProvider>().removeListener(_onLobbyChanged);
+    }
     super.dispose();
+  }
+
+  void _onLobbyChanged() {
+    if (!mounted) return;
+    _syncNewPlayers(context.read<LobbyProvider>().players);
   }
 
   Future<void> _loadQrData() async {
@@ -148,8 +169,6 @@ class _TvLobbyScreenState extends State<TvLobbyScreen>
             () => _goingToLobby = true,
           );
         }
-
-        _syncNewPlayers(lobby.players);
 
         return PopScope(
           canPop: false,

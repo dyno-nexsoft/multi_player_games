@@ -20,16 +20,17 @@ class TankBullet extends PositionComponent with HasGameReference<TankGame> {
     super.update(dt);
     position += velocity * dt;
 
-    if (game.isHost) {
-      if (position.x < -50 ||
-          position.x > game.size.x + 50 ||
-          position.y < -50 ||
-          position.y > game.size.y + 50) {
-        removeFromParent();
-        return;
-      }
+    // All devices clean up off-screen bullets to prevent accumulation.
+    if (position.x < -50 ||
+        position.x > game.size.x + 50 ||
+        position.y < -50 ||
+        position.y > game.size.y + 50) {
+      removeFromParent();
+      return;
+    }
 
-      // Host check collision
+    // Only host computes authoritative collision and damage.
+    if (game.isHost) {
       for (final p in game.players.values) {
         if (p.playerId != shooterId && p.hp > 0) {
           if (toRect().overlaps(p.toRect())) {
