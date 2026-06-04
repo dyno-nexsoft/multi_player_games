@@ -1,4 +1,4 @@
-package com.partygamehub.party_game_hub
+package com.dyno.partygamehub
 
 import io.flutter.embedding.android.FlutterActivity
 

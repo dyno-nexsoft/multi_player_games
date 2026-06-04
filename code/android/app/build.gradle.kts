@@ -8,7 +8,7 @@ plugins {
 }
 
 android {
-    namespace = "com.partygamehub.party_game_hub"
+    namespace = "com.dyno.partygamehub"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -19,7 +19,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.partygamehub.party_game_hub"
+        applicationId = "com.dyno.partygamehub"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

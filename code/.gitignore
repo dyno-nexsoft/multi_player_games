@@ -65,6 +65,3 @@ app.*.map.json
 *.gen.dart
 *.config.dart
 .vscode/
-
-# FVM Version Cache
-.fvm/

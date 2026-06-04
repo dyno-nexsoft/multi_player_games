@@ -15,44 +15,41 @@ dependencies:
     sdk: flutter
   intl: any
 
-  # Game engine
-  flame: ^1.22.0
-
-  # State management
+  # Navigation & State Management
+  go_router: ^17.3.0
   provider: ^6.1.2
 
-  # Network service discovery (mDNS/Bonjour)
-  nsd: ^5.0.1
-
-  # UI
+  # UI & Styling
   google_fonts: ^8.1.0
   flutter_svg: ^2.0.10+1
+  qr_flutter: ^4.1.0
 
-  # Navigation
-  go_router: ^17.3.0
+  # Game Engine & Media
+  flame: ^1.22.0
+  flame_audio: ^2.12.1
+  audioplayers: ^6.0.0
+
+  # Networking & Data Serialization
+  nsd: ^5.0.1
+  messagepack: ^0.2.1
+
+  # Hardware & Device Sensors
+  sensors_plus: ^7.0.0
+  mobile_scanner: ^7.2.0
+
+  # Local Storage
+  shared_preferences: ^2.3.2
 
   # Code Gen Annotations
   json_annotation: ^4.12.0
   freezed_annotation: ^3.1.0
-  flame_audio: ^2.12.1
-  audioplayers: ^6.0.0
-  qr_flutter: ^4.1.0
-  mobile_scanner: ^7.2.0
-  messagepack: ^0.2.1
-
-  # Local persistence (lifetime stats / leaderboard)
-  shared_preferences: ^2.3.2
-
-  # Device sensors (gyroscope for Console Mode controller)
-  sensors_plus: ^4.0.0
 
 dev_dependencies:
-  flutter_launcher_icons: ^0.13.1
   # Testing
   flutter_test:
     sdk: flutter
 
-  # Code Quality (Linter)
+  # Code Quality
   flutter_lints: ^6.0.0
 
   # Code Generation
@@ -61,6 +58,9 @@ dev_dependencies:
   freezed: ^3.2.5
   go_router_builder: ^4.3.0
   flutter_gen_runner: ^5.14.1
+
+  # Tools
+  flutter_launcher_icons: ^0.14.4
 
 flutter_gen:
   output: lib/gen/
