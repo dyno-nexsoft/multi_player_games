@@ -3,8 +3,7 @@
   "appName": "Party Game Hub",
   "host": "Host",
   "client": "Client",
-
-  "lobbyTitle": "🎮 Party Game Hub",
+  "lobbyTitle": "Party Game Hub",
   "yourNameLabel": "Your Name",
   "roomNameLabel": "Room Name (Host)",
   "createRoomBtn": "Create Room (Host)",
@@ -17,16 +16,13 @@
   "findLanBtn": "Find\nLAN",
   "scanQrLabel": "Scan\nQR",
   "enterEmojiBtn": "Enter\nEmoji",
-
   "discoverTitle": "Find Room",
   "searchingRooms": "Searching for rooms...",
   "joinBtn": "Join",
   "unknownRoom": "Unknown Room",
-
   "roomTitle": "Lobby Room",
   "selectMiniGame": "Select Mini-Game",
   "startBtn": "Start",
-
   "scoreboardTitle": "🏆 Leaderboard",
   "backToLobbyBtn": "Back to Lobby Room",
   "rematchBtn": "Play Again",
@@ -34,14 +30,20 @@
   "seriesRound": "Round {current}/{total}",
   "@seriesRound": {
     "placeholders": {
-      "current": { "type": "int" },
-      "total": { "type": "int" }
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "seriesWins": "{wins} wins",
   "@seriesWins": {
     "placeholders": {
-      "wins": { "type": "int" }
+      "wins": {
+        "type": "int"
+      }
     }
   },
   "pointsText": "{score} pts",
@@ -52,41 +54,30 @@
       }
     }
   },
-
   "gameTugOfWarTitle": "Speed Tug-of-War",
   "gameTugOfWarDesc": "Tap repeatedly to pull the rope to your side!",
   "tugOfWarTapLabel": "TAP NOW! ▼",
   "winText": "🏆 WIN!",
   "loseText": "😢 LOSE!",
-
   "gameSumoBumperTitle": "Sumo Bumper",
   "gameSumoBumperDesc": "Bump opponents out of the survival circle!",
-
   "gamePenaltyShootoutTitle": "Penalty Shootout",
   "gamePenaltyShootoutDesc": "Shoot the ball past the goalkeeper to score!",
   "penaltyTapToShoot": "Tap to shoot!",
-
   "gameAirHockeyTitle": "Air Hockey",
   "gameAirHockeyDesc": "Hit the puck into opponent's screen — each phone is half of the rink!",
-
   "gameDrawGuessTitle": "Draw & Guess",
   "gameDrawGuessDesc": "Draw a word, opponent guesses — alternate roles across 5 words!",
-
   "gameReactionTapTitle": "Reaction Tap",
   "gameReactionTapDesc": "Tap the moment the screen flashes — fastest wins the round!",
-
   "gameMinesweeperTitle": "Minesweeper Race",
   "gameMinesweeperDesc": "Reveal the most safe cells in 60s — avoid the mines!",
-
   "gameBilliardsTitle": "9-Ball Billiards",
   "gameBilliardsDesc": "Pocket balls in order — score more than your opponent to win!",
-
   "gameBattleshipTitle": "Space Naval Battle",
   "gameBattleshipDesc": "Place ships secretly, then hunt down the enemy fleet!",
-
   "gameHotPotatoTitle": "Hot Potato Bomb",
   "gameHotPotatoDesc": "Swipe to throw the ticking bomb before it explodes!",
-
   "closeBtn": "Close",
   "cancelBtn": "Cancel",
   "confirmBtn": "Confirm",
@@ -123,7 +114,6 @@
   "playBtn": "Play!",
   "continueBtn": "Continue",
   "leaveRoomBtn": "Leave Room",
-
   "endGameTitle": "End Game?",
   "endGameDesc": "The game will be cancelled and all players will return to the lobby. Are you sure?",
   "endGameBtn": "End Game",

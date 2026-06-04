@@ -56,6 +56,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
+        notificationPredicate: (_) => false,
         forceMaterialTransparency: false,
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -73,6 +74,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
         ],
       ),
       body: Container(
+        alignment: Alignment.center,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xFF0F172A), Color(0xFF1E1B4B)],
@@ -80,189 +82,190 @@ class _LobbyScreenState extends State<LobbyScreen> {
             end: Alignment.bottomCenter,
           ),
         ),
-        child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 500),
-                child: Column(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(
+            24,
+            kToolbarHeight,
+            24,
+            0,
+          ).add(MediaQuery.of(context).viewPadding),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 500),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Header
+                Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Header
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.asset(
+                        'assets/images/app_icon.png',
+                        width: 44,
+                        height: 44,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      l10n.lobbyTitle,
+                      style: Theme.of(context).textTheme.headlineMedium
+                          ?.copyWith(
+                            fontWeight: FontWeight.w900,
+                            color: Colors.white,
+                            letterSpacing: 1.2,
+                          ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                const _StatsBar(),
+                const SizedBox(height: 32),
+
+                // Profile Section — hidden on TV (no keyboard input)
+                if (!_tvMode) ...[
+                  _GlassCard(
+                    title: l10n.profileSectionTitle,
+                    icon: Icons.person_outline,
+                    child: Column(
                       children: [
-                        Image.asset(
-                          'assets/images/app_icon.png',
-                          width: 44,
-                          height: 44,
-                          fit: BoxFit.contain,
+                        _GlassTextField(
+                          controller: _nameController,
+                          label: l10n.yourNameLabel,
+                          icon: Icons.badge_outlined,
                         ),
-                        const SizedBox(width: 12),
-                        Text(
-                          l10n.lobbyTitle,
-                          style: Theme.of(context).textTheme.headlineMedium
-                              ?.copyWith(
-                                fontWeight: FontWeight.w900,
-                                color: Colors.white,
-                                letterSpacing: 1.2,
-                              ),
+                        const SizedBox(height: 20),
+                        _ColorPicker(
+                          selected: context
+                              .watch<LobbyProvider>()
+                              .selectedColor,
+                          onChanged: (c) =>
+                              context.read<LobbyProvider>().setColor(c),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
-                    const _StatsBar(),
-                    const SizedBox(height: 32),
+                  ),
+                  const SizedBox(height: 24),
+                ],
 
-                    // Profile Section — hidden on TV (no keyboard input)
-                    if (!_tvMode) ...[
-                      _GlassCard(
-                        title: l10n.profileSectionTitle,
-                        icon: Icons.person_outline,
-                        child: Column(
-                          children: [
-                            _GlassTextField(
-                              controller: _nameController,
-                              label: l10n.yourNameLabel,
-                              icon: Icons.badge_outlined,
-                            ),
-                            const SizedBox(height: 20),
-                            _ColorPicker(
-                              selected: context
-                                  .watch<LobbyProvider>()
-                                  .selectedColor,
-                              onChanged: (c) =>
-                                  context.read<LobbyProvider>().setColor(c),
-                            ),
-                          ],
+                // Host Section
+                _GlassCard(
+                  title: l10n.hostSectionTitle,
+                  icon: Icons.add_home_outlined,
+                  child: Column(
+                    children: [
+                      if (!_tvMode) ...[
+                        _GlassTextField(
+                          controller: _roomController,
+                          label: l10n.roomNameLabel,
+                          icon: Icons.meeting_room_outlined,
                         ),
-                      ),
-                      const SizedBox(height: 24),
-                    ],
-
-                    // Host Section
-                    _GlassCard(
-                      title: l10n.hostSectionTitle,
-                      icon: Icons.add_home_outlined,
-                      child: Column(
+                        const SizedBox(height: 16),
+                      ],
+                      Row(
                         children: [
-                          if (!_tvMode) ...[
-                            _GlassTextField(
-                              controller: _roomController,
-                              label: l10n.roomNameLabel,
-                              icon: Icons.meeting_room_outlined,
+                          Icon(Icons.tv, color: Colors.white70, size: 20),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              l10n.tvModeLabel,
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 14,
+                              ),
                             ),
-                            const SizedBox(height: 16),
-                          ],
-                          Row(
-                            children: [
-                              Icon(Icons.tv, color: Colors.white70, size: 20),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  l10n.tvModeLabel,
-                                  style: const TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ),
-                              Switch(
-                                value: _tvMode,
-                                onChanged: (val) {
-                                  setState(() => _tvMode = val);
-                                  if (!val) {
-                                    _nameController.text = 'Player';
-                                    _roomController.text = 'My Room';
-                                  }
-                                },
-                                activeTrackColor: Colors.cyanAccent.withValues(
-                                  alpha: 0.5,
-                                ),
-                                thumbColor:
-                                    WidgetStateProperty.resolveWith<Color>((
-                                      states,
-                                    ) {
-                                      if (states.contains(
-                                        WidgetState.selected,
-                                      )) {
-                                        return Colors.cyanAccent;
-                                      }
-                                      return Colors.white70;
-                                    }),
-                              ),
-                            ],
                           ),
-                          const SizedBox(height: 20),
-                          _PrimaryButton(
-                            label: l10n.createRoomBtn,
-                            icon: Icons.wifi_tethering,
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF8B5CF6), Color(0xFF6D28D9)],
+                          Switch(
+                            value: _tvMode,
+                            onChanged: (val) {
+                              setState(() => _tvMode = val);
+                              if (!val) {
+                                _nameController.text = 'Player';
+                                _roomController.text = 'My Room';
+                              }
+                            },
+                            activeTrackColor: Colors.cyanAccent.withValues(
+                              alpha: 0.5,
                             ),
-                            onPressed: () =>
-                                _hostRoom(context, consoleMode: _tvMode),
+                            thumbColor: WidgetStateProperty.resolveWith<Color>((
+                              states,
+                            ) {
+                              if (states.contains(WidgetState.selected)) {
+                                return Colors.cyanAccent;
+                              }
+                              return Colors.white70;
+                            }),
                           ),
                         ],
                       ),
-                    ),
-                    // Join Section — hidden on TV (TV is always Host, never Client)
-                    if (!_tvMode) ...[
-                      const SizedBox(height: 24),
-                      _GlassCard(
-                        title: l10n.joinSectionTitle,
-                        icon: Icons.login_outlined,
-                        child: Column(
+                      const SizedBox(height: 20),
+                      _PrimaryButton(
+                        label: l10n.createRoomBtn,
+                        icon: Icons.wifi_tethering,
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF8B5CF6), Color(0xFF6D28D9)],
+                        ),
+                        onPressed: () =>
+                            _hostRoom(context, consoleMode: _tvMode),
+                      ),
+                    ],
+                  ),
+                ),
+                // Join Section — hidden on TV (TV is always Host, never Client)
+                if (!_tvMode) ...[
+                  const SizedBox(height: 24),
+                  _GlassCard(
+                    title: l10n.joinSectionTitle,
+                    icon: Icons.login_outlined,
+                    child: Column(
+                      children: [
+                        Row(
                           children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _SecondaryGridButton(
-                                    label: l10n.findLanBtn,
-                                    icon: Icons.radar,
-                                    color: Colors.blueAccent,
-                                    onPressed: () => _joinRoom(context),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: _SecondaryGridButton(
-                                    label: l10n.scanQrLabel,
-                                    icon: Icons.qr_code_scanner,
-                                    color: Colors.pinkAccent,
-                                    onPressed: () => _scanQr(context),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: _SecondaryGridButton(
-                                    label: l10n.enterEmojiBtn,
-                                    icon: Icons.tag_faces,
-                                    color: Colors.greenAccent,
-                                    onPressed: () async {
-                                      final lobby = context.read<LobbyProvider>();
-                                      if (lobby.localPlayer == null) {
-                                        await lobby.discoverRooms(
-                                          _nameController.text.trim(),
-                                        );
-                                      }
-                                      if (context.mounted) {
-                                        const EmojiJoinRoute().push(context);
-                                      }
-                                    },
-                                  ),
-                                ),
-                              ],
+                            Expanded(
+                              child: _SecondaryGridButton(
+                                label: l10n.findLanBtn,
+                                icon: Icons.radar,
+                                color: Colors.blueAccent,
+                                onPressed: () => _joinRoom(context),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _SecondaryGridButton(
+                                label: l10n.scanQrLabel,
+                                icon: Icons.qr_code_scanner,
+                                color: Colors.pinkAccent,
+                                onPressed: () => _scanQr(context),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _SecondaryGridButton(
+                                label: l10n.enterEmojiBtn,
+                                icon: Icons.tag_faces,
+                                color: Colors.greenAccent,
+                                onPressed: () async {
+                                  final lobby = context.read<LobbyProvider>();
+                                  if (lobby.localPlayer == null) {
+                                    await lobby.discoverRooms(
+                                      _nameController.text.trim(),
+                                    );
+                                  }
+                                  if (context.mounted) {
+                                    const EmojiJoinRoute().push(context);
+                                  }
+                                },
+                              ),
                             ),
                           ],
                         ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
         ),

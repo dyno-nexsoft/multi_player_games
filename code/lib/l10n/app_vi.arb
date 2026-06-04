@@ -3,8 +3,7 @@
   "appName": "Party Game Hub",
   "host": "Host",
   "client": "Client",
-
-  "lobbyTitle": "🎮 Party Game Hub",
+  "lobbyTitle": "Party Game Hub",
   "yourNameLabel": "Tên của bạn",
   "roomNameLabel": "Tên phòng (Host)",
   "createRoomBtn": "Tạo Phòng (Host)",
@@ -17,16 +16,13 @@
   "findLanBtn": "Tìm\nLAN",
   "scanQrLabel": "Quét\nQR",
   "enterEmojiBtn": "Nhập\nEmoji",
-
   "discoverTitle": "Tìm Phòng",
   "searchingRooms": "Đang tìm kiếm phòng...",
   "joinBtn": "Tham gia",
   "unknownRoom": "Phòng không xác định",
-
   "roomTitle": "Phòng Chờ",
   "selectMiniGame": "Chọn Mini-Game",
   "startBtn": "Bắt đầu",
-
   "scoreboardTitle": "🏆 Bảng Xếp Hạng",
   "backToLobbyBtn": "Quay lại Phòng Chờ",
   "rematchBtn": "Chơi Lại",
@@ -34,14 +30,20 @@
   "seriesRound": "Hiệp {current}/{total}",
   "@seriesRound": {
     "placeholders": {
-      "current": { "type": "int" },
-      "total": { "type": "int" }
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "seriesWins": "{wins} thắng",
   "@seriesWins": {
     "placeholders": {
-      "wins": { "type": "int" }
+      "wins": {
+        "type": "int"
+      }
     }
   },
   "pointsText": "{score} điểm",
@@ -52,41 +54,30 @@
       }
     }
   },
-
   "gameTugOfWarTitle": "Kéo Co Tốc Độ",
   "gameTugOfWarDesc": "Nhấn nút liên tục để kéo sợi dây về phía bạn!",
   "tugOfWarTapLabel": "TAP ĐI! ▼",
   "winText": "🏆 THẮNG!",
   "loseText": "😢 THUA!",
-
   "gameSumoBumperTitle": "Húc Bóng Sinh Tồn",
   "gameSumoBumperDesc": "Húc bay đối thủ ra khỏi vòng tròn sinh tồn!",
-
   "gamePenaltyShootoutTitle": "Sút Phạt Đền",
   "gamePenaltyShootoutDesc": "Sút bóng qua thủ môn để ghi bàn!",
   "penaltyTapToShoot": "Tap để sút!",
-
   "gameAirHockeyTitle": "Khúc Côn Cầu",
   "gameAirHockeyDesc": "Đánh puck qua màn hình đối thủ — mỗi máy là một nửa sân!",
-
   "gameDrawGuessTitle": "Vẽ & Đoán",
   "gameDrawGuessDesc": "Vẽ hình, đối thủ đoán từ — xen kẽ vai trò qua 5 từ!",
-
   "gameReactionTapTitle": "Phản Xạ Thần Tốc",
   "gameReactionTapDesc": "Tap ngay khi màn hình sáng lên — ai nhanh hơn thắng!",
-
   "gameMinesweeperTitle": "Dò Mìn Tốc Độ",
   "gameMinesweeperDesc": "Reveal ô trống nhiều nhất trong 60s, tránh mìn!",
-
   "gameBilliardsTitle": "Bi-a 9 Ball",
   "gameBilliardsDesc": "Bỏ túi ball theo thứ tự — ai gom điểm nhiều hơn thắng!",
-
   "gameBattleshipTitle": "Hải Chiến Không Gian",
   "gameBattleshipDesc": "Đặt tàu bí mật, bắn hạ hạm đội đối thủ!",
-
   "gameHotPotatoTitle": "Bảo Mìn Hẹn Giờ",
   "gameHotPotatoDesc": "Vuốt để ném bom sang đối thủ trước khi nổ!",
-
   "closeBtn": "Đóng",
   "cancelBtn": "Hủy",
   "confirmBtn": "Đồng ý",
@@ -123,7 +114,6 @@
   "playBtn": "Chơi!",
   "continueBtn": "Tiếp Tục",
   "leaveRoomBtn": "Rời Phòng",
-
   "endGameTitle": "Kết thúc trò chơi?",
   "endGameDesc": "Trò chơi sẽ bị hủy và tất cả người chơi sẽ quay về sảnh chờ. Bạn có chắc chắn không?",
   "endGameBtn": "Kết thúc",

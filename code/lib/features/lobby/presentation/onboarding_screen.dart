@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:party_game_hub/core/storage/onboarding_service.dart';
 import 'package:party_game_hub/core/theme/app_theme.dart';
 import 'package:party_game_hub/core/theme/neon_widgets.dart';
-import '../../../router.dart';
 import 'package:party_game_hub/l10n/app_localizations.dart';
+
+import '../../../router.dart';
 
 /// Màn hình giới thiệu lần đầu — 3 slide vuốt ngang.
 ///
@@ -502,8 +503,7 @@ class _GamepadIconState extends State<_GamepadIcon>
     return AnimatedBuilder(
       animation: _ctrl,
       builder: (_, _) => Container(
-        width: 120,
-        height: 120,
+        clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: Colors.transparent,
@@ -515,15 +515,11 @@ class _GamepadIconState extends State<_GamepadIcon>
             ),
           ],
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(60),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Image.asset(
-              'assets/images/app_icon.png',
-              fit: BoxFit.contain,
-            ),
-          ),
+        child: Image.asset(
+          'assets/images/app_icon.png',
+          fit: BoxFit.cover,
+          width: 120,
+          height: 120,
         ),
       ),
     );

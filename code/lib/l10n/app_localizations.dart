@@ -119,7 +119,7 @@ abstract class AppLocalizations {
   /// No description provided for @lobbyTitle.
   ///
   /// In vi, this message translates to:
-  /// **'🎮 Party Game Hub'**
+  /// **'Party Game Hub'**
   String get lobbyTitle;
 
   /// No description provided for @yourNameLabel.

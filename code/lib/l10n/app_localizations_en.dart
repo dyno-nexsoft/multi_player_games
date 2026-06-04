@@ -18,7 +18,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get client => 'Client';
 
   @override
-  String get lobbyTitle => '🎮 Party Game Hub';
+  String get lobbyTitle => 'Party Game Hub';
 
   @override
   String get yourNameLabel => 'Your Name';
