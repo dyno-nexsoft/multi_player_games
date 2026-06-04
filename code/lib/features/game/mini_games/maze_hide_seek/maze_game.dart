@@ -52,11 +52,7 @@ class MazeGame extends BaseMiniGame {
     final lobbyPlayers = gameProvider.lobbyProvider.players;
 
     int i = 0;
-    final hiderSpawns = [
-       Vector2(340, 540),
-       Vector2(340, 60),
-       Vector2(60, 540),
-    ];
+    final hiderSpawns = [Vector2(340, 540), Vector2(340, 60), Vector2(60, 540)];
     for (final p in lobbyPlayers) {
       final isSeeker = i == 0;
       final tank = MazePlayer(playerId: p.id, isSeeker: isSeeker);
@@ -129,20 +125,24 @@ class MazeGame extends BaseMiniGame {
       }
 
       if (seeker != null) {
-         for (final p in players.values) {
-            if (!p.isSeeker && !p.eliminated) {
-               if (seeker.toRect().overlaps(p.toRect())) {
-                  p.eliminated = true;
-                  aliveHiders--;
-                  AppAudio.playLose();
-                  gameProvider.sendControllerFeedback(p.playerId, hapticType: 'heavy', flashColor: 0xFFFF0000);
-               }
+        for (final p in players.values) {
+          if (!p.isSeeker && !p.eliminated) {
+            if (seeker.toRect().overlaps(p.toRect())) {
+              p.eliminated = true;
+              aliveHiders--;
+              AppAudio.playLose();
+              gameProvider.sendControllerFeedback(
+                p.playerId,
+                hapticType: 'heavy',
+                flashColor: 0xFFFF0000,
+              );
             }
-         }
+          }
+        }
       }
-      
+
       if (aliveHiders == 0) {
-         _endGame(hiderWins: false);
+        _endGame(hiderWins: false);
       }
     }
   }
@@ -240,9 +240,9 @@ class MazeGame extends BaseMiniGame {
     final scores = <String, int>{};
     for (final p in players.values) {
       if (p.isSeeker) {
-         scores[p.playerId] = hiderWins ? 0 : 10;
+        scores[p.playerId] = hiderWins ? 0 : 10;
       } else {
-         scores[p.playerId] = (!p.eliminated) ? 10 : 0;
+        scores[p.playerId] = (!p.eliminated) ? 10 : 0;
       }
     }
     endMiniGame(scores);

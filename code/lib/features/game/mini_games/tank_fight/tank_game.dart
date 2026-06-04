@@ -2,7 +2,6 @@ import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 
-
 import '../../../../core/audio/audio_service.dart';
 import '../../domain/base_mini_game.dart';
 import '../../domain/game_ids.dart';
@@ -19,7 +18,7 @@ class TankGame extends BaseMiniGame {
   bool get isHost => gameProvider.lobbyProvider.isHost;
 
   final Map<String, TankPlayer> players = {};
-  
+
   double _syncTimer = 0;
   static const double _syncRate = 1 / 30; // 30Hz
 
@@ -38,27 +37,31 @@ class TankGame extends BaseMiniGame {
     }
 
     final lobbyPlayers = gameProvider.lobbyProvider.players;
-    
+
     int i = 0;
     for (final p in lobbyPlayers) {
       final color = Color(p.color);
       final tank = TankPlayer(playerId: p.id, color: color);
       // Vị trí spawn ở 4 góc
-      if (i == 0) { // Top-Left
+      if (i == 0) {
+        // Top-Left
         tank.position = Vector2(80, 80);
         tank.angle = pi / 4;
-      } else if (i == 1) { // Bottom-Right
+      } else if (i == 1) {
+        // Bottom-Right
         tank.position = Vector2(size.x - 80, size.y - 80);
         tank.angle = -pi * 3 / 4;
-      } else if (i == 2) { // Top-Right
+      } else if (i == 2) {
+        // Top-Right
         tank.position = Vector2(size.x - 80, 80);
         tank.angle = pi * 3 / 4;
-      } else { // Bottom-Left
+      } else {
+        // Bottom-Left
         tank.position = Vector2(80, size.y - 80);
         tank.angle = -pi / 4;
       }
       tank.targetAngle = tank.angle;
-      
+
       players[p.id] = tank;
       add(tank);
       i++;
@@ -80,10 +83,7 @@ class TankGame extends BaseMiniGame {
       };
     }
 
-    gameProvider.sendGameData(gameId, {
-      'action': 'sync',
-      'state': state,
-    });
+    gameProvider.sendGameData(gameId, {'action': 'sync', 'state': state});
   }
 
   @override
@@ -91,11 +91,11 @@ class TankGame extends BaseMiniGame {
     if (_gameOver) return;
 
     final action = payload['action'] as String?;
-    
+
     if (action == 'sync' && !isHost) {
       final state = payload['state'] as Map?;
       if (state == null) return;
-      
+
       for (final pId in state.keys) {
         final pData = state[pId] as Map;
         final tank = players[pId.toString()];
@@ -116,13 +116,15 @@ class TankGame extends BaseMiniGame {
       final y = (payload['y'] as num).toDouble();
       final vx = (payload['vx'] as num).toDouble();
       final vy = (payload['vy'] as num).toDouble();
-      
+
       AppAudio.playBump();
-      add(TankBullet(
-        position: Vector2(x, y),
-        velocity: Vector2(vx, vy),
-        shooterId: payload['shooterId'].toString(),
-      ));
+      add(
+        TankBullet(
+          position: Vector2(x, y),
+          velocity: Vector2(vx, vy),
+          shooterId: payload['shooterId'].toString(),
+        ),
+      );
     }
 
     if (action == 'controller' && isHost) {
@@ -133,7 +135,7 @@ class TankGame extends BaseMiniGame {
           final dx = (j[0] as num).toDouble();
           final dy = (j[1] as num).toDouble();
           final mag = sqrt(dx * dx + dy * dy);
-          
+
           if (mag > 0.1) {
             tank.isMoving = true;
             tank.targetAngle = atan2(dy, dx);
@@ -144,7 +146,7 @@ class TankGame extends BaseMiniGame {
             tank.isMoving = false;
           }
         }
-        
+
         final b = payload['b'] as Map?;
         if (b != null && b['A'] == true) {
           if (tank.timeSinceLastShot >= 1.0) {
@@ -176,14 +178,16 @@ class TankGame extends BaseMiniGame {
   void _shoot(String shooterId, Vector2 position, double angle) {
     AppAudio.playBump();
     final velocity = Vector2(cos(angle), sin(angle)) * 400;
-    
+
     // Spawn bullet local (Host)
-    add(TankBullet(
-      position: position.clone()..add(Vector2(cos(angle), sin(angle)) * 30),
-      velocity: velocity,
-      shooterId: shooterId,
-    ));
-    
+    add(
+      TankBullet(
+        position: position.clone()..add(Vector2(cos(angle), sin(angle)) * 30),
+        velocity: velocity,
+        shooterId: shooterId,
+      ),
+    );
+
     // Broadcast shoot to clients for sound/visual
     gameProvider.sendGameData(gameId, {
       'action': 'shoot',
@@ -200,9 +204,13 @@ class TankGame extends BaseMiniGame {
     final tank = players[hitPlayerId];
     if (tank != null && tank.hp > 0) {
       tank.hp--;
-      gameProvider.sendControllerFeedback(hitPlayerId, hapticType: 'heavy', flashColor: 0xFFFF0000);
+      gameProvider.sendControllerFeedback(
+        hitPlayerId,
+        hapticType: 'heavy',
+        flashColor: 0xFFFF0000,
+      );
       AppAudio.playLose();
-      
+
       if (tank.hp <= 0) {
         _checkGameOver();
       }

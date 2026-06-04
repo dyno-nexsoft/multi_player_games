@@ -71,6 +71,16 @@ class GameProvider extends ChangeNotifier {
     _roundEnded = false;
     _activeGame = MiniGameRegistry.createGame(gameId, this);
     _showScoreboard = false;
+
+    if (lobbyProvider.isHost) {
+      final meta = MiniGameRegistry.availableGames.firstWhere(
+        (g) => g.id == gameId,
+      );
+      if (meta.controllerConfig != null) {
+        sendControllerInit(gameId, meta.controllerConfig!);
+      }
+    }
+
     notifyListeners();
   }
 

@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'features/lobby/presentation/lobby_screen.dart';
-import 'features/lobby/presentation/discover_screen.dart';
-import 'features/lobby/presentation/room_screen.dart';
-import 'features/lobby/presentation/qr_scanner_screen.dart';
-import 'features/game/presentation/game_hub_screen.dart';
-import 'features/console/presentation/gamepad_screen.dart';
-import 'features/lobby/presentation/onboarding_screen.dart';
-import 'features/lobby/presentation/emoji_join_screen.dart';
-import 'features/game/presentation/spectator_screen.dart';
 
-part 'router.g.dart';
-part 'features/lobby/presentation/lobby_routes.dart';
-part 'features/game/presentation/game_routes.dart';
+import 'features/console/presentation/gamepad_screen.dart';
+import 'features/console/presentation/tv_lobby_screen.dart';
+import 'features/game/presentation/game_hub_screen.dart';
+import 'features/game/presentation/spectator_screen.dart';
+import 'features/lobby/presentation/discover_screen.dart';
+import 'features/lobby/presentation/emoji_join_screen.dart';
+import 'features/lobby/presentation/lobby_screen.dart';
+import 'features/lobby/presentation/onboarding_screen.dart';
+import 'features/lobby/presentation/qr_scanner_screen.dart';
+import 'features/lobby/presentation/room_screen.dart';
+
 part 'features/console/presentation/console_routes.dart';
+part 'features/game/presentation/game_routes.dart';
+part 'features/lobby/presentation/lobby_routes.dart';
+part 'router.g.dart';
 
 // ── Shared transition helper ───────────────────────────────────────────────
 

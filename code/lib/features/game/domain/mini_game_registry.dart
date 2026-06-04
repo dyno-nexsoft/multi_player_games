@@ -40,6 +40,11 @@ abstract class MiniGameRegistry {
       minPlayers: 2,
       maxPlayers: 4,
       supportsConsoleMode: true,
+      controllerConfig: {
+        'joystick_enabled': true,
+        'labels': {'A': 'Húc'},
+        'highlight': 'A',
+      },
     ),
     MiniGameMetadata(
       id: GameIds.penaltyShootout,
@@ -130,6 +135,12 @@ abstract class MiniGameRegistry {
       minPlayers: 2,
       maxPlayers: 6,
       supportsConsoleMode: true,
+      controllerConfig: {
+        'joystick_enabled': false,
+        'gyro_hint': true,
+        'labels': {'A': 'Phanh', 'B': 'Tốc độ'},
+        'highlight': 'B',
+      },
     ),
     MiniGameMetadata(
       id: GameIds.archerDuel,
@@ -147,15 +158,26 @@ abstract class MiniGameRegistry {
       minPlayers: 2,
       maxPlayers: 4,
       supportsConsoleMode: true,
+      controllerConfig: {
+        'joystick_enabled': true,
+        'labels': {'A': 'Bắn', 'B': 'Lá chắn'},
+        'highlight': 'A',
+      },
     ),
     MiniGameMetadata(
       id: GameIds.mazeHideSeek,
       title: 'Trốn Tìm Mê Cung',
-      description: 'Cảnh sát truy bắt kẻ trộm trong mê cung tối tăm với Radar và Dash!',
+      description:
+          'Cảnh sát truy bắt kẻ trộm trong mê cung tối tăm với Radar và Dash!',
       iconPath: 'assets/icons/maze_hide_seek.svg',
       minPlayers: 2,
       maxPlayers: 4,
       supportsConsoleMode: true,
+      controllerConfig: {
+        'joystick_enabled': true,
+        'labels': {'A': 'Chém', 'B': 'Lướt'},
+        'highlight': 'A',
+      },
     ),
   ];
 

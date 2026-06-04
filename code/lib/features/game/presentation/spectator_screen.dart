@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:party_game_hub/core/theme/app_theme.dart';
 import 'package:party_game_hub/core/theme/neon_widgets.dart';
 import '../../lobby/presentation/lobby_provider.dart';
+import '../../../router.dart';
 
 /// Màn hình Khán Giả Tương Tác — xem game và phá đám bằng vật phẩm.
 ///
@@ -31,7 +31,7 @@ class _SpectatorScreenState extends State<SpectatorScreen> {
     lobby.onGameEnded = (_) {
       if (mounted) {
         lobby.returnToLobby();
-        context.go('/room');
+        const RoomRoute().go(context);
       }
     };
   }
@@ -90,7 +90,7 @@ class _SpectatorScreenState extends State<SpectatorScreen> {
                   TextButton(
                     onPressed: () {
                       lobby.returnToLobby();
-                      context.go('/room');
+                      const RoomRoute().go(context);
                     },
                     child: const Text('Rời phòng'),
                   ),

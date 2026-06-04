@@ -1,12 +1,13 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 
+import 'package:party_game_hub/l10n/app_localizations.dart';
 import '../data/connection_repository.dart';
 import 'lobby_provider.dart';
+import '../../../router.dart';
 
 /// Màn hình quét QR code để join phòng host mà không cần mDNS discovery.
 class QrScannerScreen extends StatefulWidget {
@@ -23,6 +24,7 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
     if (_processing) return;
     setState(() => _processing = true);
 
+    final l10n = AppLocalizations.of(context)!;
     try {
       final data = jsonDecode(rawValue) as Map<String, dynamic>;
       final ip = data['ip'] as String;
@@ -31,12 +33,12 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
 
       final lobby = context.read<LobbyProvider>();
       await lobby.joinRoomByAddress(ip, port);
-      if (mounted) context.go('/room');
+      if (mounted) const RoomRoute().go(context);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('QR không hợp lệ')));
+        ).showSnackBar(SnackBar(content: Text(l10n.invalidQrCode)));
         setState(() => _processing = false);
       }
     }
@@ -44,8 +46,9 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text('Quét QR để vào phòng')),
+      appBar: AppBar(title: Text(l10n.scanQrTitle)),
       body: Stack(
         children: [
           MobileScanner(

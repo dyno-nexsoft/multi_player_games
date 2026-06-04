@@ -22,6 +22,9 @@ class CountdownOverlay extends StatefulWidget {
   /// Khi không null và không phải host, overlay theo tick này thay vì bộ đếm nội.
   final ValueNotifier<int>? externalTickNotifier;
 
+  /// Khi true, hiển thị thêm hướng dẫn sử dụng tay cầm trên điện thoại.
+  final bool isConsoleMode;
+
   const CountdownOverlay({
     super.key,
     required this.onComplete,
@@ -29,6 +32,7 @@ class CountdownOverlay extends StatefulWidget {
     this.isHost = true,
     this.onBroadcastTick,
     this.externalTickNotifier,
+    this.isConsoleMode = false,
   });
 
   @override
@@ -178,12 +182,42 @@ class _CountdownOverlayState extends State<CountdownOverlay>
           Text(
             hint.instruction,
             style: const TextStyle(
-              fontSize: 32,
+              fontSize: 48,
               fontWeight: FontWeight.w900,
               color: Colors.white,
-              shadows: [Shadow(color: Colors.black, blurRadius: 16)],
+              letterSpacing: 2,
             ),
           ),
+          if (widget.isConsoleMode) ...[
+            const SizedBox(height: 40),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: Colors.white24),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.gamepad_rounded,
+                    color: Colors.cyanAccent,
+                    size: 32,
+                  ),
+                  SizedBox(width: 12),
+                  Text(
+                    'Sử dụng tay cầm trên điện thoại',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.cyanAccent,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );

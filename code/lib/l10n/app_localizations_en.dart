@@ -36,6 +36,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scanQrBtn => 'Scan QR to Join';
 
   @override
+  String get profileSectionTitle => 'Profile Info';
+
+  @override
+  String get hostSectionTitle => 'Host Room';
+
+  @override
+  String get tvModeLabel => 'Big Screen Mode (TV Mode)';
+
+  @override
+  String get joinSectionTitle => 'Join Room';
+
+  @override
+  String get findLanBtn => 'Find\nLAN';
+
+  @override
+  String get scanQrLabel => 'Scan\nQR';
+
+  @override
+  String get enterEmojiBtn => 'Enter\nEmoji';
+
+  @override
   String get discoverTitle => 'Find Room';
 
   @override
@@ -163,4 +184,141 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get gameHotPotatoDesc =>
       'Swipe to throw the ticking bomb before it explodes!';
+
+  @override
+  String get closeBtn => 'Close';
+
+  @override
+  String get cancelBtn => 'Cancel';
+
+  @override
+  String get confirmBtn => 'Confirm';
+
+  @override
+  String get reconnectingText => 'Reconnecting...';
+
+  @override
+  String get exitRoomTitleHost => 'Disband Room?';
+
+  @override
+  String get exitRoomTitleClient => 'Leave Room?';
+
+  @override
+  String get exitRoomDescHost =>
+      'All players will be disconnected. Are you sure?';
+
+  @override
+  String get exitRoomDescClient => 'Are you sure you want to leave this room?';
+
+  @override
+  String get clientWaitingConsoleMode =>
+      'Your device will act as the Gamepad\nWaiting for Host to start...';
+
+  @override
+  String get invalidQrCode => 'Invalid QR code';
+
+  @override
+  String get scanQrTitle => 'Scan QR to Join';
+
+  @override
+  String get qrDialogTitle => 'Room QR Code';
+
+  @override
+  String get emojiJoinTitle => 'Enter Emoji Password';
+
+  @override
+  String get emojiJoinDesc => 'Enter Room\'s\n4 Emojis';
+
+  @override
+  String get emojiJoinSub => 'The Host will show the 4 emojis on their screen';
+
+  @override
+  String get emojiSearching => 'Searching for room...';
+
+  @override
+  String get emojiNotFound =>
+      '❌ Room not found. Check emojis and ensure same WiFi.';
+
+  @override
+  String get tapToJoinDesc => 'Tap to join';
+
+  @override
+  String get skipBtn => 'Skip';
+
+  @override
+  String get nextBtn => 'Next →';
+
+  @override
+  String get letsGo => 'Let\'s Go 🚀';
+
+  @override
+  String get onboardingDesc1 =>
+      'A local multiplayer mini-game collection\nright on your phone.';
+
+  @override
+  String get onboardingFeature1 => '🎮 10+ mini-games';
+
+  @override
+  String get onboardingFeature2 => '⚡ P2P WiFi connection';
+
+  @override
+  String get onboardingFeature3 => '🏆 Leaderboards';
+
+  @override
+  String get onboardingFeature4 => '🎲 Roulette Cup';
+
+  @override
+  String get onboardingTitle2 => 'Same WiFi Network';
+
+  @override
+  String get onboardingDesc2 =>
+      '📡 Make sure all players are connected to the same WiFi network or LAN hotspot.';
+
+  @override
+  String get onboardingSub2 =>
+      'Games use local P2P connections — no internet required.';
+
+  @override
+  String get onboardingTitle3 => 'Ready to play!';
+
+  @override
+  String get onboardingDesc3 =>
+      'One player hosts, others search and join. Have fun! 🎮';
+
+  @override
+  String get spinningText => 'Spinning...';
+
+  @override
+  String get spinBtn => 'Spin!';
+
+  @override
+  String get playBtn => 'Play!';
+
+  @override
+  String get continueBtn => 'Continue';
+
+  @override
+  String get leaveRoomBtn => 'Leave Room';
+
+  @override
+  String get endGameTitle => 'End Game?';
+
+  @override
+  String get endGameDesc =>
+      'The game will be cancelled and all players will return to the lobby. Are you sure?';
+
+  @override
+  String get endGameBtn => 'End Game';
+
+  @override
+  String get pauseTitle => '⏸ Paused';
+
+  @override
+  String get victorySubtitle => 'Excellent!';
+
+  @override
+  String get defeatSubtitle => 'Better luck next time!';
+
+  @override
+  String get youSuffix => ' (you)';
 }

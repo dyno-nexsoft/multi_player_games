@@ -35,6 +35,13 @@ class ConsoleProvider extends ChangeNotifier {
     final raw = config['labels'] as Map?;
     if (raw != null) {
       buttonLabels = raw.map((k, v) => MapEntry(k.toString(), v.toString()));
+    } else {
+      buttonLabels = const {
+        'A': '',
+        'B': '',
+        'X': '',
+        'Y': '',
+      }; // All enabled by default
     }
     highlightButton = config['highlight'] as String?;
     highlightDone = false;

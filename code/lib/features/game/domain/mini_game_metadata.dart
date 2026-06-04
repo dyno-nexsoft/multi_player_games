@@ -10,6 +10,9 @@ class MiniGameMetadata {
   /// True = game chạy ở chế độ Console (Host là màn hình, Client là tay cầm).
   final bool supportsConsoleMode;
 
+  /// Thông tin gửi về GamepadScreen để hiển thị nút tương ứng.
+  final Map<String, dynamic>? controllerConfig;
+
   const MiniGameMetadata({
     required this.id,
     required this.title,
@@ -18,5 +21,6 @@ class MiniGameMetadata {
     required this.minPlayers,
     required this.maxPlayers,
     this.supportsConsoleMode = false,
+    this.controllerConfig,
   });
 }

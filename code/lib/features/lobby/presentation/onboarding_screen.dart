@@ -1,9 +1,11 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:party_game_hub/core/storage/onboarding_service.dart';
 import 'package:party_game_hub/core/theme/app_theme.dart';
 import 'package:party_game_hub/core/theme/neon_widgets.dart';
+import '../../../router.dart';
+import 'package:party_game_hub/l10n/app_localizations.dart';
 
 /// Màn hình giới thiệu lần đầu — 3 slide vuốt ngang.
 ///
@@ -60,7 +62,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Future<void> _done() async {
     await OnboardingService.markSeen();
-    if (mounted) context.go('/');
+    if (mounted) const LobbyRoute().go(context);
   }
 
   @override
@@ -111,7 +113,7 @@ class _OnboardingDialogState extends State<_OnboardingDialog> {
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(24),
-          child: Container(
+          child: Material(
             color: AppTheme.bgDeep,
             child: Column(
               children: [
@@ -161,6 +163,7 @@ class _BottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final isLast = page == 2;
     final primary = Theme.of(context).colorScheme.primary;
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
       child: Row(
@@ -185,7 +188,7 @@ class _BottomBar extends StatelessWidget {
             TextButton(
               onPressed: onSkip,
               child: Text(
-                'Bỏ qua',
+                l10n.skipBtn,
                 style: TextStyle(color: Colors.white.withValues(alpha: 0.4)),
               ),
             ),
@@ -194,7 +197,7 @@ class _BottomBar extends StatelessWidget {
             glowColor: primary,
             child: ElevatedButton(
               onPressed: onNext,
-              child: Text(isLast ? "Let's Go 🚀" : 'Tiếp →'),
+              child: Text(isLast ? l10n.letsGo : l10n.nextBtn),
             ),
           ),
         ],
@@ -211,6 +214,7 @@ class _Slide1 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final primary = Theme.of(context).colorScheme.primary;
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.all(32),
       child: Column(
@@ -218,10 +222,10 @@ class _Slide1 extends StatelessWidget {
         children: [
           const _GamepadIcon(),
           const SizedBox(height: 32),
-          NeonTitle('Party Game Hub', fontSize: 28, color: primary),
+          NeonTitle(l10n.appName, fontSize: 28, color: primary),
           const SizedBox(height: 16),
           Text(
-            'Bộ sưu tập mini-game nhiều người chơi\nngay trên điện thoại của bạn.',
+            l10n.onboardingDesc1,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.7),
@@ -234,11 +238,11 @@ class _Slide1 extends StatelessWidget {
             spacing: 12,
             runSpacing: 8,
             alignment: WrapAlignment.center,
-            children: const [
-              _FeatureChip('🎮 10+ mini-games'),
-              _FeatureChip('⚡ Kết nối WiFi P2P'),
-              _FeatureChip('🏆 Bảng xếp hạng'),
-              _FeatureChip('🎲 Roulette Cup'),
+            children: [
+              _FeatureChip(l10n.onboardingFeature1),
+              _FeatureChip(l10n.onboardingFeature2),
+              _FeatureChip(l10n.onboardingFeature3),
+              _FeatureChip(l10n.onboardingFeature4),
             ],
           ),
         ],
@@ -277,6 +281,7 @@ class _Slide2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final secondary = Theme.of(context).colorScheme.secondary;
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.all(32),
       child: Column(
@@ -284,7 +289,7 @@ class _Slide2 extends StatelessWidget {
         children: [
           _WiFiWaveAnimation(color: secondary),
           const SizedBox(height: 32),
-          NeonTitle('Cùng một mạng WiFi', fontSize: 22, color: secondary),
+          NeonTitle(l10n.onboardingTitle2, fontSize: 22, color: secondary),
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(16),
@@ -293,15 +298,19 @@ class _Slide2 extends StatelessWidget {
               borderRadius: BorderRadius.circular(14),
               border: Border.all(color: secondary.withValues(alpha: 0.3)),
             ),
-            child: const Text(
-              '📡  Hãy chắc chắn tất cả người chơi đang kết nối cùng một mạng WiFi hoặc điểm truy cập (hotspot) LAN.',
+            child: Text(
+              l10n.onboardingDesc2,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white, fontSize: 15, height: 1.6),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 15,
+                height: 1.6,
+              ),
             ),
           ),
           const SizedBox(height: 20),
           Text(
-            'Game dùng kết nối nội bộ (P2P)\nkhông cần internet.',
+            l10n.onboardingSub2,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.45),
@@ -424,6 +433,7 @@ class _Slide3State extends State<_Slide3> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final primary = Theme.of(context).colorScheme.primary;
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.all(32),
       child: Column(
@@ -433,18 +443,18 @@ class _Slide3State extends State<_Slide3> with SingleTickerProviderStateMixin {
             animation: _ctrl,
             builder: (_, _) => Transform.scale(
               scale: 1.0 + _ctrl.value * 0.06,
-              child: Text(
+              child: const Text(
                 '🎉',
-                style: const TextStyle(fontSize: 80),
+                style: TextStyle(fontSize: 80),
                 textAlign: TextAlign.center,
               ),
             ),
           ),
           const SizedBox(height: 24),
-          NeonTitle('Sẵn sàng chơi!', fontSize: 28, color: primary),
+          NeonTitle(l10n.onboardingTitle3, fontSize: 28, color: primary),
           const SizedBox(height: 16),
           Text(
-            'Một người tạo phòng (Host), người còn lại tìm phòng và tham gia.\nChúc vui vẻ! 🎮',
+            l10n.onboardingDesc3,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.7),
@@ -496,7 +506,7 @@ class _GamepadIconState extends State<_GamepadIcon>
         height: 120,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: primary.withValues(alpha: 0.1),
+          color: Colors.transparent,
           boxShadow: [
             BoxShadow(
               color: primary.withValues(alpha: 0.2 + _ctrl.value * 0.25),
@@ -505,7 +515,16 @@ class _GamepadIconState extends State<_GamepadIcon>
             ),
           ],
         ),
-        child: Icon(Icons.sports_esports, color: primary, size: 64),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(60),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Image.asset(
+              'assets/images/app_icon.png',
+              fit: BoxFit.contain,
+            ),
+          ),
+        ),
       ),
     );
   }

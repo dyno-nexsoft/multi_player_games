@@ -36,6 +36,27 @@ class AppLocalizationsVi extends AppLocalizations {
   String get scanQrBtn => 'Quét QR để vào phòng';
 
   @override
+  String get profileSectionTitle => 'Thông Tin Cá Nhân';
+
+  @override
+  String get hostSectionTitle => 'Tạo Phòng (Host)';
+
+  @override
+  String get tvModeLabel => 'Chế Độ Màn Hình Lớn (TV Mode)';
+
+  @override
+  String get joinSectionTitle => 'Vào Phòng (Join)';
+
+  @override
+  String get findLanBtn => 'Tìm\nLAN';
+
+  @override
+  String get scanQrLabel => 'Quét\nQR';
+
+  @override
+  String get enterEmojiBtn => 'Nhập\nEmoji';
+
+  @override
   String get discoverTitle => 'Tìm Phòng';
 
   @override
@@ -161,4 +182,141 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get gameHotPotatoDesc => 'Vuốt để ném bom sang đối thủ trước khi nổ!';
+
+  @override
+  String get closeBtn => 'Đóng';
+
+  @override
+  String get cancelBtn => 'Hủy';
+
+  @override
+  String get confirmBtn => 'Đồng ý';
+
+  @override
+  String get reconnectingText => 'Đang kết nối lại...';
+
+  @override
+  String get exitRoomTitleHost => 'Giải tán phòng?';
+
+  @override
+  String get exitRoomTitleClient => 'Rời khỏi phòng?';
+
+  @override
+  String get exitRoomDescHost =>
+      'Tất cả người chơi sẽ bị ngắt kết nối. Bạn có chắc chắn không?';
+
+  @override
+  String get exitRoomDescClient => 'Bạn có chắc chắn muốn rời khỏi phòng này?';
+
+  @override
+  String get clientWaitingConsoleMode =>
+      'Thiết bị của bạn sẽ là Tay Cầm\nChờ Host bắt đầu game...';
+
+  @override
+  String get invalidQrCode => 'QR không hợp lệ';
+
+  @override
+  String get scanQrTitle => 'Quét QR để vào phòng';
+
+  @override
+  String get qrDialogTitle => 'QR vào phòng';
+
+  @override
+  String get emojiJoinTitle => 'Nhập Mật Khẩu Emoji';
+
+  @override
+  String get emojiJoinDesc => 'Nhập 4 Emoji\ncủa phòng';
+
+  @override
+  String get emojiJoinSub => 'Host đọc to 4 emoji trên màn hình của họ';
+
+  @override
+  String get emojiSearching => 'Đang tìm phòng...';
+
+  @override
+  String get emojiNotFound =>
+      '❌ Không tìm thấy phòng. Kiểm tra lại emoji và cùng WiFi.';
+
+  @override
+  String get tapToJoinDesc => 'Tap để vào phòng';
+
+  @override
+  String get skipBtn => 'Bỏ qua';
+
+  @override
+  String get nextBtn => 'Tiếp →';
+
+  @override
+  String get letsGo => 'Let\'s Go 🚀';
+
+  @override
+  String get onboardingDesc1 =>
+      'Bộ sưu tập mini-game nhiều người chơi\nngay trên điện thoại của bạn.';
+
+  @override
+  String get onboardingFeature1 => '🎮 10+ mini-games';
+
+  @override
+  String get onboardingFeature2 => '⚡ Kết nối WiFi P2P';
+
+  @override
+  String get onboardingFeature3 => '🏆 Bảng xếp hạng';
+
+  @override
+  String get onboardingFeature4 => '🎲 Roulette Cup';
+
+  @override
+  String get onboardingTitle2 => 'Cùng một mạng WiFi';
+
+  @override
+  String get onboardingDesc2 =>
+      '📡 Hãy chắc chắn tất cả người chơi đang kết nối cùng một mạng WiFi hoặc điểm truy cập (hotspot) LAN.';
+
+  @override
+  String get onboardingSub2 =>
+      'Game dùng kết nối nội bộ (P2P)\nkhông cần internet.';
+
+  @override
+  String get onboardingTitle3 => 'Sẵn sàng chơi!';
+
+  @override
+  String get onboardingDesc3 =>
+      'Một người tạo phòng (Host), người còn lại tìm phòng và tham gia.\nChúc vui vẻ! 🎮';
+
+  @override
+  String get spinningText => 'Đang quay...';
+
+  @override
+  String get spinBtn => 'Quay!';
+
+  @override
+  String get playBtn => 'Chơi!';
+
+  @override
+  String get continueBtn => 'Tiếp Tục';
+
+  @override
+  String get leaveRoomBtn => 'Rời Phòng';
+
+  @override
+  String get endGameTitle => 'Kết thúc trò chơi?';
+
+  @override
+  String get endGameDesc =>
+      'Trò chơi sẽ bị hủy và tất cả người chơi sẽ quay về sảnh chờ. Bạn có chắc chắn không?';
+
+  @override
+  String get endGameBtn => 'Kết thúc';
+
+  @override
+  String get pauseTitle => '⏸ Tạm Dừng';
+
+  @override
+  String get victorySubtitle => 'Xuất sắc!';
+
+  @override
+  String get defeatSubtitle => 'Cố lên lần sau!';
+
+  @override
+  String get youSuffix => ' (bạn)';
 }

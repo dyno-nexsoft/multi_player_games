@@ -3,19 +3,21 @@ import 'dart:math';
 import 'roulette_cup_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
+import 'package:party_game_hub/core/theme/app_theme.dart';
 import 'package:party_game_hub/core/theme/neon_widgets.dart';
 import 'package:party_game_hub/l10n/app_localizations.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../domain/player.dart';
 import 'lobby_provider.dart';
 import '../data/connection_repository.dart';
+import '../../../router.dart';
 import 'package:party_game_hub/core/theme/gamer_card.dart';
 import '../../game/domain/mini_game_metadata.dart';
 import '../../game/domain/mini_game_registry.dart';
 
 Future<void> _showQrDialog(BuildContext context, LobbyProvider lobby) async {
+  final l10n = AppLocalizations.of(context)!;
   final ip = await lobby.getHostIp();
   if (!context.mounted) return;
   final qrData = jsonEncode({
@@ -26,7 +28,7 @@ Future<void> _showQrDialog(BuildContext context, LobbyProvider lobby) async {
   showDialog<void>(
     context: context,
     builder: (_) => AlertDialog(
-      title: const Text('QR vào phòng'),
+      title: Text(l10n.qrDialogTitle),
       content: SizedBox(
         width: 240,
         height: 240,
@@ -35,7 +37,7 @@ Future<void> _showQrDialog(BuildContext context, LobbyProvider lobby) async {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Đóng'),
+          child: Text(l10n.closeBtn),
         ),
       ],
     ),
@@ -58,14 +60,14 @@ class _RoomScreenState extends State<RoomScreen> {
   bool _goingToLobby = false;
 
   void _navigateOnce(
-    String path,
+    VoidCallback navigate,
     bool Function() guard,
     void Function() setFlag,
   ) {
     if (guard()) return;
     setFlag();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) context.go(path);
+      if (mounted) navigate();
     });
   }
 
@@ -81,12 +83,16 @@ class _RoomScreenState extends State<RoomScreen> {
         if (lobby.state != LobbyState.idle) _goingToLobby = false;
 
         if (lobby.state == LobbyState.inGame && lobby.pendingGameId != null) {
-          _navigateOnce('/game', () => _goingToGame, () => _goingToGame = true);
+          _navigateOnce(
+            () => const GameRoute().go(context),
+            () => _goingToGame,
+            () => _goingToGame = true,
+          );
         }
 
         if (lobby.state == LobbyState.inConsole) {
           _navigateOnce(
-            '/gamepad',
+            () => const GamepadRoute().go(context),
             () => _goingToGamepad,
             () => _goingToGamepad = true,
           );
@@ -95,110 +101,157 @@ class _RoomScreenState extends State<RoomScreen> {
         // Khán giả → màn hình spectator
         if (lobby.iAmSpectator) {
           _navigateOnce(
-            '/spectate',
+            () => const SpectatorRoute().go(context),
             () => _goingToSpectate,
             () => _goingToSpectate = true,
           );
         }
 
         if (lobby.state == LobbyState.idle) {
-          _navigateOnce('/', () => _goingToLobby, () => _goingToLobby = true);
+          _navigateOnce(
+            () => const LobbyRoute().go(context),
+            () => _goingToLobby,
+            () => _goingToLobby = true,
+          );
         }
 
-        return Scaffold(
-          appBar: AppBar(
-            title: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(l10n.roomTitle),
-                if (lobby.isConsoleMode) ...[
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1565C0),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Text(
-                      '🖥️ Console',
-                      style: TextStyle(fontSize: 11, color: Colors.white),
-                    ),
-                  ),
-                ],
-                // Emoji code chip — visible to all (host reads it out loud)
-                if (lobby.isHost && lobby.emojiCode.isNotEmpty) ...[
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.primary.withValues(alpha: 0.4),
-                      ),
-                    ),
-                    child: Text(
-                      lobby.emojiCode,
-                      style: const TextStyle(fontSize: 16, letterSpacing: 2),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-            leading: BackButton(onPressed: () => context.go('/')),
-            actions: [
-              if (lobby.isHost)
-                IconButton(
-                  icon: const Icon(Icons.qr_code),
-                  onPressed: () => _showQrDialog(context, lobby),
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) async {
+            if (didPop) return;
+            final shouldLeave = await showDialog<bool>(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                backgroundColor: AppTheme.bgSurface,
+                title: Text(
+                  lobby.isHost
+                      ? l10n.exitRoomTitleHost
+                      : l10n.exitRoomTitleClient,
                 ),
-            ],
-          ),
-          body: Stack(
-            children: [
-              Column(
-                children: [
-                  _PlayerList(players: lobby.players, isHostView: lobby.isHost),
-                  if (lobby.isHost)
-                    Expanded(child: _GameSelector(lobby: lobby)),
-                  // Client trong console mode: chờ host bắt đầu
-                  if (!lobby.isHost && lobby.isConsoleMode)
-                    const Padding(
-                      padding: EdgeInsets.all(24),
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.sports_esports,
-                            size: 48,
-                            color: Color(0xFF1565C0),
-                          ),
-                          SizedBox(height: 12),
-                          Text(
-                            'Thiết bị của bạn sẽ là Tay Cầm\nChờ Host bắt đầu game...',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
+                content: Text(
+                  lobby.isHost
+                      ? l10n.exitRoomDescHost
+                      : l10n.exitRoomDescClient,
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(false),
+                    child: Text(l10n.cancelBtn),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(true),
+                    child: Text(
+                      l10n.confirmBtn,
+                      style: const TextStyle(color: Colors.redAccent),
                     ),
+                  ),
                 ],
               ),
-              if (lobby.state == LobbyState.reconnecting)
-                const _ReconnectingOverlay(),
-            ],
+            );
+            if (shouldLeave == true && context.mounted) {
+              lobby.leaveRoom();
+            }
+          },
+          child: Scaffold(
+            appBar: AppBar(
+              title: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(l10n.roomTitle),
+                  if (lobby.isConsoleMode) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1565C0),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text(
+                        '🖥️ Console',
+                        style: TextStyle(fontSize: 11, color: Colors.white),
+                      ),
+                    ),
+                  ],
+                  // Emoji code chip — visible to all (host reads it out loud)
+                  if (lobby.isHost && lobby.emojiCode.isNotEmpty) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.4),
+                        ),
+                      ),
+                      child: Text(
+                        lobby.emojiCode,
+                        style: const TextStyle(fontSize: 16, letterSpacing: 2),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              leading: BackButton(
+                onPressed: () => const LobbyRoute().go(context),
+              ),
+              actions: [
+                if (lobby.isHost)
+                  IconButton(
+                    icon: const Icon(Icons.qr_code),
+                    onPressed: () => _showQrDialog(context, lobby),
+                  ),
+              ],
+            ),
+            body: Stack(
+              children: [
+                Column(
+                  children: [
+                    _PlayerList(
+                      players: lobby.players,
+                      isHostView: lobby.isHost,
+                    ),
+                    if (lobby.isHost)
+                      Expanded(child: _GameSelector(lobby: lobby)),
+                    // Client trong console mode: chờ host bắt đầu
+                    if (!lobby.isHost && lobby.isConsoleMode)
+                      Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          children: [
+                            const Icon(
+                              Icons.sports_esports,
+                              size: 48,
+                              color: Color(0xFF1565C0),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              l10n.clientWaitingConsoleMode,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+                if (lobby.state == LobbyState.reconnecting)
+                  const _ReconnectingOverlay(),
+              ],
+            ),
           ),
         );
       },
@@ -395,17 +448,18 @@ class _ReconnectingOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       color: Colors.black54,
-      child: const Center(
+      child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircularProgressIndicator(color: Colors.white),
-            SizedBox(height: 16),
+            const CircularProgressIndicator(color: Colors.white),
+            const SizedBox(height: 16),
             Text(
-              'Đang kết nối lại...',
-              style: TextStyle(color: Colors.white, fontSize: 16),
+              l10n.reconnectingText,
+              style: const TextStyle(color: Colors.white, fontSize: 16),
             ),
           ],
         ),

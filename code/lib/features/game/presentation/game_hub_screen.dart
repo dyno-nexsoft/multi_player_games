@@ -6,7 +6,6 @@ import 'package:flutter/widget_previews.dart';
 import 'package:party_game_hub/core/theme/app_theme.dart';
 import 'package:party_game_hub/core/theme/neon_widgets.dart';
 import 'package:party_game_hub/l10n/app_localizations.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../lobby/domain/player.dart';
 import '../../lobby/presentation/lobby_provider.dart';
@@ -23,6 +22,7 @@ import '../mini_games/minesweeper/minesweeper_game.dart';
 import '../mini_games/reaction_tap/reaction_tap_game.dart';
 import 'emote_layer.dart';
 import 'game_provider.dart';
+import '../../../router.dart';
 import 'overlays/countdown_overlay.dart';
 
 /// Màn hình game — GameWidget luôn ở dưới;
@@ -74,147 +74,189 @@ class _GameHubScreenState extends State<GameHubScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<GameProvider, LobbyProvider>(
-      builder: (context, gameProvider, lobby, _) {
-        // Launch game một lần duy nhất mỗi gameStartToken
-        if (lobby.gameStartToken > gameProvider.lastLaunchToken &&
-            lobby.pendingGameId != null &&
-            lobby.gameStartToken != _lastScheduledToken) {
-          _lastScheduledToken = lobby.gameStartToken;
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!mounted) return;
-            final lp = context.read<LobbyProvider>();
-            final gp = context.read<GameProvider>();
-            if (lp.gameStartToken > gp.lastLaunchToken &&
-                lp.pendingGameId != null) {
-              gp.launchGame(lp.pendingGameId!);
-              // Pause Flame during hint + countdown; resume when they finish.
-              gp.pauseActiveGame();
-              setState(() => _showCountdown = true);
-            }
-          });
-        }
-
-        final game = gameProvider.activeGame;
-
-        // Không có game và chưa hiện scoreboard → đang chờ launch
-        if (game == null && !gameProvider.showScoreboard) {
-          final gid = gameProvider.lastGameId;
-          return Scaffold(
-            body: Center(
-              child: gid != null
-                  ? Hero(
-                      tag: 'game_icon_$gid',
-                      child: MiniGameRegistry.iconFor(
-                        gid,
-                      ).svg(width: 80, height: 80),
-                    )
-                  : const CircularProgressIndicator(),
-            ),
-          );
-        }
-
-        // Wire emote callback → EmoteLayer
-        lobby.onEmoteReceived = (emoji) =>
-            EmoteLayer.of(context)?.showEmote(emoji);
-
-        return EmoteLayer(
-          child: Stack(
-            children: [
-              // ── Flame canvas (luôn hiển thị khi game != null) ──────────────
-              if (game != null)
-                GestureDetector(
-                  onLongPress: () =>
-                      _showPauseMenu(context, lobby, gameProvider),
-                  behavior: HitTestBehavior.translucent,
-                  child: GameWidget(
-                    game: game,
-                    overlayBuilderMap: {
-                      if (game is ReactionTapGame)
-                        ReactionTapGame.overlayKey: (ctx, g) =>
-                            (g as ReactionTapGame).buildOverlay(ctx),
-                      if (game is MinesweeperGame)
-                        MinesweeperGame.overlayKey: (ctx, g) =>
-                            (g as MinesweeperGame).buildOverlay(ctx),
-                      if (game is BilliardsGame)
-                        BilliardsGame.overlayKey: (ctx, g) =>
-                            (g as BilliardsGame).buildOverlay(ctx),
-                      if (game is DrawGuessGame)
-                        DrawGuessGame.overlayKey: (ctx, g) =>
-                            (g as DrawGuessGame).buildOverlay(ctx),
-                      if (game is BattleshipGame)
-                        BattleshipGame.overlayKey: (ctx, g) =>
-                            (g as BattleshipGame).buildOverlay(ctx),
-                      if (game is HotPotatoGame)
-                        HotPotatoGame.overlayKey: (ctx, g) =>
-                            (g as HotPotatoGame).buildOverlay(ctx),
-                      if (game is CodeBreakerGame)
-                        CodeBreakerGame.overlayKey: (ctx, g) =>
-                            (g as CodeBreakerGame).buildOverlay(ctx),
-                      if (game is LiarsDiceGame)
-                        LiarsDiceGame.overlayKey: (ctx, g) =>
-                            (g as LiarsDiceGame).buildOverlay(ctx),
-                    },
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        final lobby = context.read<LobbyProvider>();
+        final shouldLeave = await showDialog<bool>(
+          context: context,
+          builder: (ctx) {
+            final dialogL10n = AppLocalizations.of(ctx)!;
+            return AlertDialog(
+              backgroundColor: AppTheme.bgSurface,
+              title: Text(dialogL10n.endGameTitle),
+              content: Text(dialogL10n.endGameDesc),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(false),
+                  child: Text(dialogL10n.cancelBtn),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(true),
+                  child: Text(
+                    dialogL10n.endGameBtn,
+                    style: const TextStyle(color: Colors.redAccent),
                   ),
                 ),
+              ],
+            );
+          },
+        );
+        if (shouldLeave == true && context.mounted) {
+          lobby.leaveRoom();
+        }
+      },
+      child: Consumer2<GameProvider, LobbyProvider>(
+        builder: (context, gameProvider, lobby, _) {
+          // Launch game một lần duy nhất mỗi gameStartToken
+          if (lobby.gameStartToken > gameProvider.lastLaunchToken &&
+              lobby.pendingGameId != null &&
+              lobby.gameStartToken != _lastScheduledToken) {
+            _lastScheduledToken = lobby.gameStartToken;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!mounted) return;
+              final lp = context.read<LobbyProvider>();
+              final gp = context.read<GameProvider>();
+              if (lp.gameStartToken > gp.lastLaunchToken &&
+                  lp.pendingGameId != null) {
+                gp.launchGame(lp.pendingGameId!);
+                // Pause Flame during hint + countdown; resume when they finish.
+                gp.pauseActiveGame();
+                setState(() => _showCountdown = true);
+              }
+            });
+          }
 
-              // ── Countdown + hint overlay ────────────────────────────────────
-              if (_showCountdown && !gameProvider.showScoreboard)
-                CountdownOverlay(
-                  hint: MiniGameHints.forGame(gameProvider.lastGameId ?? ''),
-                  isHost: lobby.isHost,
-                  onBroadcastTick: (tick) => lobby.broadcastCountdown(tick),
-                  externalTickNotifier: lobby.isHost ? null : _externalTick,
-                  onComplete: () {
-                    // Resume Flame now that hint + countdown are done.
-                    context.read<GameProvider>().resumeActiveGame();
-                    setState(() => _showCountdown = false);
-                  },
-                ),
+          final game = gameProvider.activeGame;
 
-              // ── Scoreboard overlay dè lên canvas ──────────────────────────
-              if (gameProvider.showScoreboard)
-                ScoreboardOverlay(
-                  child: _ScoreboardContent(scores: gameProvider.totalScores),
-                ),
+          // Không có game và chưa hiện scoreboard → đang chờ launch
+          if (game == null && !gameProvider.showScoreboard) {
+            final gid = gameProvider.lastGameId;
+            return Scaffold(
+              body: Center(
+                child: gid != null
+                    ? Hero(
+                        tag: 'game_icon_$gid',
+                        child: MiniGameRegistry.iconFor(
+                          gid,
+                        ).svg(width: 80, height: 80),
+                      )
+                    : const CircularProgressIndicator(),
+              ),
+            );
+          }
 
-              // ── Disruption overlay (khán giả phá đám) ─────────────────────
-              if (_activeDisruption != null)
-                _DisruptionOverlay(type: _activeDisruption!),
+          // Wire emote callback → EmoteLayer
+          lobby.onEmoteReceived = (emoji) =>
+              EmoteLayer.of(context)?.showEmote(emoji);
 
-              // ── Nút pause nhỏ góc trên phải (khi đang chơi) ───────────────
-              if (game != null &&
-                  !gameProvider.showScoreboard &&
-                  !_showCountdown)
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: SafeArea(
-                    child: GestureDetector(
-                      onTap: () => _showPauseMenu(context, lobby, gameProvider),
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.45),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.15),
-                            width: 1,
+          lobby.onSystemPause = () {
+            if (ModalRoute.of(context)?.isCurrent ?? true) {
+              _showPauseMenu(context, lobby, gameProvider);
+            }
+          };
+
+          return EmoteLayer(
+            child: Stack(
+              children: [
+                // ── Flame canvas (luôn hiển thị khi game != null) ──────────────
+                if (game != null)
+                  GestureDetector(
+                    onLongPress: () =>
+                        _showPauseMenu(context, lobby, gameProvider),
+                    behavior: HitTestBehavior.translucent,
+                    child: GameWidget(
+                      game: game,
+                      overlayBuilderMap: {
+                        if (game is ReactionTapGame)
+                          ReactionTapGame.overlayKey: (ctx, g) =>
+                              (g as ReactionTapGame).buildOverlay(ctx),
+                        if (game is MinesweeperGame)
+                          MinesweeperGame.overlayKey: (ctx, g) =>
+                              (g as MinesweeperGame).buildOverlay(ctx),
+                        if (game is BilliardsGame)
+                          BilliardsGame.overlayKey: (ctx, g) =>
+                              (g as BilliardsGame).buildOverlay(ctx),
+                        if (game is DrawGuessGame)
+                          DrawGuessGame.overlayKey: (ctx, g) =>
+                              (g as DrawGuessGame).buildOverlay(ctx),
+                        if (game is BattleshipGame)
+                          BattleshipGame.overlayKey: (ctx, g) =>
+                              (g as BattleshipGame).buildOverlay(ctx),
+                        if (game is HotPotatoGame)
+                          HotPotatoGame.overlayKey: (ctx, g) =>
+                              (g as HotPotatoGame).buildOverlay(ctx),
+                        if (game is CodeBreakerGame)
+                          CodeBreakerGame.overlayKey: (ctx, g) =>
+                              (g as CodeBreakerGame).buildOverlay(ctx),
+                        if (game is LiarsDiceGame)
+                          LiarsDiceGame.overlayKey: (ctx, g) =>
+                              (g as LiarsDiceGame).buildOverlay(ctx),
+                      },
+                    ),
+                  ),
+
+                // ── Countdown + hint overlay ────────────────────────────────────
+                if (_showCountdown && !gameProvider.showScoreboard)
+                  CountdownOverlay(
+                    hint: MiniGameHints.forGame(gameProvider.lastGameId ?? ''),
+                    isHost: lobby.isHost,
+                    onBroadcastTick: (tick) => lobby.broadcastCountdown(tick),
+                    externalTickNotifier: lobby.isHost ? null : _externalTick,
+                    isConsoleMode: lobby.isConsoleMode,
+                    onComplete: () {
+                      // Resume Flame now that hint + countdown are done.
+                      context.read<GameProvider>().resumeActiveGame();
+                      setState(() => _showCountdown = false);
+                    },
+                  ),
+
+                // ── Scoreboard overlay dè lên canvas ──────────────────────────
+                if (gameProvider.showScoreboard)
+                  ScoreboardOverlay(
+                    child: _ScoreboardContent(scores: gameProvider.totalScores),
+                  ),
+
+                // ── Disruption overlay (khán giả phá đám) ─────────────────────
+                if (_activeDisruption != null)
+                  _DisruptionOverlay(type: _activeDisruption!),
+
+                // ── Nút pause nhỏ góc trên phải (khi đang chơi) ───────────────
+                if (game != null &&
+                    !gameProvider.showScoreboard &&
+                    !_showCountdown)
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: SafeArea(
+                      child: GestureDetector(
+                        onTap: () =>
+                            _showPauseMenu(context, lobby, gameProvider),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.45),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.15),
+                              width: 1,
+                            ),
                           ),
-                        ),
-                        child: const Icon(
-                          Icons.pause,
-                          color: Colors.white70,
-                          size: 18,
+                          child: const Icon(
+                            Icons.pause,
+                            color: Colors.white70,
+                            size: 18,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-            ],
-          ),
-        ); // Stack + EmoteLayer
-      },
+              ],
+            ),
+          ); // Stack + EmoteLayer
+        },
+      ),
     );
   }
 
@@ -285,7 +327,7 @@ class _PauseDialog extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      NeonTitle('⏸ Tạm Dừng', fontSize: 22, color: primary),
+                    NeonTitle(AppLocalizations.of(context)!.pauseTitle, fontSize: 22, color: primary),
                       const SizedBox(width: 8),
                       // [?] help — mở lại onboarding overlay
                       GestureDetector(
@@ -308,7 +350,7 @@ class _PauseDialog extends StatelessWidget {
                     child: ElevatedButton.icon(
                       onPressed: () => Navigator.of(context).pop(),
                       icon: const Icon(Icons.play_arrow),
-                      label: const Text('Tiếp Tục'),
+                      label: Text(AppLocalizations.of(context)!.continueBtn),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -320,10 +362,10 @@ class _PauseDialog extends StatelessWidget {
                         Navigator.of(context).pop();
                         gameProvider.leaveGame();
                         lobby.returnToLobby();
-                        context.go('/room');
+                        const RoomRoute().go(context);
                       },
                       icon: const Icon(Icons.exit_to_app, size: 18),
-                      label: const Text('Rời Phòng'),
+                      label: Text(AppLocalizations.of(context)!.leaveRoomBtn),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Theme.of(
                           context,
@@ -440,7 +482,7 @@ class _ScoreboardContent extends StatelessWidget {
                 onPressed: () {
                   gp.leaveGame();
                   lobby.returnToLobby();
-                  context.go('/room');
+                  const RoomRoute().go(context);
                 },
                 child: Text(l10n.backToLobbyBtn),
               ),
@@ -470,6 +512,7 @@ class _VictoryBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (iWon) {
+      final l10n = AppLocalizations.of(context)!;
       return Column(
         children: [
           NeonTitle(
@@ -479,7 +522,7 @@ class _VictoryBanner extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           Text(
-            'Xuất sắc!',
+            l10n.victorySubtitle,
             style: TextStyle(
               color: const Color(0xFFFFD700).withValues(alpha: 0.7),
               fontSize: 13,
@@ -488,9 +531,10 @@ class _VictoryBanner extends StatelessWidget {
         ],
       );
     }
-    return const Column(
+    final l10n = AppLocalizations.of(context)!;
+    return Column(
       children: [
-        Text(
+        const Text(
           '😢 DEFEAT',
           style: TextStyle(
             color: Colors.white38,
@@ -498,10 +542,10 @@ class _VictoryBanner extends StatelessWidget {
             fontWeight: FontWeight.w900,
           ),
         ),
-        SizedBox(height: 2),
+        const SizedBox(height: 2),
         Text(
-          'Cố lên lần sau!',
-          style: TextStyle(color: Colors.white24, fontSize: 13),
+          l10n.defeatSubtitle,
+          style: const TextStyle(color: Colors.white24, fontSize: 13),
         ),
       ],
     );
@@ -579,7 +623,7 @@ class _RankTile extends StatelessWidget {
           ],
         ),
         title: Text(
-          '${player.name}${isLocal ? ' (bạn)' : ''}',
+          '${player.name}${isLocal ? AppLocalizations.of(context)!.youSuffix : ''}' ,
           style: TextStyle(
             color: isWinner ? const Color(0xFFFFD700) : Colors.white,
             fontWeight: isLocal ? FontWeight.bold : FontWeight.normal,

@@ -5,6 +5,7 @@ import 'package:flutter/widget_previews.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
 import 'package:party_game_hub/core/theme/app_theme.dart';
 import '../../game/domain/mini_game_registry.dart';
+import 'package:party_game_hub/l10n/app_localizations.dart';
 
 /// Hiển thị vòng quay chọn game ngẫu nhiên.
 /// Gọi qua [showRouletteCup] — trả về gameId được chọn.
@@ -113,6 +114,7 @@ class _RouletteDialogState extends State<_RouletteDialog>
   Widget build(BuildContext context) {
     final primary = Theme.of(context).colorScheme.primary;
     final selected = _done ? _games[_selectedIndex] : null;
+    final l10n = AppLocalizations.of(context)!;
 
     return Center(
       child: Container(
@@ -223,7 +225,7 @@ class _RouletteDialogState extends State<_RouletteDialog>
                   child: ElevatedButton.icon(
                     onPressed: _spinning ? null : _spin,
                     icon: const Icon(Icons.casino),
-                    label: Text(_spinning ? 'Đang quay...' : 'Quay!'),
+                    label: Text(_spinning ? l10n.spinningText : l10n.spinBtn),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: primary,
                       padding: const EdgeInsets.symmetric(vertical: 14),
@@ -237,7 +239,7 @@ class _RouletteDialogState extends State<_RouletteDialog>
                       onPressed: () =>
                           Navigator.of(context).pop(_games[_selectedIndex].id),
                       icon: const Icon(Icons.play_arrow),
-                      label: const Text('Chơi!'),
+                      label: Text(l10n.playBtn),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(
                           context,

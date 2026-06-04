@@ -4,11 +4,11 @@ import 'package:flutter/widget_previews.dart';
 import 'package:party_game_hub/core/theme/app_theme.dart';
 import 'package:party_game_hub/core/theme/neon_widgets.dart';
 import 'package:party_game_hub/l10n/app_localizations.dart';
-import 'package:go_router/go_router.dart';
 import 'package:nsd/nsd.dart';
 import 'package:provider/provider.dart';
 import 'package:party_game_hub/core/utils/emoji_code.dart';
 import 'lobby_provider.dart';
+import '../../../router.dart';
 
 /// Màn hình quét và hiển thị danh sách phòng Host đang quảng bá.
 class DiscoverScreen extends StatelessWidget {
@@ -22,7 +22,9 @@ class DiscoverScreen extends StatelessWidget {
         return Scaffold(
           appBar: AppBar(
             title: Text(l10n.discoverTitle),
-            leading: BackButton(onPressed: () => context.go('/')),
+            leading: BackButton(
+              onPressed: () => const LobbyRoute().go(context),
+            ),
           ),
           body: lobby.discoveredRooms.isEmpty
               ? _RadarEmptyState(statusText: l10n.searchingRooms)
@@ -96,7 +98,7 @@ class _RoomListState extends State<_RoomList> {
       await widget.lobby.joinRoom(room);
       if (!mounted) return;
       if (dialogOpen && navigator.canPop()) navigator.pop();
-      context.go('/room');
+      const RoomRoute().go(context);
     } catch (e) {
       if (!mounted) return;
       if (dialogOpen && navigator.canPop()) navigator.pop();
@@ -194,6 +196,7 @@ class _RoomCardState extends State<_RoomCard>
   @override
   Widget build(BuildContext context) {
     final primary = Theme.of(context).colorScheme.primary;
+    final l10n = AppLocalizations.of(context)!;
     return FadeTransition(
       opacity: _slide,
       child: SlideTransition(
@@ -240,8 +243,11 @@ class _RoomCardState extends State<_RoomCard>
                       style: const TextStyle(fontSize: 18, letterSpacing: 2),
                     )
                   : Text(
-                      'Tap để vào phòng',
-                      style: TextStyle(color: Colors.white38, fontSize: 12),
+                      l10n.tapToJoinDesc,
+                      style: const TextStyle(
+                        color: Colors.white38,
+                        fontSize: 12,
+                      ),
                     ),
               trailing: ElevatedButton(
                 onPressed: widget.onJoin,

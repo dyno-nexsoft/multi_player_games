@@ -10,7 +10,7 @@ class MazePlayer extends PositionComponent {
 
   double dashTime = 0;
   double dashCooldown = 0;
-  
+
   bool eliminated = false;
 
   MazePlayer({required this.playerId, required this.isSeeker})

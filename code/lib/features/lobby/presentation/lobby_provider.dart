@@ -22,7 +22,7 @@ enum LobbyState {
 
 /// Quản lý toàn bộ vòng đời kết nối phòng chờ (Socket server/client, danh sách người chơi).
 class LobbyProvider extends ChangeNotifier {
-  final ConnectionRepository _repo = ConnectionRepository();
+  ConnectionRepository _repo = ConnectionRepository();
 
   LobbyState _state = LobbyState.idle;
   LobbyState get state => _state;
@@ -111,6 +111,7 @@ class LobbyProvider extends ChangeNotifier {
 
   /// Callback khi client nhận cấu hình tay cầm từ host (labels, highlight…).
   void Function(Map<String, dynamic> config)? onControllerInit;
+  void Function()? onSystemPause;
 
   // ── Spectator ─────────────────────────────────────────────────────────────
 
@@ -200,6 +201,16 @@ class LobbyProvider extends ChangeNotifier {
     sendGamePacket(
       GamePacket(
         type: PacketType.haptic,
+        senderId: _localPlayer?.id,
+        timestamp: _now(),
+      ),
+    );
+  }
+
+  void sendSystemPause() {
+    sendGamePacket(
+      GamePacket(
+        type: PacketType.systemPause,
         senderId: _localPlayer?.id,
         timestamp: _now(),
       ),
@@ -413,7 +424,8 @@ class LobbyProvider extends ChangeNotifier {
       case PacketType.startGame:
         _pendingGameId = packet.payload['game_id'] as String?;
         _seriesLength = (packet.payload['series_length'] as int?) ?? 1;
-        _isTournamentMode = (packet.payload['tournament_mode'] as bool?) ?? false;
+        _isTournamentMode =
+            (packet.payload['tournament_mode'] as bool?) ?? false;
         _isConsoleMode = (packet.payload['console_mode'] as bool?) ?? false;
         _gameStartToken++;
         // Client trong console mode → trở thành tay cầm, không chạy Flame.
@@ -435,6 +447,8 @@ class LobbyProvider extends ChangeNotifier {
         if (tick != null) onCountdownTick?.call(tick);
       case PacketType.initController:
         onControllerInit?.call(packet.payload);
+      case PacketType.systemPause:
+        onSystemPause?.call();
       case PacketType.joinSpectator:
         _iAmSpectator = true;
         _state = LobbyState.inRoom;
@@ -503,6 +517,15 @@ class LobbyProvider extends ChangeNotifier {
     _pendingGameId = null;
     _isConsoleMode = false;
     _state = LobbyState.inRoom;
+    notifyListeners();
+  }
+
+  void leaveRoom() {
+    _repo.dispose();
+    _repo = ConnectionRepository();
+    _players.clear();
+    _pendingGameId = null;
+    _state = LobbyState.idle;
     notifyListeners();
   }
 

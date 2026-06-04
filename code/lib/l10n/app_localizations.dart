@@ -152,6 +152,48 @@ abstract class AppLocalizations {
   /// **'Quét QR để vào phòng'**
   String get scanQrBtn;
 
+  /// No description provided for @profileSectionTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thông Tin Cá Nhân'**
+  String get profileSectionTitle;
+
+  /// No description provided for @hostSectionTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tạo Phòng (Host)'**
+  String get hostSectionTitle;
+
+  /// No description provided for @tvModeLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chế Độ Màn Hình Lớn (TV Mode)'**
+  String get tvModeLabel;
+
+  /// No description provided for @joinSectionTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Vào Phòng (Join)'**
+  String get joinSectionTitle;
+
+  /// No description provided for @findLanBtn.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tìm\nLAN'**
+  String get findLanBtn;
+
+  /// No description provided for @scanQrLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Quét\nQR'**
+  String get scanQrLabel;
+
+  /// No description provided for @enterEmojiBtn.
+  ///
+  /// In vi, this message translates to:
+  /// **'Nhập\nEmoji'**
+  String get enterEmojiBtn;
+
   /// No description provided for @discoverTitle.
   ///
   /// In vi, this message translates to:
@@ -379,6 +421,264 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'Vuốt để ném bom sang đối thủ trước khi nổ!'**
   String get gameHotPotatoDesc;
+
+  /// No description provided for @closeBtn.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đóng'**
+  String get closeBtn;
+
+  /// No description provided for @cancelBtn.
+  ///
+  /// In vi, this message translates to:
+  /// **'Hủy'**
+  String get cancelBtn;
+
+  /// No description provided for @confirmBtn.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đồng ý'**
+  String get confirmBtn;
+
+  /// No description provided for @reconnectingText.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đang kết nối lại...'**
+  String get reconnectingText;
+
+  /// No description provided for @exitRoomTitleHost.
+  ///
+  /// In vi, this message translates to:
+  /// **'Giải tán phòng?'**
+  String get exitRoomTitleHost;
+
+  /// No description provided for @exitRoomTitleClient.
+  ///
+  /// In vi, this message translates to:
+  /// **'Rời khỏi phòng?'**
+  String get exitRoomTitleClient;
+
+  /// No description provided for @exitRoomDescHost.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tất cả người chơi sẽ bị ngắt kết nối. Bạn có chắc chắn không?'**
+  String get exitRoomDescHost;
+
+  /// No description provided for @exitRoomDescClient.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bạn có chắc chắn muốn rời khỏi phòng này?'**
+  String get exitRoomDescClient;
+
+  /// No description provided for @clientWaitingConsoleMode.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thiết bị của bạn sẽ là Tay Cầm\nChờ Host bắt đầu game...'**
+  String get clientWaitingConsoleMode;
+
+  /// No description provided for @invalidQrCode.
+  ///
+  /// In vi, this message translates to:
+  /// **'QR không hợp lệ'**
+  String get invalidQrCode;
+
+  /// No description provided for @scanQrTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Quét QR để vào phòng'**
+  String get scanQrTitle;
+
+  /// No description provided for @qrDialogTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'QR vào phòng'**
+  String get qrDialogTitle;
+
+  /// No description provided for @emojiJoinTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Nhập Mật Khẩu Emoji'**
+  String get emojiJoinTitle;
+
+  /// No description provided for @emojiJoinDesc.
+  ///
+  /// In vi, this message translates to:
+  /// **'Nhập 4 Emoji\ncủa phòng'**
+  String get emojiJoinDesc;
+
+  /// No description provided for @emojiJoinSub.
+  ///
+  /// In vi, this message translates to:
+  /// **'Host đọc to 4 emoji trên màn hình của họ'**
+  String get emojiJoinSub;
+
+  /// No description provided for @emojiSearching.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đang tìm phòng...'**
+  String get emojiSearching;
+
+  /// No description provided for @emojiNotFound.
+  ///
+  /// In vi, this message translates to:
+  /// **'❌ Không tìm thấy phòng. Kiểm tra lại emoji và cùng WiFi.'**
+  String get emojiNotFound;
+
+  /// No description provided for @tapToJoinDesc.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tap để vào phòng'**
+  String get tapToJoinDesc;
+
+  /// No description provided for @skipBtn.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bỏ qua'**
+  String get skipBtn;
+
+  /// No description provided for @nextBtn.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tiếp →'**
+  String get nextBtn;
+
+  /// No description provided for @letsGo.
+  ///
+  /// In vi, this message translates to:
+  /// **'Let\'s Go 🚀'**
+  String get letsGo;
+
+  /// No description provided for @onboardingDesc1.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bộ sưu tập mini-game nhiều người chơi\nngay trên điện thoại của bạn.'**
+  String get onboardingDesc1;
+
+  /// No description provided for @onboardingFeature1.
+  ///
+  /// In vi, this message translates to:
+  /// **'🎮 10+ mini-games'**
+  String get onboardingFeature1;
+
+  /// No description provided for @onboardingFeature2.
+  ///
+  /// In vi, this message translates to:
+  /// **'⚡ Kết nối WiFi P2P'**
+  String get onboardingFeature2;
+
+  /// No description provided for @onboardingFeature3.
+  ///
+  /// In vi, this message translates to:
+  /// **'🏆 Bảng xếp hạng'**
+  String get onboardingFeature3;
+
+  /// No description provided for @onboardingFeature4.
+  ///
+  /// In vi, this message translates to:
+  /// **'🎲 Roulette Cup'**
+  String get onboardingFeature4;
+
+  /// No description provided for @onboardingTitle2.
+  ///
+  /// In vi, this message translates to:
+  /// **'Cùng một mạng WiFi'**
+  String get onboardingTitle2;
+
+  /// No description provided for @onboardingDesc2.
+  ///
+  /// In vi, this message translates to:
+  /// **'📡 Hãy chắc chắn tất cả người chơi đang kết nối cùng một mạng WiFi hoặc điểm truy cập (hotspot) LAN.'**
+  String get onboardingDesc2;
+
+  /// No description provided for @onboardingSub2.
+  ///
+  /// In vi, this message translates to:
+  /// **'Game dùng kết nối nội bộ (P2P)\nkhông cần internet.'**
+  String get onboardingSub2;
+
+  /// No description provided for @onboardingTitle3.
+  ///
+  /// In vi, this message translates to:
+  /// **'Sẵn sàng chơi!'**
+  String get onboardingTitle3;
+
+  /// No description provided for @onboardingDesc3.
+  ///
+  /// In vi, this message translates to:
+  /// **'Một người tạo phòng (Host), người còn lại tìm phòng và tham gia.\nChúc vui vẻ! 🎮'**
+  String get onboardingDesc3;
+
+  /// No description provided for @spinningText.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đang quay...'**
+  String get spinningText;
+
+  /// No description provided for @spinBtn.
+  ///
+  /// In vi, this message translates to:
+  /// **'Quay!'**
+  String get spinBtn;
+
+  /// No description provided for @playBtn.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chơi!'**
+  String get playBtn;
+
+  /// No description provided for @continueBtn.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tiếp Tục'**
+  String get continueBtn;
+
+  /// No description provided for @leaveRoomBtn.
+  ///
+  /// In vi, this message translates to:
+  /// **'Rời Phòng'**
+  String get leaveRoomBtn;
+
+  /// No description provided for @endGameTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Kết thúc trò chơi?'**
+  String get endGameTitle;
+
+  /// No description provided for @endGameDesc.
+  ///
+  /// In vi, this message translates to:
+  /// **'Trò chơi sẽ bị hủy và tất cả người chơi sẽ quay về sảnh chờ. Bạn có chắc chắn không?'**
+  String get endGameDesc;
+
+  /// No description provided for @endGameBtn.
+  ///
+  /// In vi, this message translates to:
+  /// **'Kết thúc'**
+  String get endGameBtn;
+
+  /// No description provided for @pauseTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'⏸ Tạm Dừng'**
+  String get pauseTitle;
+
+  /// No description provided for @victorySubtitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xuất sắc!'**
+  String get victorySubtitle;
+
+  /// No description provided for @defeatSubtitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Cố lên lần sau!'**
+  String get defeatSubtitle;
+
+  /// No description provided for @youSuffix.
+  ///
+  /// In vi, this message translates to:
+  /// **' (bạn)'**
+  String get youSuffix;
 }
 
 class _AppLocalizationsDelegate

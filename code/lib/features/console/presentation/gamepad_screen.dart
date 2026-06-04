@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:party_game_hub/core/theme/app_colors.dart';
 import 'package:party_game_hub/core/theme/app_theme.dart';
 import '../../lobby/presentation/lobby_provider.dart';
 import 'console_provider.dart';
+import '../../../router.dart';
 
 /// Màn hình Tay Cầm Vạn Năng (Universal Gamepad) cho Console Mode.
 ///
@@ -30,7 +30,7 @@ class _GamepadScreenState extends State<GamepadScreen> {
     _console.onGameEnded = () {
       if (mounted) {
         lobby.returnToLobby();
-        context.go('/room');
+        const RoomRoute().go(context);
       }
     };
   }
@@ -51,68 +51,121 @@ class _GamepadScreenState extends State<GamepadScreen> {
       value: _console,
       child: Consumer<ConsoleProvider>(
         builder: (context, console, _) {
-          return AnimatedContainer(
-            duration: const Duration(milliseconds: 150),
-            color: console.bgColor,
-            child: SafeArea(
-              child: Column(
-                children: [
-                  _TopBar(playerColor: playerColor, player: player),
-                  const Spacer(),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 24,
+          return PopScope(
+            canPop: false,
+            onPopInvokedWithResult: (didPop, result) async {
+              if (didPop) return;
+              final lobby = context.read<LobbyProvider>();
+              final shouldLeave = await showDialog<bool>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  backgroundColor: AppTheme.bgSurface,
+                  title: const Text('Rời trò chơi?'),
+                  content: const Text(
+                    'Bạn sẽ ngắt kết nối khỏi trò chơi này. Bạn có chắc chắn không?',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(ctx).pop(false),
+                      child: const Text('Hủy'),
                     ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // ── Virtual Joystick (grayed when unused) ──────────
-                        Expanded(
-                          child: Center(
-                            child: Opacity(
-                              opacity: console.joystickEnabled ? 1.0 : 0.3,
-                              child: IgnorePointer(
-                                ignoring: !console.joystickEnabled,
-                                child: _VirtualJoystick(
-                                  color: playerColor,
-                                  onChanged: console.updateJoystick,
-                                  onReset: console.resetJoystick,
+                    TextButton(
+                      onPressed: () => Navigator.of(ctx).pop(true),
+                      child: const Text(
+                        'Thoát',
+                        style: TextStyle(color: Colors.redAccent),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+              if (shouldLeave == true && context.mounted) {
+                lobby.leaveRoom();
+              }
+            },
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onVerticalDragEnd: (details) {
+                if (details.primaryVelocity != null &&
+                    details.primaryVelocity! > 300) {
+                  // Swipe down -> Mở pause (gửi lệnh cho host)
+                  context.read<LobbyProvider>().sendSystemPause();
+                }
+              },
+              onLongPress: () {
+                // Long press -> Pause/Stop
+                context.read<LobbyProvider>().sendSystemPause();
+              },
+              onScaleUpdate: (details) {
+                if (details.scale < 0.7) {
+                  // Pinch in -> Thoát nhanh
+                  final lobby = context.read<LobbyProvider>();
+                  lobby.leaveRoom();
+                }
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                color: console.bgColor,
+                child: SafeArea(
+                  child: Column(
+                    children: [
+                      _TopBar(playerColor: playerColor, player: player),
+                      const Spacer(),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 24,
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            // ── Virtual Joystick (grayed when unused) ──────────
+                            Expanded(
+                              child: Center(
+                                child: Opacity(
+                                  opacity: console.joystickEnabled ? 1.0 : 0.3,
+                                  child: IgnorePointer(
+                                    ignoring: !console.joystickEnabled,
+                                    child: _VirtualJoystick(
+                                      color: playerColor,
+                                      onChanged: console.updateJoystick,
+                                      onReset: console.resetJoystick,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
+                            // ── Action Buttons ─────────────────────────────────
+                            Expanded(
+                              child: Center(
+                                child: _ActionButtonCluster(
+                                  color: playerColor,
+                                  buttons: console.buttons,
+                                  labels: console.buttonLabels,
+                                  highlight: console.highlightButton,
+                                  onButton: console.setButton,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        // ── Action Buttons ─────────────────────────────────
-                        Expanded(
-                          child: Center(
-                            child: _ActionButtonCluster(
-                              color: playerColor,
-                              buttons: console.buttons,
-                              labels: console.buttonLabels,
-                              highlight: console.highlightButton,
-                              onButton: console.setButton,
+                      ),
+                      // ── Gyro hint (khi game dùng cảm biến nghiêng) ───────────
+                      if (console.gyroHint)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Text(
+                            '↔  Nghiêng máy để lái',
+                            style: TextStyle(
+                              color: playerColor.withValues(alpha: 0.45),
+                              fontSize: 12,
+                              letterSpacing: 0.5,
                             ),
                           ),
                         ),
-                      ],
-                    ),
+                    ],
                   ),
-                  // ── Gyro hint (khi game dùng cảm biến nghiêng) ───────────
-                  if (console.gyroHint)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Text(
-                        '↔  Nghiêng máy để lái',
-                        style: TextStyle(
-                          color: playerColor.withValues(alpha: 0.45),
-                          fontSize: 12,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ),
-                  const Spacer(),
-                ],
+                ),
               ),
             ),
           );
@@ -322,17 +375,24 @@ class _ActionButtonCluster extends StatelessWidget {
           final (key, btnColor, align) = def;
           final isA = key == 'A';
           final size = isA ? _btnSize * 1.2 : _btnSize;
+          final isEnabled = labels.containsKey(key);
           final customLabel = labels[key] ?? '';
           return Align(
             alignment: align,
-            child: _GamepadButton(
-              buttonKey: key,
-              color: btnColor,
-              size: size,
-              pressed: buttons[key] ?? false,
-              customLabel: customLabel,
-              pulseOnEntry: highlight == key,
-              onChanged: (p) => onButton(key, p),
+            child: Opacity(
+              opacity: isEnabled ? 1.0 : 0.2,
+              child: IgnorePointer(
+                ignoring: !isEnabled,
+                child: _GamepadButton(
+                  buttonKey: key,
+                  color: btnColor,
+                  size: size,
+                  pressed: buttons[key] ?? false,
+                  customLabel: customLabel,
+                  pulseOnEntry: highlight == key,
+                  onChanged: (p) => onButton(key, p),
+                ),
+              ),
             ),
           );
         }).toList(),

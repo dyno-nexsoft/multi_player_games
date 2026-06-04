@@ -2,16 +2,16 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widget_previews.dart';
-import 'package:go_router/go_router.dart';
 import 'package:nsd/nsd.dart';
 import 'package:provider/provider.dart';
 import 'package:party_game_hub/core/theme/app_theme.dart';
 import 'package:party_game_hub/core/theme/neon_widgets.dart';
 import 'package:party_game_hub/core/utils/emoji_code.dart';
 import 'lobby_provider.dart';
+import '../../../router.dart';
+import 'package:party_game_hub/l10n/app_localizations.dart';
 
 /// Màn hình nhập 4 Emoji để tham gia phòng — không cần IP, không cần gõ số.
-/// Custom keyboard hiển thị đúng 16 emoji trong dictionary.
 class EmojiJoinScreen extends StatefulWidget {
   const EmojiJoinScreen({super.key});
 
@@ -110,7 +110,7 @@ class _EmojiJoinScreenState extends State<EmojiJoinScreen> {
     if (!mounted) return;
     try {
       await context.read<LobbyProvider>().joinRoom(service);
-      if (mounted) context.go('/room');
+      if (mounted) const RoomRoute().go(context);
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -125,24 +125,21 @@ class _EmojiJoinScreenState extends State<EmojiJoinScreen> {
   @override
   Widget build(BuildContext context) {
     final primary = Theme.of(context).colorScheme.primary;
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Nhập Mật Khẩu Emoji'),
-        leading: BackButton(onPressed: () => context.go('/')),
+        title: Text(l10n.emojiJoinTitle),
+        leading: BackButton(onPressed: () => const LobbyRoute().go(context)),
       ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
             children: [
-              NeonTitle(
-                'Nhập 4 Emoji\ncủa phòng',
-                fontSize: 22,
-                color: primary,
-              ),
+              NeonTitle(l10n.emojiJoinDesc, fontSize: 22, color: primary),
               const SizedBox(height: 8),
               Text(
-                'Host đọc to 4 emoji trên màn hình của họ',
+                l10n.emojiJoinSub,
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.5),
                   fontSize: 13,
@@ -160,14 +157,14 @@ class _EmojiJoinScreenState extends State<EmojiJoinScreen> {
                     CircularProgressIndicator(color: primary),
                     const SizedBox(height: 8),
                     Text(
-                      'Đang tìm phòng...',
+                      l10n.emojiSearching,
                       style: TextStyle(color: primary, fontSize: 13),
                     ),
                   ],
                 )
               else if (_notFound)
                 Text(
-                  '❌ Không tìm thấy phòng. Kiểm tra lại emoji và cùng WiFi.',
+                  l10n.emojiNotFound,
                   style: const TextStyle(
                     color: Color(0xFFFF6584),
                     fontSize: 13,
