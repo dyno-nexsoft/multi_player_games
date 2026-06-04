@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:nsd/nsd.dart' as nsd;
 import '../../../core/network/game_packet.dart';
 import '../../../core/utils/app_logger.dart';
@@ -39,26 +40,34 @@ class ConnectionRepository {
   // ── Host ──────────────────────────────────────────────────────────────────
 
   Future<void> startServer(String roomName) async {
+    if (kIsWeb) {
+      AppLogger.info('Web Mock: Server started for room $roomName', tag: 'Connection');
+      return;
+    }
     _serverSocket = await ServerSocket.bind(InternetAddress.anyIPv4, _port);
     AppLogger.info('Server listening on port $_port', tag: 'Connection');
 
-    _serverSocket!.listen((socket) {
-      AppLogger.info(
-        'Client connected: ${socket.remoteAddress.address}',
-        tag: 'Connection',
-      );
-      _clients.add(socket);
-      onClientConnected?.call(socket);
-      _listenSocket(
-        socket,
-        onPacket: (packet) => onClientPacket?.call(socket, packet),
-        onDone: () {
-          _clients.remove(socket);
-          onClientDisconnected?.call(socket);
-          AppLogger.info('Client disconnected', tag: 'Connection');
-        },
-      );
-    });
+    _serverSocket!.listen(
+      (socket) {
+        AppLogger.info(
+          'Client connected: ${socket.remoteAddress.address}',
+          tag: 'Connection',
+        );
+        _clients.add(socket);
+        onClientConnected?.call(socket);
+        _listenSocket(
+          socket,
+          onPacket: (packet) => onClientPacket?.call(socket, packet),
+          onDone: () {
+            _clients.remove(socket);
+            onClientDisconnected?.call(socket);
+            AppLogger.info('Client disconnected', tag: 'Connection');
+          },
+        );
+      },
+      onError: (e) =>
+          AppLogger.error('Server socket error', error: e, tag: 'Connection'),
+    );
 
     _registration = await nsd.register(
       nsd.Service(name: roomName, type: _serviceType, port: _port),
@@ -73,6 +82,7 @@ class ConnectionRepository {
       _broadcast(packet, except);
 
   void _broadcast(GamePacket packet, Socket? except) {
+    if (kIsWeb) return;
     final frame = _frame(packet.toBytes());
     // 5.3 — Accumulate dead sockets; remove after iteration to avoid modifying
     // the list while iterating and to stop re-broadcasting to closed sockets.
@@ -101,6 +111,10 @@ class ConnectionRepository {
   // ── Client ────────────────────────────────────────────────────────────────
 
   Future<void> startDiscovery() async {
+    if (kIsWeb) {
+      AppLogger.info('Web Mock: Start discovery', tag: 'Connection');
+      return;
+    }
     _discovery = await nsd.startDiscovery(_serviceType);
     _discovery!.addServiceListener((service, status) {
       if (status == nsd.ServiceStatus.found) {
@@ -111,7 +125,12 @@ class ConnectionRepository {
   }
 
   Future<void> connectToService(nsd.Service service) async {
-    final host = service.host ?? service.addresses?.first.address;
+    if (kIsWeb) {
+      AppLogger.info('Web Mock: Connecting to service ${service.name}', tag: 'Connection');
+      return;
+    }
+    final addrs = service.addresses;
+    final host = service.host ?? (addrs != null && addrs.isNotEmpty ? addrs.first.address : null);
     final port = service.port ?? _port;
     if (host == null) throw Exception('Cannot resolve host address');
 
@@ -127,6 +146,10 @@ class ConnectionRepository {
   }
 
   Future<void> connectToAddress(String ip, int port) async {
+    if (kIsWeb) {
+      AppLogger.info('Web Mock: Connecting to address $ip:$port', tag: 'Connection');
+      return;
+    }
     // 5.4 — Timeout prevents hanging forever when the host is unreachable.
     _hostSocket = await Socket.connect(ip, port).timeout(
       const Duration(seconds: 10),
@@ -138,6 +161,7 @@ class ConnectionRepository {
   }
 
   static Future<String?> localIpAddress() async {
+    if (kIsWeb) return '127.0.0.1';
     for (final iface in await NetworkInterface.list()) {
       for (final addr in iface.addresses) {
         if (addr.type == InternetAddressType.IPv4 && !addr.isLoopback) {
@@ -151,6 +175,7 @@ class ConnectionRepository {
   /// 4.3 — Send a packet directly to one specific client socket (unicast).
   /// Used by host to target a single controller without broadcasting to all.
   void sendToClient(Socket socket, GamePacket packet) {
+    if (kIsWeb) return;
     try {
       socket.add(_frame(packet.toBytes()));
     } catch (e) {
@@ -161,6 +186,7 @@ class ConnectionRepository {
   }
 
   void sendPacket(GamePacket packet) {
+    if (kIsWeb) return;
     try {
       _hostSocket?.add(_frame(packet.toBytes()));
     } catch (e) {
@@ -177,6 +203,7 @@ class ConnectionRepository {
     void Function()? onDone,
     void Function(GamePacket packet)? onPacket,
   }) {
+    if (kIsWeb) return;
     final buf = <int>[];
     socket.listen(
       (data) {
@@ -201,6 +228,7 @@ class ConnectionRepository {
   }
 
   Future<void> dispose() async {
+    if (kIsWeb) return;
     if (_registration != null) await nsd.unregister(_registration!);
     if (_discovery != null) await nsd.stopDiscovery(_discovery!);
     for (final s in _clients) {

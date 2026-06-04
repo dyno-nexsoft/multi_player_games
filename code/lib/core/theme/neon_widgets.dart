@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
 import 'package:party_game_hub/core/theme/app_theme.dart';
+import '../../features/game/domain/game_ids.dart';
 import '../../features/game/domain/mini_game_metadata.dart';
 import '../../features/game/domain/mini_game_registry.dart';
 import 'app_colors.dart';
@@ -77,14 +78,14 @@ class _NeonGameCardState extends State<NeonGameCard> {
   bool _pressed = false;
 
   static Color _accent(String id, AppColors colors) => switch (id) {
-    'tug_of_war' => colors.neonPurple,
-    'sumo_bumper' => const Color(0xFFFF6B35),
-    'penalty_shootout' => const Color(0xFF4CAF50),
-    'air_hockey' => colors.neonCyan,
-    'reaction_tap' => const Color(0xFFFFD700),
-    'minesweeper' => const Color(0xFFE53935),
-    'billiards' => const Color(0xFFCD853F),
-    'draw_guess' => colors.neonPink,
+    GameIds.tugOfWar => colors.neonPurple,
+    GameIds.sumoBumper => const Color(0xFFFF6B35),
+    GameIds.penaltyShootout => const Color(0xFF4CAF50),
+    GameIds.airHockey => colors.neonCyan,
+    GameIds.reactionTap => const Color(0xFFFFD700),
+    GameIds.minesweeper => const Color(0xFFE53935),
+    GameIds.billiards => const Color(0xFFCD853F),
+    GameIds.drawGuess => colors.neonPink,
     _ => colors.neonPurple,
   };
 
@@ -592,7 +593,7 @@ Widget previewNeonGameCard() => Padding(
     height: 180,
     child: NeonGameCard(
       game: const MiniGameMetadata(
-        id: 'tug_of_war',
+        id: GameIds.tugOfWar,
         title: 'Tug of War',
         description: 'Pull the rope!',
         iconPath: 'assets/icons/ic_tug_of_war.svg',

@@ -109,6 +109,9 @@ class LobbyProvider extends ChangeNotifier {
   /// Callback khi client nhận tick đếm ngược từ host (3, 2, 1, 0=GO).
   void Function(int tick)? onCountdownTick;
 
+  /// ValueNotifier cập nhật mỗi khi nhận tick đếm ngược — CountdownScreen đọc trực tiếp.
+  final ValueNotifier<int> countdownTickNotifier = ValueNotifier(0);
+
   /// Callback khi client nhận cấu hình tay cầm từ host (labels, highlight…).
   void Function(Map<String, dynamic> config)? onControllerInit;
   void Function()? onSystemPause;
@@ -261,6 +264,35 @@ class LobbyProvider extends ChangeNotifier {
     await _repo.startServer(EmojiCode.embed(roomName, _emojiCode));
     _state = LobbyState.hosting;
     notifyListeners();
+
+    if (kIsWeb) {
+      Timer(const Duration(seconds: 1), () {
+        if (_state == LobbyState.hosting || _state == LobbyState.inRoom) {
+          final bot1 = Player(
+            id: 'bot_1',
+            name: 'Pikachu ⚡',
+            color: 0xFFFFD700,
+            playerIndex: _players.length,
+          );
+          _players.add(bot1);
+          notifyListeners();
+          _syncLobby();
+        }
+      });
+      Timer(const Duration(seconds: 2), () {
+        if (_state == LobbyState.hosting || _state == LobbyState.inRoom) {
+          final bot2 = Player(
+            id: 'bot_2',
+            name: 'Charizard 🔥',
+            color: 0xFFFF6B35,
+            playerIndex: _players.length,
+          );
+          _players.add(bot2);
+          notifyListeners();
+          _syncLobby();
+        }
+      });
+    }
   }
 
   /// Host nhận gói tin kèm socket nguồn — map join → socket để dọn dẹp khi rớt,
@@ -340,6 +372,20 @@ class LobbyProvider extends ChangeNotifier {
     await _repo.startDiscovery();
     _state = LobbyState.discovering;
     notifyListeners();
+
+    if (kIsWeb) {
+      Timer(const Duration(milliseconds: 600), () {
+        if (_state == LobbyState.discovering) {
+          _discoveredRooms.add(Service(
+            name: 'Web Room 🍎🍕👻👽',
+            type: '_pgamehub._tcp',
+            host: '127.0.0.1',
+            port: 4567,
+          ));
+          notifyListeners();
+        }
+      });
+    }
   }
 
   Service? _lastJoinedService;
@@ -351,6 +397,22 @@ class LobbyProvider extends ChangeNotifier {
     _repo.onPacketReceived = _handleIncomingPacket;
     _repo.onHostDisconnected = _onHostDisconnected;
     await _repo.connectToService(service);
+
+    if (kIsWeb) {
+      _players.clear();
+      _players.add(Player(
+        id: 'host_id',
+        name: 'Web Host 🖥️',
+        isHost: true,
+        color: 0xFF6C63FF,
+        playerIndex: 0,
+      ));
+      _players.add(_localPlayer!.copyWith(playerIndex: 1));
+      _state = LobbyState.inRoom;
+      notifyListeners();
+      return;
+    }
+
     final packet = GamePacket(
       type: PacketType.join,
       senderId: _localPlayer!.id,
@@ -367,6 +429,22 @@ class LobbyProvider extends ChangeNotifier {
     _repo.onPacketReceived = _handleIncomingPacket;
     _repo.onHostDisconnected = _onHostDisconnected;
     await _repo.connectToAddress(ip, port);
+
+    if (kIsWeb) {
+      _players.clear();
+      _players.add(Player(
+        id: 'host_id',
+        name: 'Web Host 🖥️',
+        isHost: true,
+        color: 0xFF6C63FF,
+        playerIndex: 0,
+      ));
+      _players.add(_localPlayer!.copyWith(playerIndex: 1));
+      _state = LobbyState.inRoom;
+      notifyListeners();
+      return;
+    }
+
     final packet = GamePacket(
       type: PacketType.join,
       senderId: _localPlayer!.id,
@@ -446,7 +524,10 @@ class LobbyProvider extends ChangeNotifier {
         onControllerFeedback?.call(hapticType, flashColor);
       case PacketType.countdownTick:
         final tick = packet.payload['tick'] as int?;
-        if (tick != null) onCountdownTick?.call(tick);
+        if (tick != null) {
+          countdownTickNotifier.value = tick;
+          onCountdownTick?.call(tick);
+        }
       case PacketType.initController:
         onControllerInit?.call(packet.payload);
       case PacketType.systemPause:
@@ -587,6 +668,7 @@ class LobbyProvider extends ChangeNotifier {
   void dispose() {
     _disposed = true;
     _discoverySubscription?.cancel();
+    countdownTickNotifier.dispose();
     _repo.dispose();
     super.dispose();
   }

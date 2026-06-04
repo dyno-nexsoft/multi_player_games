@@ -75,7 +75,6 @@ class _RoomList extends StatefulWidget {
 }
 
 class _RoomListState extends State<_RoomList> {
-  // Chặn double-tap: chỉ cho phép một lần kết nối cùng lúc
   bool _connecting = false;
 
   Future<void> _connectWithRadar(Service room) async {
@@ -83,25 +82,12 @@ class _RoomListState extends State<_RoomList> {
     setState(() => _connecting = true);
     HapticFeedback.mediumImpact();
 
-    // Track navigator key để pop dialog an toàn
-    final navigator = Navigator.of(context);
-    bool dialogOpen = true;
-
-    showGeneralDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      barrierColor: Colors.black.withValues(alpha: 0.65),
-      pageBuilder: (dialogCtx, a1, a2) => const _ConnectingDialog(),
-    ).then((_) => dialogOpen = false);
-
     try {
       await widget.lobby.joinRoom(room);
       if (!mounted) return;
-      if (dialogOpen && navigator.canPop()) navigator.pop();
       const RoomRoute().go(context);
     } catch (e) {
       if (!mounted) return;
-      if (dialogOpen && navigator.canPop()) navigator.pop();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Kết nối thất bại: $e'),
@@ -116,22 +102,31 @@ class _RoomListState extends State<_RoomList> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: widget.rooms.length,
-      itemBuilder: (context, i) {
-        final room = widget.rooms[i];
-        final rawName = room.name ?? '';
-        final displayName = EmojiCode.displayName(rawName).isNotEmpty
-            ? EmojiCode.displayName(rawName)
-            : l10n.unknownRoom;
-        final emojiCode = EmojiCode.extractCode(rawName);
-        return _RoomCard(
-          name: displayName,
-          emojiCode: emojiCode,
-          onJoin: _connecting ? null : () => _connectWithRadar(room),
-        );
-      },
+    return Stack(
+      children: [
+        ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: widget.rooms.length,
+          itemBuilder: (context, i) {
+            final room = widget.rooms[i];
+            final rawName = room.name ?? '';
+            final displayName = EmojiCode.displayName(rawName).isNotEmpty
+                ? EmojiCode.displayName(rawName)
+                : l10n.unknownRoom;
+            final emojiCode = EmojiCode.extractCode(rawName);
+            return _RoomCard(
+              name: displayName,
+              emojiCode: emojiCode,
+              onJoin: _connecting ? null : () => _connectWithRadar(room),
+            );
+          },
+        ),
+        if (_connecting)
+          Container(
+            color: Colors.black.withValues(alpha: 0.65),
+            child: const Center(child: _ConnectingDialog()),
+          ),
+      ],
     );
   }
 }

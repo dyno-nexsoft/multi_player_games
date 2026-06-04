@@ -1,40 +1,18 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:party_game_hub/core/storage/onboarding_service.dart';
 import 'package:party_game_hub/core/theme/app_theme.dart';
 import 'package:party_game_hub/core/theme/neon_widgets.dart';
 import 'package:party_game_hub/l10n/app_localizations.dart';
 
-import '../../../router.dart';
-
 /// Màn hình giới thiệu lần đầu — 3 slide vuốt ngang.
 ///
 /// Hiển thị một lần duy nhất khi mở app lần đầu (kiểm tra SharedPreferences).
-/// Có thể mở lại dưới dạng Dialog qua [showAsDialog].
+/// Có thể push lại từ PauseScreen qua OnboardingRoute.
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
-
-  static Future<void> showAsDialog(BuildContext context) {
-    return showGeneralDialog<void>(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: 'Onboarding',
-      barrierColor: Colors.black.withValues(alpha: 0.75),
-      transitionDuration: const Duration(milliseconds: 300),
-      transitionBuilder: (ctx, anim, _, child) => FadeTransition(
-        opacity: anim,
-        child: ScaleTransition(
-          scale: Tween(
-            begin: 0.92,
-            end: 1.0,
-          ).animate(CurvedAnimation(parent: anim, curve: Curves.easeOutCubic)),
-          child: child,
-        ),
-      ),
-      pageBuilder: (ctx, _, _) => const _OnboardingDialog(),
-    );
-  }
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -63,7 +41,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Future<void> _done() async {
     await OnboardingService.markSeen();
-    if (mounted) const LobbyRoute().go(context);
+    if (mounted) context.pop();
   }
 
   @override
@@ -82,66 +60,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
             _BottomBar(page: _page, onNext: _next, onSkip: _done),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-// ── Dialog wrapper (khi mở lại từ [?]) ────────────────────────────────────────
-
-class _OnboardingDialog extends StatefulWidget {
-  const _OnboardingDialog();
-
-  @override
-  State<_OnboardingDialog> createState() => _OnboardingDialogState();
-}
-
-class _OnboardingDialogState extends State<_OnboardingDialog> {
-  final _controller = PageController();
-  int _page = 0;
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(24),
-          child: Material(
-            color: AppTheme.bgDeep,
-            child: Column(
-              children: [
-                Expanded(
-                  child: PageView(
-                    controller: _controller,
-                    onPageChanged: (i) => setState(() => _page = i),
-                    children: const [_Slide1(), _Slide2(), _Slide3()],
-                  ),
-                ),
-                _BottomBar(
-                  page: _page,
-                  onNext: () {
-                    if (_page < 2) {
-                      _controller.nextPage(
-                        duration: const Duration(milliseconds: 350),
-                        curve: Curves.easeInOutCubic,
-                      );
-                    } else {
-                      Navigator.of(context).pop();
-                    }
-                  },
-                  onSkip: () => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
-          ),
         ),
       ),
     );

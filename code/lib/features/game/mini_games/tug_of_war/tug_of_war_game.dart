@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
 import 'package:party_game_hub/l10n/app_localizations.dart';
 import '../../domain/base_mini_game.dart';
+import '../../domain/game_ids.dart';
 import 'components/rope_component.dart';
 import 'components/button_component.dart';
 
@@ -50,7 +51,7 @@ class TugOfWarGame extends BaseMiniGame {
   TugOfWarGame(super.gameProvider);
 
   @override
-  String get gameId => 'tug_of_war';
+  String get gameId => GameIds.tugOfWar;
 
   @override
   Future<void> onLoad() async {

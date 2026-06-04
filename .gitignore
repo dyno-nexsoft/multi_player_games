@@ -3,3 +3,4 @@ keystore_base64.txt
 
 # FVM Version Cache
 .fvm/
+pubspec.lock

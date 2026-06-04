@@ -56,29 +56,7 @@ class _GamepadScreenState extends State<GamepadScreen> {
             onPopInvokedWithResult: (didPop, result) async {
               if (didPop) return;
               final lobby = context.read<LobbyProvider>();
-              final shouldLeave = await showDialog<bool>(
-                context: context,
-                builder: (ctx) => AlertDialog(
-                  backgroundColor: AppTheme.bgSurface,
-                  title: const Text('Rời trò chơi?'),
-                  content: const Text(
-                    'Bạn sẽ ngắt kết nối khỏi trò chơi này. Bạn có chắc chắn không?',
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(ctx).pop(false),
-                      child: const Text('Hủy'),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.of(ctx).pop(true),
-                      child: const Text(
-                        'Thoát',
-                        style: TextStyle(color: Colors.redAccent),
-                      ),
-                    ),
-                  ],
-                ),
-              );
+              final shouldLeave = await const ExitGamepadRoute().push<bool>(context);
               if (shouldLeave == true && context.mounted) {
                 lobby.leaveRoom();
               }

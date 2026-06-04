@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
 import '../../domain/base_mini_game.dart';
+import '../../domain/game_ids.dart';
 
 /// Billiards Pool — Turn-based 9-ball.
 /// Host tính physics sau mỗi shot, gửi toàn bộ vị trí ball khi dừng.
@@ -15,12 +16,11 @@ class BilliardsGame extends BaseMiniGame with DragCallbacks, TapCallbacks {
   static const double _ballR = 14.0;
   static const double _friction = 0.985;
   static const double _minSpeed = 0.5;
-  static const String overlayKey = 'billiards_ui';
 
   BilliardsGame(super.gameProvider);
 
   @override
-  String get gameId => 'billiards';
+  String get gameId => GameIds.billiards;
 
   // ── Ball state ─────────────────────────────────────────────────────────────
   late List<_Ball> _balls; // index 0 = cue ball
@@ -66,7 +66,6 @@ class BilliardsGame extends BaseMiniGame with DragCallbacks, TapCallbacks {
     _myTurn = isHost;
     _statusText = isHost ? 'Lượt bạn — kéo để cuing' : 'Lượt đối thủ';
     _notify();
-    overlays.add(overlayKey);
   }
 
   void _setupBalls() {

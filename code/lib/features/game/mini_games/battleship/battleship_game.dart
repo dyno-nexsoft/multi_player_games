@@ -3,19 +3,19 @@ import 'package:flutter/services.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
 import 'package:party_game_hub/core/theme/app_theme.dart';
 import '../../domain/base_mini_game.dart';
+import '../../domain/game_ids.dart';
 
 /// Hải Chiến Không Gian — mỗi màn hình là một chiến trường riêng.
 /// Hidden information: đối thủ không biết bạn đặt tàu ở đâu.
 /// Ships: [2, 3, 4] ô. Grid: 8×8.
 class BattleshipGame extends BaseMiniGame {
-  static const String overlayKey = 'battleship_ui';
   static const int _gridSize = 8;
   static const List<int> _shipSizes = [4, 3, 2];
 
   BattleshipGame(super.gameProvider);
 
   @override
-  String get gameId => 'battleship';
+  String get gameId => GameIds.battleship;
 
   // ── Phase ─────────────────────────────────────────────────────────────────
   _Phase _phase = _Phase.placement;
@@ -70,7 +70,6 @@ class BattleshipGame extends BaseMiniGame {
       _scores[p.id] = 0;
     }
     _statusText = 'Đặt tàu của bạn';
-    overlays.add(overlayKey);
   }
 
   // ── Ship placement ─────────────────────────────────────────────────────────

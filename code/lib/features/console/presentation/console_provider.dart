@@ -12,6 +12,7 @@ import '../../lobby/presentation/lobby_provider.dart';
 /// Nhận feedback (rung, chớp màn hình) từ Host và kích hoạt ngay lập tức.
 class ConsoleProvider extends ChangeNotifier {
   final LobbyProvider lobbyProvider;
+  bool _disposed = false;
 
   ConsoleProvider(this.lobbyProvider) {
     lobbyProvider.onControllerFeedback = _onFeedback;
@@ -164,6 +165,7 @@ class ConsoleProvider extends ChangeNotifier {
       bgColor = Color(flashColor).withValues(alpha: 0.6);
       notifyListeners();
       Future.delayed(const Duration(milliseconds: 250), () {
+        if (_disposed) return;
         bgColor = const Color(0xFF0D0D1A);
         notifyListeners();
       });
@@ -172,6 +174,7 @@ class ConsoleProvider extends ChangeNotifier {
 
   @override
   void dispose() {
+    _disposed = true;
     _sendTimer?.cancel();
     _gyroSub?.cancel();
     lobbyProvider.onControllerFeedback = null;

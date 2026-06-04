@@ -88,7 +88,17 @@ class _ScoreboardScreenState extends State<ScoreboardScreen> {
                       child: SizedBox(
                         width: double.infinity,
                         child: ElevatedButton.icon(
-                          onPressed: () => gp.startNextRound(context),
+                          onPressed: () async {
+                            if (gp.lobbyProvider.isTournamentMode) {
+                              final gameId = await const RouletteRoute()
+                                  .push<String>(context);
+                              if (gameId != null && context.mounted) {
+                                gp.startNextRoundWithGame(gameId);
+                              }
+                            } else {
+                              gp.startNextRoundSameGame();
+                            }
+                          },
                           icon: const Icon(Icons.arrow_forward),
                           label: Text(l10n.nextRoundBtn),
                         ),

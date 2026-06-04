@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
 import '../../domain/base_mini_game.dart';
+import '../../domain/game_ids.dart';
 
 class SumoBumperData {
   final String id;
@@ -31,7 +32,7 @@ class SumoGame extends BaseMiniGame {
   SumoGame(super.gameProvider);
 
   @override
-  String get gameId => 'sumo_bumper';
+  String get gameId => GameIds.sumoBumper;
 
   @override
   Future<void> onLoad() async {

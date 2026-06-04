@@ -5,12 +5,12 @@ import 'package:party_game_hub/core/audio/audio_service.dart';
 import 'package:party_game_hub/core/theme/app_theme.dart';
 import 'package:party_game_hub/gen/assets.gen.dart';
 import '../../domain/base_mini_game.dart';
+import '../../domain/game_ids.dart';
 
 /// Bảo Mìn Hẹn Giờ — quả bom đếm ngược, vuốt để ném sang đối thủ.
 /// Ai cầm bom khi hết giờ → thua.
 /// 30% xác suất bom bị "khóa" — phải tap 3 nút màu đúng thứ tự mới ném được.
 class HotPotatoGame extends BaseMiniGame {
-  static const String overlayKey = 'hot_potato_ui';
   static const double _roundDuration = 15.0;
   static const double _minDuration = 8.0;
   static const double _maxDuration = 20.0;
@@ -19,7 +19,7 @@ class HotPotatoGame extends BaseMiniGame {
   HotPotatoGame(super.gameProvider);
 
   @override
-  String get gameId => 'hot_potato';
+  String get gameId => GameIds.hotPotato;
 
   // ── State ──────────────────────────────────────────────────────────────────
 
@@ -68,7 +68,6 @@ class HotPotatoGame extends BaseMiniGame {
     } else {
       _statusText = 'Chờ bắt đầu...';
     }
-    overlays.add(overlayKey);
   }
 
   void _startRound() {
@@ -76,8 +75,9 @@ class HotPotatoGame extends BaseMiniGame {
     _timeLeft = _minDuration + rng.nextDouble() * (_maxDuration - _minDuration);
 
     // Host always starts with the bomb
-    _holderId = gameProvider.lobbyProvider.players
-        .firstWhere((p) => p.isHost)
+    final players = gameProvider.lobbyProvider.players;
+    _holderId = players
+        .firstWhere((p) => p.isHost, orElse: () => players.first)
         .id;
 
     final hasLock = rng.nextDouble() < _lockChance;
@@ -247,7 +247,7 @@ class HotPotatoGame extends BaseMiniGame {
       case 'round_start':
         _holderId = payload['holder_id'] as String;
         _timeLeft = (payload['time_left'] as num).toDouble();
-        final seq = (payload['lock_sequence'] as List).cast<int>();
+        final seq = (payload['lock_sequence'] as List?)?.cast<int>() ?? <int>[];
         _lockSequence = seq;
         _locked = seq.isNotEmpty;
         _lockProgress = 0;
@@ -263,7 +263,7 @@ class HotPotatoGame extends BaseMiniGame {
 
       case 'bomb_transfer':
         _holderId = payload['holder_id'] as String;
-        final seq = (payload['lock_sequence'] as List).cast<int>();
+        final seq = (payload['lock_sequence'] as List?)?.cast<int>() ?? <int>[];
         _lockSequence = seq;
         _locked = seq.isNotEmpty;
         _lockProgress = 0;

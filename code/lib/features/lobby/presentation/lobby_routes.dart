@@ -59,3 +59,60 @@ class EmojiJoinRoute extends GoRouteData with $EmojiJoinRoute {
   Page<void> buildPage(BuildContext context, GoRouterState state) =>
       _fadeScale(state, const EmojiJoinScreen());
 }
+
+@TypedGoRoute<QrRoute>(path: QrRoute.path)
+class QrRoute extends GoRouteData with $QrRoute {
+  static const path = '/room/qr';
+  const QrRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) =>
+      _fadeScale(state, const QrScreen());
+}
+
+@TypedGoRoute<ExitRoomRoute>(path: ExitRoomRoute.path)
+class ExitRoomRoute extends GoRouteData with $ExitRoomRoute {
+  static const path = '/room/exit-confirm';
+  const ExitRoomRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) =>
+      CustomTransitionPage<void>(
+        key: state.pageKey,
+        opaque: false,
+        maintainState: true,
+        barrierColor: Colors.black54,
+        transitionDuration: const Duration(milliseconds: 180),
+        transitionsBuilder: (ctx, anim, _, child) =>
+            FadeTransition(opacity: anim, child: child),
+        child: const ExitRoomScreen(),
+      );
+}
+
+@TypedGoRoute<RouletteRoute>(path: RouletteRoute.path)
+class RouletteRoute extends GoRouteData with $RouletteRoute {
+  static const path = '/roulette';
+  const RouletteRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) =>
+      CustomTransitionPage<void>(
+        key: state.pageKey,
+        opaque: false,
+        maintainState: true,
+        barrierDismissible: true,
+        barrierLabel: 'Roulette',
+        barrierColor: Colors.black.withValues(alpha: 0.7),
+        transitionDuration: const Duration(milliseconds: 280),
+        transitionsBuilder: (ctx, anim, _, child) => FadeTransition(
+          opacity: CurvedAnimation(parent: anim, curve: Curves.easeOut),
+          child: ScaleTransition(
+            scale: Tween<double>(begin: 0.85, end: 1.0).animate(
+              CurvedAnimation(parent: anim, curve: Curves.easeOutBack),
+            ),
+            child: child,
+          ),
+        ),
+        child: const RouletteScreen(),
+      );
+}

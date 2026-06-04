@@ -7,7 +7,6 @@ import '../../../core/network/game_packet.dart';
 import '../../lobby/presentation/lobby_provider.dart';
 import '../domain/base_mini_game.dart';
 import '../domain/mini_game_registry.dart';
-import '../../lobby/presentation/roulette_cup_dialog.dart';
 
 /// Quản lý vòng lặp tournament (nhiều vòng chơi), điểm tổng kết và mini-game đang active.
 class GameProvider extends ChangeNotifier {
@@ -73,11 +72,9 @@ class GameProvider extends ChangeNotifier {
     _showScoreboard = false;
 
     if (lobbyProvider.isHost) {
-      final meta = MiniGameRegistry.availableGames.firstWhere(
-        (g) => g.id == gameId,
-      );
-      if (meta.controllerConfig != null) {
-        sendControllerInit(gameId, meta.controllerConfig!);
+      final matches = MiniGameRegistry.availableGames.where((g) => g.id == gameId);
+      if (matches.isNotEmpty && matches.first.controllerConfig != null) {
+        sendControllerInit(gameId, matches.first.controllerConfig!);
       }
     }
 
@@ -91,22 +88,17 @@ class GameProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Host gọi khi muốn bắt đầu hiệp tiếp trong series.
-  void startNextRound(BuildContext context) async {
-    if (!lobbyProvider.isHost) return;
-    if (lobbyProvider.isTournamentMode) {
-      importRouletteCup() async {
-        final gameId = await showRouletteCup(context);
-        if (gameId != null && context.mounted) {
-          lobbyProvider.startGame(gameId);
-        }
-      }
+  /// Host bắt đầu hiệp tiếp với cùng game (non-tournament mode).
+  void startNextRoundSameGame() {
+    if (!lobbyProvider.isHost || _lastGameId == null) return;
+    lobbyProvider.startGame(_lastGameId!);
+    notifyListeners();
+  }
 
-      importRouletteCup();
-    } else {
-      if (_lastGameId == null) return;
-      lobbyProvider.startGame(_lastGameId!);
-    }
+  /// Host bắt đầu hiệp tiếp với game được chọn (tournament/roulette mode).
+  void startNextRoundWithGame(String gameId) {
+    if (!lobbyProvider.isHost) return;
+    lobbyProvider.startGame(gameId);
     notifyListeners();
   }
 

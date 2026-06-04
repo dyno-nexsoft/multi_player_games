@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
 import 'package:party_game_hub/core/storage/onboarding_service.dart';
@@ -10,7 +11,6 @@ import 'package:provider/provider.dart';
 import '../../../core/localization/locale_provider.dart';
 import '../../../router.dart';
 import 'lobby_provider.dart';
-import 'onboarding_screen.dart';
 
 class LobbyScreen extends StatefulWidget {
   const LobbyScreen({super.key});
@@ -31,15 +31,18 @@ class _LobbyScreenState extends State<LobbyScreen> {
       if (first && mounted) const OnboardingRoute().go(context);
     });
     // Auto-detect TV mode: landscape + width > 900dp per spec §4
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      final size = MediaQuery.of(context).size;
-      if (size.width > size.height && size.width > 900) {
-        _nameController.text = 'TV Host';
-        _roomController.text = 'TV Room';
-        setState(() => _tvMode = true);
-      }
-    });
+    // Skipped on web — a browser window is not a TV display.
+    if (!kIsWeb) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final size = MediaQuery.of(context).size;
+        if (size.width > size.height && size.width > 900) {
+          _nameController.text = 'TV Host';
+          _roomController.text = 'TV Room';
+          setState(() => _tvMode = true);
+        }
+      });
+    }
   }
 
   @override
@@ -68,7 +71,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
           IconButton(
             icon: const Icon(Icons.help_outline),
             color: Colors.white70,
-            onPressed: () => OnboardingScreen.showAsDialog(context),
+            onPressed: () => const OnboardingRoute().push(context),
           ),
           const SizedBox(width: 8),
         ],
@@ -90,7 +93,9 @@ class _LobbyScreenState extends State<LobbyScreen> {
             0,
           ).add(MediaQuery.of(context).viewPadding),
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 500),
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width > 800 ? 700 : 520,
+            ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,

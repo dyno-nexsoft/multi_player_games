@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
 import '../../domain/base_mini_game.dart';
+import '../../domain/game_ids.dart';
 
 /// Phản Xạ Thần Tốc — Host ra hiệu ngẫu nhiên, cả 2 tap ngay.
 /// Host đo thời gian từ lúc gửi 'flash' đến khi nhận 'tap'.
@@ -15,7 +16,7 @@ class ReactionTapGame extends BaseMiniGame {
   ReactionTapGame(super.gameProvider);
 
   @override
-  String get gameId => 'reaction_tap';
+  String get gameId => GameIds.reactionTap;
 
   // ── State ──────────────────────────────────────────────────────────────────
 
@@ -34,13 +35,9 @@ class ReactionTapGame extends BaseMiniGame {
   String _resultText = '';
   Color _bgColor = const Color(0xFF1A1A2E);
 
-  // Flame widget — we use overlays for Flutter UI
-  static const String overlayKey = 'reaction_ui';
-
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    overlays.add(overlayKey);
     if (gameProvider.lobbyProvider.isHost) {
       _scheduleNextRound();
     } else {

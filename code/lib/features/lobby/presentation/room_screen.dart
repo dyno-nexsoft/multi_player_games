@@ -1,48 +1,16 @@
-import 'dart:convert';
 import 'dart:math';
-import 'roulette_cup_dialog.dart';
 import 'package:flutter/material.dart';
+import '../../game/domain/game_ids.dart';
 import 'package:flutter/widget_previews.dart';
-import 'package:party_game_hub/core/theme/app_theme.dart';
 import 'package:party_game_hub/core/theme/neon_widgets.dart';
 import 'package:party_game_hub/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 import '../domain/player.dart';
 import 'lobby_provider.dart';
-import '../data/connection_repository.dart';
 import '../../../router.dart';
 import 'package:party_game_hub/core/theme/gamer_card.dart';
 import '../../game/domain/mini_game_metadata.dart';
 import '../../game/domain/mini_game_registry.dart';
-
-Future<void> _showQrDialog(BuildContext context, LobbyProvider lobby) async {
-  final l10n = AppLocalizations.of(context)!;
-  final ip = await lobby.getHostIp();
-  if (!context.mounted) return;
-  final qrData = jsonEncode({
-    'ip': ip ?? '?',
-    'port': ConnectionRepository.kPort,
-  });
-  // 5.5 — Use ConnectionRepository.kPort constant to stay in sync with the server port.
-  showDialog<void>(
-    context: context,
-    builder: (_) => AlertDialog(
-      title: Text(l10n.qrDialogTitle),
-      content: SizedBox(
-        width: 240,
-        height: 240,
-        child: QrImageView(data: qrData, size: 240),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(l10n.closeBtn),
-        ),
-      ],
-    ),
-  );
-}
 
 /// Màn hình phòng chờ — danh sách người chơi và nút bắt đầu (chỉ Host).
 class RoomScreen extends StatefulWidget {
@@ -119,35 +87,8 @@ class _RoomScreenState extends State<RoomScreen> {
           canPop: !lobby.isHost,
           onPopInvokedWithResult: (didPop, result) async {
             if (didPop) return;
-            final shouldLeave = await showDialog<bool>(
-              context: context,
-              builder: (ctx) => AlertDialog(
-                backgroundColor: AppTheme.bgSurface,
-                title: Text(
-                  lobby.isHost
-                      ? l10n.exitRoomTitleHost
-                      : l10n.exitRoomTitleClient,
-                ),
-                content: Text(
-                  lobby.isHost
-                      ? l10n.exitRoomDescHost
-                      : l10n.exitRoomDescClient,
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(ctx).pop(false),
-                    child: Text(l10n.cancelBtn),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.of(ctx).pop(true),
-                    child: Text(
-                      l10n.confirmBtn,
-                      style: const TextStyle(color: Colors.redAccent),
-                    ),
-                  ),
-                ],
-              ),
-            );
+            final shouldLeave =
+                await const ExitRoomRoute().push<bool>(context);
             if (shouldLeave == true && context.mounted) {
               lobby.leaveRoom();
             }
@@ -207,7 +148,7 @@ class _RoomScreenState extends State<RoomScreen> {
                 if (lobby.isHost)
                   IconButton(
                     icon: const Icon(Icons.qr_code),
-                    onPressed: () => _showQrDialog(context, lobby),
+                    onPressed: () => const QrRoute().push(context),
                   ),
               ],
             ),
@@ -306,16 +247,16 @@ class _GameSelector extends StatelessWidget {
   ) {
     final l10n = AppLocalizations.of(context)!;
     return switch (gameId) {
-      'tug_of_war' => l10n.gameTugOfWarTitle,
-      'sumo_bumper' => l10n.gameSumoBumperTitle,
-      'penalty_shootout' => l10n.gamePenaltyShootoutTitle,
-      'air_hockey' => l10n.gameAirHockeyTitle,
-      'reaction_tap' => l10n.gameReactionTapTitle,
-      'minesweeper' => l10n.gameMinesweeperTitle,
-      'billiards' => l10n.gameBilliardsTitle,
-      'draw_guess' => l10n.gameDrawGuessTitle,
-      'battleship' => l10n.gameBattleshipTitle,
-      'hot_potato' => l10n.gameHotPotatoTitle,
+      GameIds.tugOfWar => l10n.gameTugOfWarTitle,
+      GameIds.sumoBumper => l10n.gameSumoBumperTitle,
+      GameIds.penaltyShootout => l10n.gamePenaltyShootoutTitle,
+      GameIds.airHockey => l10n.gameAirHockeyTitle,
+      GameIds.reactionTap => l10n.gameReactionTapTitle,
+      GameIds.minesweeper => l10n.gameMinesweeperTitle,
+      GameIds.billiards => l10n.gameBilliardsTitle,
+      GameIds.drawGuess => l10n.gameDrawGuessTitle,
+      GameIds.battleship => l10n.gameBattleshipTitle,
+      GameIds.hotPotato => l10n.gameHotPotatoTitle,
       _ => game.title,
     };
   }
@@ -390,7 +331,7 @@ class _GameSelector extends StatelessWidget {
                   glowColor: const Color(0xFFFFD700),
                   child: ElevatedButton.icon(
                     onPressed: () async {
-                      final gameId = await showRouletteCup(context);
+                      final gameId = await const RouletteRoute().push<String>(context);
                       if (gameId != null && context.mounted) {
                         lobby.setTournamentMode(true);
                         lobby.startGame(gameId);

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
 import 'package:party_game_hub/core/theme/app_theme.dart';
 import '../../domain/base_mini_game.dart';
+import '../../domain/game_ids.dart';
 
 /// Phá Mã (Bulls & Cows) — đối kháng ẩn thông tin thuần túy.
 ///
@@ -12,13 +13,12 @@ import '../../domain/base_mini_game.dart';
 /// Ai đoán đủ 4 🎯 trước sẽ thắng. Không có dữ liệu bí mật nào rời thiết bị
 /// trước khi kết thúc → không thể "soi" qua máy host.
 class CodeBreakerGame extends BaseMiniGame {
-  static const String overlayKey = 'code_breaker_ui';
   static const int _codeLen = 4;
 
   CodeBreakerGame(super.gameProvider);
 
   @override
-  String get gameId => 'code_breaker';
+  String get gameId => GameIds.codeBreaker;
 
   // ── State ──────────────────────────────────────────────────────────────────
   late List<int> _mySecret;
@@ -66,7 +66,6 @@ class CodeBreakerGame extends BaseMiniGame {
     _status = _myTurn
         ? 'Lượt của bạn — đoán mã đối thủ!'
         : 'Chờ đối thủ đoán...';
-    overlays.add(overlayKey);
   }
 
   static List<int> _randomSecret() {

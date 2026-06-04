@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
 
 import '../../domain/base_mini_game.dart';
+import '../../domain/game_ids.dart';
 import 'components/paddle_component.dart';
 import 'components/puck_component.dart';
 
@@ -65,7 +66,7 @@ class AirHockeyGame extends BaseMiniGame with DragCallbacks {
   AirHockeyGame(super.gameProvider);
 
   @override
-  String get gameId => 'air_hockey';
+  String get gameId => GameIds.airHockey;
 
   // ─────────────────────────────────────────────────────────────────────────
   @override

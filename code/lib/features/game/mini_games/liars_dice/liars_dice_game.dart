@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
 import 'package:party_game_hub/core/theme/app_theme.dart';
 import '../../domain/base_mini_game.dart';
+import '../../domain/game_ids.dart';
 
 /// Xúc Xắc Tố (Liar's Dice / Perudo-lite) — đối kháng ẩn thông tin.
 ///
@@ -13,14 +14,13 @@ import '../../domain/base_mini_game.dart';
 /// cả hai lật xúc xắc: nếu thực tế đủ số → người tố thua; nếu thiếu → người ra
 /// giá (nói dối) thua.
 class LiarsDiceGame extends BaseMiniGame {
-  static const String overlayKey = 'liars_dice_ui';
   static const int _dicePerPlayer = 5;
   static const int _totalDice = _dicePerPlayer * 2;
 
   LiarsDiceGame(super.gameProvider);
 
   @override
-  String get gameId => 'liars_dice';
+  String get gameId => GameIds.liarsDice;
 
   // ── State ──────────────────────────────────────────────────────────────────
   late List<int> _myDice;
@@ -72,7 +72,6 @@ class LiarsDiceGame extends BaseMiniGame {
 
     _myTurn = gameProvider.lobbyProvider.isHost;
     _status = _myTurn ? 'Lượt bạn — ra giá đầu tiên!' : 'Chờ đối thủ ra giá...';
-    overlays.add(overlayKey);
   }
 
   /// Giá mới phải cao hơn: nhiều hơn về số lượng, hoặc cùng số lượng nhưng

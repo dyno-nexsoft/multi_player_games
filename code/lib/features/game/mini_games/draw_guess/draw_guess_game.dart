@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
 import '../../domain/base_mini_game.dart';
+import '../../domain/game_ids.dart';
 
 /// Vẽ & Đoán — người vẽ dùng ngón tay, người kia gõ đáp án.
 /// 5 từ, xen kẽ vai trò. Đoán đúng = +10 người đoán, +5 người vẽ.
 /// Stroke data throttled 30 Hz qua network.
 class DrawGuessGame extends BaseMiniGame {
-  static const String overlayKey = 'draw_guess_ui';
   static const int _totalWords = 5;
   static const double _roundDuration = 60.0;
   static const double _strokeInterval = 1 / 30;
@@ -16,7 +16,7 @@ class DrawGuessGame extends BaseMiniGame {
   DrawGuessGame(super.gameProvider);
 
   @override
-  String get gameId => 'draw_guess';
+  String get gameId => GameIds.drawGuess;
 
   // ── State ──────────────────────────────────────────────────────────────────
 
@@ -105,7 +105,6 @@ class DrawGuessGame extends BaseMiniGame {
     } else {
       _statusText = 'Chờ từ...';
     }
-    overlays.add(overlayKey);
   }
 
   // wordIndex % 2 == 0 → host draws; % 2 == 1 → client draws
@@ -241,8 +240,8 @@ class DrawGuessGame extends BaseMiniGame {
     final drawerIsHost = _hostDrawsThisWord(_wordIndex);
     final players = gameProvider.lobbyProvider.players;
     final drawerId = drawerIsHost
-        ? players.firstWhere((p) => p.isHost).id
-        : players.firstWhere((p) => !p.isHost).id;
+        ? players.firstWhere((p) => p.isHost, orElse: () => players.first).id
+        : players.firstWhere((p) => !p.isHost, orElse: () => players.last).id;
 
     _scores[guesserId] = (_scores[guesserId] ?? 0) + 10;
     _scores[drawerId] = (_scores[drawerId] ?? 0) + 5;
@@ -339,8 +338,8 @@ class DrawGuessGame extends BaseMiniGame {
       case 'guess_correct':
         if (!gameProvider.lobbyProvider.isHost) {
           _roundActive = false;
-          final raw = payload['scores'] as Map;
-          raw.forEach((k, v) => _scores[k.toString()] = (v as num).toInt());
+          final raw = payload['scores'] as Map?;
+          raw?.forEach((k, v) => _scores[k.toString()] = v is num ? v.toInt() : 0);
           final word = payload['word'] as String;
           _resultText = 'Đúng! Từ là "$word" 🎉';
           _resultColor = Colors.green;
@@ -369,8 +368,8 @@ class DrawGuessGame extends BaseMiniGame {
         if (!_gameOver) {
           _gameOver = true;
           _roundActive = false;
-          final raw = payload['scores'] as Map;
-          raw.forEach((k, v) => _scores[k.toString()] = (v as num).toInt());
+          final raw = payload['scores'] as Map?;
+          raw?.forEach((k, v) => _scores[k.toString()] = v is num ? v.toInt() : 0);
           _statusText = 'Kết thúc!';
           _notify();
           Future.delayed(const Duration(seconds: 2), () {

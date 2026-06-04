@@ -1,53 +1,28 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/widget_previews.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
 import 'package:party_game_hub/features/game/domain/mini_game_hints.dart';
+import '../../lobby/presentation/lobby_provider.dart';
+import 'game_provider.dart';
 
-/// Overlay đếm ngược với 2 pha:
-///   1. Hint (1.5s) — emoji + câu lệnh đặc trưng cho mini-game.
-///   2. Countdown 3-2-1-GO! — P2P sync qua [onBroadcastTick] / [externalTickNotifier].
-///
-/// Host cung cấp [onBroadcastTick] để broadcast tick đến clients.
-/// Client cung cấp [externalTickNotifier] được cập nhật từ [LobbyProvider.onCountdownTick].
-class CountdownOverlay extends StatefulWidget {
-  final VoidCallback onComplete;
-  final MiniGameHint? hint;
-  final bool isHost;
-
-  /// Host gọi callback này mỗi khi chuyển step (3,2,1,0=GO).
-  final void Function(int step)? onBroadcastTick;
-
-  /// Client: ValueNotifier được cập nhật từ LobbyProvider.onCountdownTick.
-  /// Khi không null và không phải host, overlay theo tick này thay vì bộ đếm nội.
-  final ValueNotifier<int>? externalTickNotifier;
-
-  /// Khi true, hiển thị thêm hướng dẫn sử dụng tay cầm trên điện thoại.
-  final bool isConsoleMode;
-
-  const CountdownOverlay({
-    super.key,
-    required this.onComplete,
-    this.hint,
-    this.isHost = true,
-    this.onBroadcastTick,
-    this.externalTickNotifier,
-    this.isConsoleMode = false,
-  });
+/// Màn hình đếm ngược — push trên GameHubScreen với opaque: false.
+/// Đọc callback và notifier từ Provider thay vì constructor params.
+class CountdownScreen extends StatefulWidget {
+  const CountdownScreen({super.key});
 
   @override
-  State<CountdownOverlay> createState() => _CountdownOverlayState();
+  State<CountdownScreen> createState() => _CountdownScreenState();
 }
 
-class _CountdownOverlayState extends State<CountdownOverlay>
+class _CountdownScreenState extends State<CountdownScreen>
     with SingleTickerProviderStateMixin {
   static const _steps = ['3', '2', '1', 'GO!'];
 
-  // Phase 1: hint
   bool _showingHint = true;
   double _hintOpacity = 0.0;
 
-  // Phase 2: countdown
   int _index = 0;
   late AnimationController _controller;
   late Animation<double> _scaleAnim;
@@ -55,9 +30,20 @@ class _CountdownOverlayState extends State<CountdownOverlay>
 
   Timer? _stepTimer;
 
+  late bool _isHost;
+  late bool _isConsoleMode;
+  late MiniGameHint? _hint;
+  late LobbyProvider _lobby;
+
   @override
   void initState() {
     super.initState();
+    _lobby = context.read<LobbyProvider>();
+    final gp = context.read<GameProvider>();
+    _isHost = _lobby.isHost;
+    _isConsoleMode = _lobby.isConsoleMode;
+    _hint = MiniGameHints.forGame(gp.lastGameId ?? '');
+
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 700),
@@ -70,12 +56,11 @@ class _CountdownOverlayState extends State<CountdownOverlay>
       CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.4)),
     );
 
-    // Wire client external tick notifier.
-    if (!widget.isHost && widget.externalTickNotifier != null) {
-      widget.externalTickNotifier!.addListener(_onExternalTick);
+    if (!_isHost) {
+      _lobby.countdownTickNotifier.addListener(_onExternalTick);
     }
 
-    if (widget.hint != null) {
+    if (_hint != null) {
       _startHint();
     } else {
       _showingHint = false;
@@ -83,17 +68,13 @@ class _CountdownOverlayState extends State<CountdownOverlay>
     }
   }
 
-  // ── Phase 1: Hint ──────────────────────────────────────────────────────────
-
   void _startHint() {
-    // Fade-in hint
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) setState(() => _hintOpacity = 1.0);
     });
     _stepTimer = Timer(const Duration(milliseconds: 1500), () {
       if (!mounted) return;
       setState(() => _hintOpacity = 0.0);
-      // Wait for fade-out then start countdown
       _stepTimer = Timer(const Duration(milliseconds: 350), () {
         if (!mounted) return;
         setState(() => _showingHint = false);
@@ -102,17 +83,11 @@ class _CountdownOverlayState extends State<CountdownOverlay>
     });
   }
 
-  // ── Phase 2: Countdown ──────────────────────────────────────────────────────
-
   void _startCountdown() {
-    if (widget.isHost) {
+    if (_isHost) {
       _driveStep(_index);
     }
-    // Client: waits for externalTickNotifier to fire.
-    // If no network (solo test), fall back to local timer.
-    if (!widget.isHost && widget.externalTickNotifier == null) {
-      _driveStep(_index);
-    }
+    // Client waits for countdownTickNotifier ticks via listener added in initState.
   }
 
   void _driveStep(int stepIndex) {
@@ -122,44 +97,43 @@ class _CountdownOverlayState extends State<CountdownOverlay>
     final isGo = stepIndex == _steps.length - 1;
     isGo ? AppAudio.playCountdownGo() : AppAudio.playCountdownBeep();
 
-    widget.onBroadcastTick?.call(stepIndex);
+    _lobby.broadcastCountdown(stepIndex);
 
     _stepTimer = Timer(const Duration(milliseconds: 900), () {
       if (!mounted) return;
       if (stepIndex < _steps.length - 1) {
         _driveStep(stepIndex + 1);
       } else {
-        widget.onComplete();
+        _onComplete();
       }
     });
   }
 
   void _onExternalTick() {
-    final tick = widget.externalTickNotifier!.value;
+    final tick = _lobby.countdownTickNotifier.value;
     if (!mounted || _showingHint) return;
     setState(() => _index = tick);
     _controller.forward(from: 0);
     final isGo = tick == _steps.length - 1;
     isGo ? AppAudio.playCountdownGo() : AppAudio.playCountdownBeep();
     if (isGo) {
-      // Slight delay so GO! is visible before onComplete
       _stepTimer = Timer(const Duration(milliseconds: 900), () {
-        if (mounted) widget.onComplete();
+        if (mounted) _onComplete();
       });
     }
   }
 
-  // ── Dispose ────────────────────────────────────────────────────────────────
+  void _onComplete() {
+    if (mounted) context.pop();
+  }
 
   @override
   void dispose() {
     _stepTimer?.cancel();
     _controller.dispose();
-    widget.externalTickNotifier?.removeListener(_onExternalTick);
+    _lobby.countdownTickNotifier.removeListener(_onExternalTick);
     super.dispose();
   }
-
-  // ── Build ──────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
@@ -170,7 +144,7 @@ class _CountdownOverlayState extends State<CountdownOverlay>
   }
 
   Widget _buildHint() {
-    final hint = widget.hint!;
+    final hint = _hint!;
     return AnimatedOpacity(
       opacity: _hintOpacity,
       duration: const Duration(milliseconds: 300),
@@ -188,7 +162,7 @@ class _CountdownOverlayState extends State<CountdownOverlay>
               letterSpacing: 2,
             ),
           ),
-          if (widget.isConsoleMode) ...[
+          if (_isConsoleMode) ...[
             const SizedBox(height: 40),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -200,11 +174,7 @@ class _CountdownOverlayState extends State<CountdownOverlay>
               child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Icons.gamepad_rounded,
-                    color: Colors.cyanAccent,
-                    size: 32,
-                  ),
+                  Icon(Icons.gamepad_rounded, color: Colors.cyanAccent, size: 32),
                   SizedBox(width: 12),
                   Text(
                     'Sử dụng tay cầm trên điện thoại',
@@ -238,11 +208,7 @@ class _CountdownOverlayState extends State<CountdownOverlay>
               fontWeight: FontWeight.w900,
               color: isGo ? const Color(0xFF6C63FF) : Colors.white,
               shadows: const [
-                Shadow(
-                  color: Colors.black,
-                  blurRadius: 20,
-                  offset: Offset(0, 4),
-                ),
+                Shadow(color: Colors.black, blurRadius: 20, offset: Offset(0, 4)),
               ],
             ),
           ),
@@ -251,31 +217,3 @@ class _CountdownOverlayState extends State<CountdownOverlay>
     );
   }
 }
-
-// ── Previews ──────────────────────────────────────────────────────────────────
-
-void _noOp() {}
-
-@Preview(name: 'Countdown – hint phase (Kéo Co)')
-Widget previewCountdownHint() => MaterialApp(
-  theme: ThemeData.dark(),
-  home: Scaffold(
-    body: CountdownOverlay(
-      onComplete: _noOp,
-      hint: const MiniGameHint(emoji: '👆', instruction: 'TAP NHANH!'),
-      isHost: true,
-    ),
-  ),
-);
-
-@Preview(name: 'Countdown – animated (no hint)')
-Widget previewCountdownOverlay() => MaterialApp(
-  theme: ThemeData.dark(),
-  home: Scaffold(
-    body: SizedBox(
-      width: 375,
-      height: 667,
-      child: CountdownOverlay(onComplete: _noOp, isHost: true),
-    ),
-  ),
-);

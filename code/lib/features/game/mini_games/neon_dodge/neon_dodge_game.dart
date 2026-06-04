@@ -6,6 +6,7 @@ import 'package:party_game_hub/core/audio/audio_service.dart';
 import 'package:party_game_hub/core/network/game_packet.dart';
 
 import '../../domain/base_mini_game.dart';
+import '../../domain/game_ids.dart';
 
 /// Neon Dodge — game Console Mode: Host là màn hình, mỗi Client là một tay cầm.
 ///
@@ -25,7 +26,7 @@ class NeonDodgeGame extends BaseMiniGame {
   NeonDodgeGame(super.gameProvider);
 
   @override
-  String get gameId => 'neon_dodge';
+  String get gameId => GameIds.neonDodge;
 
   // ── State ──────────────────────────────────────────────────────────────────
   final Map<String, _PlayerEntity> _entities = {};

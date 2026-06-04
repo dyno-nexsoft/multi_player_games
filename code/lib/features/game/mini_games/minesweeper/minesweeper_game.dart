@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
 import '../../domain/base_mini_game.dart';
+import '../../domain/game_ids.dart';
 
 /// Minesweeper Race — 8×8 board, 10 mines, 60 giây.
 /// Cả 2 tap cùng board → host validate → broadcast reveal.
@@ -12,12 +13,11 @@ class MinesweeperGame extends BaseMiniGame {
   static const int _rows = 8;
   static const int _mines = 10;
   static const double _gameDuration = 60.0;
-  static const String overlayKey = 'minesweeper_ui';
 
   MinesweeperGame(super.gameProvider);
 
   @override
-  String get gameId => 'minesweeper';
+  String get gameId => GameIds.minesweeper;
 
   // ── Board state ────────────────────────────────────────────────────────────
   late List<List<int>> _board; // -1 = mine, 0-8 = adjacent mines
@@ -48,7 +48,6 @@ class MinesweeperGame extends BaseMiniGame {
       _initEmptyBoard();
       _statusText = 'Chờ board...';
     }
-    overlays.add(overlayKey);
   }
 
   void _initEmptyBoard() {

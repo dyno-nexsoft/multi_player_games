@@ -7,7 +7,6 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../../core/theme/app_theme.dart';
-import '../../game/domain/mini_game_metadata.dart';
 import '../../game/domain/mini_game_registry.dart';
 import '../../lobby/data/connection_repository.dart';
 import '../../lobby/domain/player.dart';
@@ -134,17 +133,11 @@ class _TvLobbyScreenState extends State<TvLobbyScreen>
     });
   }
 
-  void _showGameSelector(BuildContext context, LobbyProvider lobby) {
-    showDialog<void>(
-      context: context,
-      builder: (ctx) => _GameSelectorDialog(
-        playerCount: lobby.players.length,
-        onGameSelected: (gameId) {
-          Navigator.pop(ctx);
-          lobby.startGame(gameId);
-        },
-      ),
-    );
+  void _onChooseGame(BuildContext context, LobbyProvider lobby) async {
+    final gameId = await const TvGameSelectorRoute().push<String>(context);
+    if (gameId != null && context.mounted) {
+      lobby.startGame(gameId);
+    }
   }
 
   @override
@@ -174,35 +167,7 @@ class _TvLobbyScreenState extends State<TvLobbyScreen>
           canPop: false,
           onPopInvokedWithResult: (didPop, result) async {
             if (didPop) return;
-            final shouldLeave = await showDialog<bool>(
-              context: context,
-              builder: (ctx) => AlertDialog(
-                backgroundColor: AppTheme.bgSurface,
-                title: const Text(
-                  'Giải tán phòng?',
-                  style: TextStyle(color: Colors.white, fontSize: 28),
-                ),
-                content: const Text(
-                  'Bạn có chắc chắn muốn giải tán phòng không?',
-                  style: TextStyle(color: Colors.white70, fontSize: 20),
-                ),
-                actions: [
-                  // Default focus on Cancel per tv_ui_ux_spec.md §1.4
-                  TextButton(
-                    autofocus: true,
-                    onPressed: () => Navigator.pop(ctx, false),
-                    child: const Text('Hủy', style: TextStyle(fontSize: 20)),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.pop(ctx, true),
-                    child: const Text(
-                      'Giải tán',
-                      style: TextStyle(color: Colors.redAccent, fontSize: 20),
-                    ),
-                  ),
-                ],
-              ),
-            );
+            final shouldLeave = await const ExitTvLobbyRoute().push<bool>(context);
             if (shouldLeave == true && context.mounted) {
               lobby.leaveRoom();
             }
@@ -240,7 +205,7 @@ class _TvLobbyScreenState extends State<TvLobbyScreen>
                           );
                         }
                       },
-                      onChooseGame: () => _showGameSelector(context, lobby),
+                      onChooseGame: () => _onChooseGame(context, lobby),
                     ),
                   ),
                 ],
@@ -610,124 +575,6 @@ class _TvButtonState extends State<_TvButton> {
                 letterSpacing: 0.5,
               ),
             ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ── Game Selector Dialog ──────────────────────────────────────────────────────
-
-class _GameSelectorDialog extends StatelessWidget {
-  final int playerCount;
-  final ValueChanged<String> onGameSelected;
-
-  const _GameSelectorDialog({
-    required this.playerCount,
-    required this.onGameSelected,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final games = MiniGameRegistry.availableGames
-        .where(
-          (g) => playerCount >= g.minPlayers && playerCount <= g.maxPlayers,
-        )
-        .toList();
-
-    return Dialog(
-      backgroundColor: AppTheme.bgSurface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-        side: BorderSide(
-          color: AppTheme.neonPurple.withValues(alpha: 0.4),
-          width: 1,
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Chọn Mini-Game',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '$playerCount người chơi',
-              style: const TextStyle(color: Colors.white38, fontSize: 16),
-            ),
-            const SizedBox(height: 24),
-            if (games.isEmpty)
-              const Text(
-                'Không có game phù hợp với số lượng người chơi này.',
-                style: TextStyle(color: Colors.white54, fontSize: 18),
-                textAlign: TextAlign.center,
-              )
-            else
-              Flexible(
-                child: SingleChildScrollView(
-                  child: Wrap(
-                    spacing: 12,
-                    runSpacing: 12,
-                    children: games
-                        .map(
-                          (g) => _GameChip(
-                            game: g,
-                            onTap: () => onGameSelected(g.id),
-                          ),
-                        )
-                        .toList(),
-                  ),
-                ),
-              ),
-            const SizedBox(height: 16),
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text(
-                'Hủy',
-                style: TextStyle(color: Colors.white54, fontSize: 20),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _GameChip extends StatelessWidget {
-  final MiniGameMetadata game;
-  final VoidCallback onTap;
-
-  const _GameChip({required this.game, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-        decoration: BoxDecoration(
-          color: AppTheme.neonPurple.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: AppTheme.neonPurple.withValues(alpha: 0.25),
-          ),
-        ),
-        child: Text(
-          game.title,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
           ),
         ),
       ),

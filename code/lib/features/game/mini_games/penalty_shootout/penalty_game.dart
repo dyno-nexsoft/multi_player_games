@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
 import 'package:party_game_hub/l10n/app_localizations.dart';
 import '../../domain/base_mini_game.dart';
+import '../../domain/game_ids.dart';
 import 'components/soccer_ball.dart';
 import 'components/goalkeeper_hand.dart';
 
@@ -26,7 +27,7 @@ class PenaltyGame extends BaseMiniGame with TapCallbacks, DragCallbacks {
   PenaltyGame(super.gameProvider);
 
   @override
-  String get gameId => 'penalty_shootout';
+  String get gameId => GameIds.penaltyShootout;
 
   @override
   Future<void> onLoad() async {
