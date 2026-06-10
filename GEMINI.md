@@ -55,7 +55,8 @@ fvm flutter test
 ## Widget Preview (Flutter 3.44.1+)
 
 Các file sau có `@Preview` annotations để dùng tính năng Widget Preview trong VS Code:
+
 - `lib/features/lobby/presentation/lobby_screen.dart` – preview các button và text field
 - `lib/features/game/presentation/overlays/countdown_overlay.dart` – preview countdown animation
 
-Cách mở preview: trong VS Code, mở file dart có `@Preview`, sau đó click nút **"Open Widget Preview"** hoặc dùng Command Palette → *Flutter: Open Widget Preview*.
+Cách mở preview: trong VS Code, mở file dart có `@Preview`, sau đó click nút **"Open Widget Preview"** hoặc dùng Command Palette → _Flutter: Open Widget Preview_.

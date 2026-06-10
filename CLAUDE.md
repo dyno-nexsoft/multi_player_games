@@ -1,4 +1,4 @@
-# Party Game Hub – CLAUDE.md
+# Party Game Hub – ANTIGRAVITY.md
 
 ## 🛑 QUY TẮC BẮT BUỘC (CRITICAL RULES)
 
@@ -6,6 +6,8 @@
    - `doc/architecture.md` (Kinh thánh dự án - Quy chuẩn & Kiến trúc)
    - `doc/roadmap.md` (Kế hoạch & Đặc tả ý tưởng)
 2. **Cập nhật Roadmap:** Sau khi hoàn thành một tính năng bất kỳ, bạn BẮT BUỘC phải chủ động mở file `doc/roadmap.md` và gạch bỏ/cập nhật lại tiến độ (đánh dấu `[x]`) cho tính năng đó.
+3. **Bắt buộc sử dụng Đa Ngôn Ngữ (Localization):** KHÔNG viết cứng (hardcode) bất kỳ chuỗi văn bản UI nào hiển thị cho người dùng. Tất cả văn bản hiển thị phải được khai báo trong `lib/l10n/app_vi.arb` và `lib/l10n/app_en.arb`, sau đó gọi qua `AppLocalizations.of(context)` (hoặc biến `l10n`). Chạy lệnh `fvm flutter gen-l10n` để cập nhật các lớp sinh code sau khi cập nhật file `.arb`.
+4. **Bắt buộc sử dụng Định Tuyến Kiểu Mạnh (Typed Routing):** KHÔNG được gọi điều hướng bằng chuỗi cứng (ví dụ: `context.go('/room')` hay `context.push('/gamepad')`). Bắt buộc phải sử dụng các lớp định tuyến sinh ra từ `go_router_builder` (ví dụ: `const LobbyRoute().go(context)`, `const RoomRoute().push(context)`).
 
 ---
 
@@ -53,7 +55,8 @@ fvm flutter test
 ## Widget Preview (Flutter 3.44.1+)
 
 Các file sau có `@Preview` annotations để dùng tính năng Widget Preview trong VS Code:
+
 - `lib/features/lobby/presentation/lobby_screen.dart` – preview các button và text field
 - `lib/features/game/presentation/overlays/countdown_overlay.dart` – preview countdown animation
 
-Cách mở preview: trong VS Code, mở file dart có `@Preview`, sau đó click nút **"Open Widget Preview"** hoặc dùng Command Palette → *Flutter: Open Widget Preview*.
+Cách mở preview: trong VS Code, mở file dart có `@Preview`, sau đó click nút **"Open Widget Preview"** hoặc dùng Command Palette → _Flutter: Open Widget Preview_.

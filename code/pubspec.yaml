@@ -16,34 +16,35 @@ dependencies:
   intl: any
 
   # Navigation & State Management
-  go_router: ^17.3.0
-  provider: ^6.1.2
+  go_router: any
+  provider: any
 
   # UI & Styling
-  google_fonts: ^8.1.0
-  flutter_svg: ^2.0.10+1
-  qr_flutter: ^4.1.0
+  google_fonts: any
+  flutter_svg: any
+  qr_flutter: any
 
   # Game Engine & Media
-  flame: ^1.22.0
-  flame_audio: ^2.12.1
-  audioplayers: ^6.0.0
+  flame: any
+  flame_audio: any
+  audioplayers: any
 
   # Networking & Data Serialization
-  nsd: ^5.0.1
-  message_pack_dart: ^2.0.1
+  nsd: any
+  message_pack_dart: any
+  web: any
 
   # Hardware & Device Sensors
-  sensors_plus: ^7.0.0
-  mobile_scanner: ^7.2.0
-  wakelock_plus: ^1.0.0
+  sensors_plus: any
+  mobile_scanner: any
+  wakelock_plus: any
 
   # Local Storage
-  shared_preferences: ^2.3.2
+  shared_preferences: any
 
   # Code Gen Annotations
-  json_annotation: ^4.12.0
-  freezed_annotation: ^3.1.0
+  json_annotation: any
+  freezed_annotation: any
 
 dev_dependencies:
   # Testing
@@ -51,17 +52,17 @@ dev_dependencies:
     sdk: flutter
 
   # Code Quality
-  flutter_lints: ^6.0.0
+  flutter_lints: any
 
   # Code Generation
-  build_runner: ^2.15.0
-  json_serializable: ^6.14.0
-  freezed: ^3.2.5
-  go_router_builder: ^4.3.0
-  flutter_gen_runner: ^5.14.1
+  build_runner: any
+  json_serializable: any
+  freezed: any
+  go_router_builder: any
+  flutter_gen_runner: any
 
   # Tools
-  flutter_launcher_icons: ^0.14.4
+  flutter_launcher_icons: any
 
 flutter_gen:
   output: lib/gen/

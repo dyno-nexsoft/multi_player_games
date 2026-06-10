@@ -11,18 +11,16 @@
             "type": "dart"
         },
         {
-            "name": "code (profile mode)",
+            "name": "code (Web Fixed Port)",
             "cwd": "code",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "profile"
-        },
-        {
-            "name": "code (release mode)",
-            "cwd": "code",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "release"
+            "args": [
+                "-d",
+                "web-server",
+                "--web-port",
+                "49294"
+            ]
         }
     ]
 }
