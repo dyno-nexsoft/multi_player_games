@@ -1,6 +1,5 @@
 import 'dart:ui';
 
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
 import 'package:party_game_hub/core/storage/onboarding_service.dart';
@@ -31,18 +30,15 @@ class _LobbyScreenState extends State<LobbyScreen> {
       if (first && mounted) const OnboardingRoute().go(context);
     });
     // Auto-detect TV mode: landscape + width > 900dp per spec §4
-    // Skipped on web — a browser window is not a TV display.
-    if (!kIsWeb) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        final size = MediaQuery.of(context).size;
-        if (size.width > size.height && size.width > 900) {
-          _nameController.text = 'TV Host';
-          _roomController.text = 'TV Room';
-          setState(() => _tvMode = true);
-        }
-      });
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final size = MediaQuery.of(context).size;
+      if (size.width > size.height && size.width > 900) {
+        _nameController.text = 'TV Host';
+        _roomController.text = 'TV Room';
+        setState(() => _tvMode = true);
+      }
+    });
   }
 
   @override
@@ -654,24 +650,30 @@ class _ColorPicker extends StatelessWidget {
         final isSelected = c == selected;
         return GestureDetector(
           onTap: () => onChanged(c),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
-            width: isSelected ? 32 : 24,
-            height: isSelected ? 32 : 24,
-            decoration: BoxDecoration(
-              color: Color(c),
-              shape: BoxShape.circle,
-              border: isSelected
-                  ? Border.all(color: Colors.white, width: 2)
-                  : null,
-              boxShadow: isSelected
-                  ? [
-                      BoxShadow(
-                        color: Color(c).withValues(alpha: 0.6),
-                        blurRadius: 8,
-                      ),
-                    ]
-                  : null,
+          child: SizedBox(
+            width: 32,
+            height: 32,
+            child: Center(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                width: isSelected ? 32 : 24,
+                height: isSelected ? 32 : 24,
+                decoration: BoxDecoration(
+                  color: Color(c),
+                  shape: BoxShape.circle,
+                  border: isSelected
+                      ? Border.all(color: Colors.white, width: 2)
+                      : null,
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: Color(c).withValues(alpha: 0.6),
+                            blurRadius: 8,
+                          ),
+                        ]
+                      : null,
+                ),
+              ),
             ),
           ),
         );

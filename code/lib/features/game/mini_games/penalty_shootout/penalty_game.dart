@@ -1,5 +1,6 @@
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
+import 'package:flame/camera.dart';
 import 'package:flutter/services.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
 import 'package:party_game_hub/l10n/app_localizations.dart';
@@ -32,7 +33,7 @@ class PenaltyGame extends BaseMiniGame with TapCallbacks, DragCallbacks {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    camera.viewfinder.visibleGameSize = Vector2(400, 800);
+    camera.viewport = FixedResolutionViewport(resolution: Vector2(400, 800));
 
     _ball = SoccerBall(position: Vector2(200, 640));
     _hand = GoalkeeperHand(position: Vector2(200, 180));

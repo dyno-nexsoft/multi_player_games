@@ -16,7 +16,9 @@ class TvGameSelectorScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final playerCount = context.read<LobbyProvider>().players.length;
     final games = MiniGameRegistry.availableGames
-        .where((g) => playerCount >= g.minPlayers && playerCount <= g.maxPlayers)
+        .where(
+          (g) => playerCount >= g.minPlayers && playerCount <= g.maxPlayers,
+        )
         .toList();
 
     return Scaffold(

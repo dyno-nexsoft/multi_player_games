@@ -1,4 +1,5 @@
 import 'package:flame/components.dart';
+import 'package:flame/camera.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/audio/audio_service.dart';
@@ -32,7 +33,7 @@ class MazeGame extends BaseMiniGame {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    camera.viewfinder.visibleGameSize = Vector2(400, 600);
+    camera.viewport = FixedResolutionViewport(resolution: Vector2(400, 600));
     camera.viewfinder.position = Vector2(200, 300);
     camera.viewfinder.anchor = Anchor.center;
 

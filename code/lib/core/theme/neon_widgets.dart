@@ -132,17 +132,19 @@ class _NeonGameCardState extends State<NeonGameCard> {
                   ).svg(width: 52, height: 52),
                 ),
                 const SizedBox(height: 10),
-                Text(
-                  widget.localizedTitle,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    height: 1.2,
+                Flexible(
+                  child: Text(
+                    widget.localizedTitle,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      height: 1.2,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 6),
                 // Neon accent underline

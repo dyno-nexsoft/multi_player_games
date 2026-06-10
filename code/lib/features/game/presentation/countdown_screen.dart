@@ -137,9 +137,12 @@ class _CountdownScreenState extends State<CountdownScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.black54,
-      child: Center(child: _showingHint ? _buildHint() : _buildCountdown()),
+    return Material(
+      type: MaterialType.transparency,
+      child: Container(
+        color: Colors.black54,
+        child: Center(child: _showingHint ? _buildHint() : _buildCountdown()),
+      ),
     );
   }
 
@@ -174,7 +177,11 @@ class _CountdownScreenState extends State<CountdownScreen>
               child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.gamepad_rounded, color: Colors.cyanAccent, size: 32),
+                  Icon(
+                    Icons.gamepad_rounded,
+                    color: Colors.cyanAccent,
+                    size: 32,
+                  ),
                   SizedBox(width: 12),
                   Text(
                     'Sử dụng tay cầm trên điện thoại',
@@ -208,7 +215,11 @@ class _CountdownScreenState extends State<CountdownScreen>
               fontWeight: FontWeight.w900,
               color: isGo ? const Color(0xFF6C63FF) : Colors.white,
               shadows: const [
-                Shadow(color: Colors.black, blurRadius: 20, offset: Offset(0, 4)),
+                Shadow(
+                  color: Colors.black,
+                  blurRadius: 20,
+                  offset: Offset(0, 4),
+                ),
               ],
             ),
           ),

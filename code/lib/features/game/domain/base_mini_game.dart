@@ -1,4 +1,5 @@
 import 'package:flame/game.dart';
+import 'package:flame/components.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
 import '../presentation/game_provider.dart';
 
@@ -8,6 +9,12 @@ abstract class BaseMiniGame extends FlameGame {
   final GameProvider gameProvider;
 
   BaseMiniGame(this.gameProvider);
+
+  @override
+  Future<void> onLoad() async {
+    await super.onLoad();
+    camera.viewfinder.anchor = Anchor.topLeft;
+  }
 
   /// Mã định danh duy nhất của mini-game, khớp với MiniGameMetadata.id.
   String get gameId;

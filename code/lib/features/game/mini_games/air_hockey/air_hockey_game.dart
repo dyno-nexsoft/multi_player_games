@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flame/components.dart';
+import 'package:flame/camera.dart';
 import 'package:flame/events.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -72,7 +73,9 @@ class AirHockeyGame extends BaseMiniGame with DragCallbacks {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    camera.viewfinder.visibleGameSize = Vector2(gameW, gameH);
+    camera.viewport = FixedResolutionViewport(
+      resolution: Vector2(gameW, gameH),
+    );
 
     // Host sở hữu puck lúc đầu, đặt ở phần sân mình
     _isPuckOwner = gameProvider.lobbyProvider.isHost;

@@ -41,7 +41,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Future<void> _done() async {
     await OnboardingService.markSeen();
-    if (mounted) context.pop();
+    if (mounted) {
+      if (context.canPop()) {
+        context.pop();
+      } else {
+        context.go('/');
+      }
+    }
   }
 
   @override

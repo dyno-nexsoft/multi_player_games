@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:nsd/nsd.dart';
@@ -85,7 +84,7 @@ class LobbyProvider extends ChangeNotifier {
   OnPacket? onGameEnded;
 
   /// Host-side: map socket → playerId để dọn dẹp khi client ngắt kết nối.
-  final Map<Socket, String> _socketPlayers = {};
+  final Map<Object, String> _socketPlayers = {};
 
   // ── Console Mode ──────────────────────────────────────────────────────────
 
@@ -265,39 +264,12 @@ class LobbyProvider extends ChangeNotifier {
     _state = LobbyState.hosting;
     notifyListeners();
 
-    if (kIsWeb) {
-      Timer(const Duration(seconds: 1), () {
-        if (_state == LobbyState.hosting || _state == LobbyState.inRoom) {
-          final bot1 = Player(
-            id: 'bot_1',
-            name: 'Pikachu ⚡',
-            color: 0xFFFFD700,
-            playerIndex: _players.length,
-          );
-          _players.add(bot1);
-          notifyListeners();
-          _syncLobby();
-        }
-      });
-      Timer(const Duration(seconds: 2), () {
-        if (_state == LobbyState.hosting || _state == LobbyState.inRoom) {
-          final bot2 = Player(
-            id: 'bot_2',
-            name: 'Charizard 🔥',
-            color: 0xFFFF6B35,
-            playerIndex: _players.length,
-          );
-          _players.add(bot2);
-          notifyListeners();
-          _syncLobby();
-        }
-      });
-    }
+
   }
 
   /// Host nhận gói tin kèm socket nguồn — map join → socket để dọn dẹp khi rớt,
   /// đồng thời mesh-relay gói gameplay của client này tới các client còn lại.
-  void _handleHostPacket(Socket socket, GamePacket packet) {
+  void _handleHostPacket(Object socket, GamePacket packet) {
     if (packet.type == PacketType.join && packet.senderId != null) {
       _socketPlayers[socket] = packet.senderId!;
     }
@@ -321,7 +293,7 @@ class LobbyProvider extends ChangeNotifier {
     PacketType.spatialAudio,
   };
 
-  void _handleClientDisconnected(Socket socket) {
+  void _handleClientDisconnected(Object socket) {
     final playerId = _socketPlayers.remove(socket);
     if (playerId == null) return;
     _players.removeWhere((p) => p.id == playerId);
@@ -373,19 +345,7 @@ class LobbyProvider extends ChangeNotifier {
     _state = LobbyState.discovering;
     notifyListeners();
 
-    if (kIsWeb) {
-      Timer(const Duration(milliseconds: 600), () {
-        if (_state == LobbyState.discovering) {
-          _discoveredRooms.add(Service(
-            name: 'Web Room 🍎🍕👻👽',
-            type: '_pgamehub._tcp',
-            host: '127.0.0.1',
-            port: 4567,
-          ));
-          notifyListeners();
-        }
-      });
-    }
+
   }
 
   Service? _lastJoinedService;
@@ -396,22 +356,9 @@ class LobbyProvider extends ChangeNotifier {
     _reconnectAttempts = 0;
     _repo.onPacketReceived = _handleIncomingPacket;
     _repo.onHostDisconnected = _onHostDisconnected;
+    _repo.webLocalClientId = _localPlayer?.id;
     await _repo.connectToService(service);
 
-    if (kIsWeb) {
-      _players.clear();
-      _players.add(Player(
-        id: 'host_id',
-        name: 'Web Host 🖥️',
-        isHost: true,
-        color: 0xFF6C63FF,
-        playerIndex: 0,
-      ));
-      _players.add(_localPlayer!.copyWith(playerIndex: 1));
-      _state = LobbyState.inRoom;
-      notifyListeners();
-      return;
-    }
 
     final packet = GamePacket(
       type: PacketType.join,
@@ -428,22 +375,9 @@ class LobbyProvider extends ChangeNotifier {
     _reconnectAttempts = 0;
     _repo.onPacketReceived = _handleIncomingPacket;
     _repo.onHostDisconnected = _onHostDisconnected;
+    _repo.webLocalClientId = _localPlayer?.id;
     await _repo.connectToAddress(ip, port);
 
-    if (kIsWeb) {
-      _players.clear();
-      _players.add(Player(
-        id: 'host_id',
-        name: 'Web Host 🖥️',
-        isHost: true,
-        color: 0xFF6C63FF,
-        playerIndex: 0,
-      ));
-      _players.add(_localPlayer!.copyWith(playerIndex: 1));
-      _state = LobbyState.inRoom;
-      notifyListeners();
-      return;
-    }
 
     final packet = GamePacket(
       type: PacketType.join,
@@ -500,6 +434,10 @@ class LobbyProvider extends ChangeNotifier {
               list.map((e) => Player.fromJson(e as Map<String, dynamic>)),
             );
           notifyListeners();
+        }
+      case 'room_closed':
+        if (!isHost) {
+          _onHostDisconnected();
         }
       case PacketType.startGame:
         _pendingGameId = packet.payload['game_id'] as String?;
@@ -604,6 +542,10 @@ class LobbyProvider extends ChangeNotifier {
   }
 
   void leaveRoom() {
+    if (isHost) {
+      final pkt = GamePacket(type: 'room_closed', timestamp: _now());
+      _repo.broadcastPacket(pkt);
+    }
     _discoverySubscription?.cancel();
     _discoverySubscription = null;
     _repo.dispose();
@@ -645,6 +587,7 @@ class LobbyProvider extends ChangeNotifier {
     final service = _lastJoinedService;
     if (local == null || service == null) return;
     try {
+      _repo.webLocalClientId = local.id;
       await _repo.connectToService(service);
       final packet = GamePacket(
         type: PacketType.join,

@@ -72,7 +72,9 @@ class GameProvider extends ChangeNotifier {
     _showScoreboard = false;
 
     if (lobbyProvider.isHost) {
-      final matches = MiniGameRegistry.availableGames.where((g) => g.id == gameId);
+      final matches = MiniGameRegistry.availableGames.where(
+        (g) => g.id == gameId,
+      );
       if (matches.isNotEmpty && matches.first.controllerConfig != null) {
         sendControllerInit(gameId, matches.first.controllerConfig!);
       }

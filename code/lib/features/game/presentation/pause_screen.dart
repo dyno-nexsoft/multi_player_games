@@ -21,79 +21,86 @@ class PauseScreen extends StatelessWidget {
     final primary = Theme.of(context).colorScheme.primary;
     final l10n = AppLocalizations.of(context)!;
 
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 40),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
-              decoration: BoxDecoration(
-                color: AppTheme.bgSurface.withValues(alpha: 0.82),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: primary.withValues(alpha: 0.35),
-                  width: 1.5,
+    return Material(
+      type: MaterialType.transparency,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 40),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
+                decoration: BoxDecoration(
+                  color: AppTheme.bgSurface.withValues(alpha: 0.82),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: primary.withValues(alpha: 0.35),
+                    width: 1.5,
+                  ),
+                  boxShadow: AppTheme.glowShadow(primary, blur: 18),
                 ),
-                boxShadow: AppTheme.glowShadow(primary, blur: 18),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      NeonTitle(l10n.pauseTitle, fontSize: 22, color: primary),
-                      const SizedBox(width: 8),
-                      GestureDetector(
-                        onTap: () {
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        NeonTitle(
+                          l10n.pauseTitle,
+                          fontSize: 22,
+                          color: primary,
+                        ),
+                        const SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: () {
+                            context.pop();
+                            const OnboardingRoute().push(context);
+                          },
+                          child: Icon(
+                            Icons.help_outline,
+                            color: primary.withValues(alpha: 0.55),
+                            size: 20,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () => context.pop(),
+                        icon: const Icon(Icons.play_arrow),
+                        label: Text(l10n.continueBtn),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: () {
                           context.pop();
-                          const OnboardingRoute().push(context);
+                          gameProvider.leaveGame();
+                          lobby.returnToLobby();
+                          const RoomRoute().go(context);
                         },
-                        child: Icon(
-                          Icons.help_outline,
-                          color: primary.withValues(alpha: 0.55),
-                          size: 20,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: () => context.pop(),
-                      icon: const Icon(Icons.play_arrow),
-                      label: Text(l10n.continueBtn),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                        context.pop();
-                        gameProvider.leaveGame();
-                        lobby.returnToLobby();
-                        const RoomRoute().go(context);
-                      },
-                      icon: const Icon(Icons.exit_to_app, size: 18),
-                      label: Text(l10n.leaveRoomBtn),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor:
-                            Theme.of(context).colorScheme.secondary,
-                        side: BorderSide(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .secondary
-                              .withValues(alpha: 0.5),
+                        icon: const Icon(Icons.exit_to_app, size: 18),
+                        label: Text(l10n.leaveRoomBtn),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Theme.of(
+                            context,
+                          ).colorScheme.secondary,
+                          side: BorderSide(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.secondary.withValues(alpha: 0.5),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

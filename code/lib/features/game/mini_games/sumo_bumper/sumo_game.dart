@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flame/components.dart';
+import 'package:flame/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
@@ -37,7 +38,7 @@ class SumoGame extends BaseMiniGame {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    camera.viewfinder.visibleGameSize = Vector2(400, 800);
+    camera.viewport = FixedResolutionViewport(resolution: Vector2(400, 800));
 
     final players = gameProvider.lobbyProvider.players;
     final spawnPoints = [
@@ -146,7 +147,10 @@ class SumoGame extends BaseMiniGame {
       final bumper = bumpers[senderId];
       if (bumper != null && !bumper.eliminated) {
         final angle = (payload['angle'] as num?)?.toDouble() ?? 0.0;
-        final forceMag = ((payload['force'] as num?)?.toDouble() ?? 0.0).clamp(0.0, 1.0);
+        final forceMag = ((payload['force'] as num?)?.toDouble() ?? 0.0).clamp(
+          0.0,
+          1.0,
+        );
         bumper.vel += Vector2(
           forceMag * _force * math.cos(angle) * 0.1,
           forceMag * _force * math.sin(angle) * 0.1,

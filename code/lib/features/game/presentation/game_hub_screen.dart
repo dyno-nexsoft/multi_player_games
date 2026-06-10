@@ -37,17 +37,20 @@ class _GameHubScreenState extends State<GameHubScreen> {
   int _lastScheduledToken = -1;
   bool _goingToScoreboard = false;
   bool _pauseOpen = false;
+  bool _goingToRoom = false;
+  bool _goingToLobby = false;
 
   // ── Disruption overlay state ──────────────────────────────────────────────
   String? _activeDisruption; // 'tomato' | 'smoke' | 'ice'
   Timer? _disruptionTimer;
+  late LobbyProvider _lobby;
 
   @override
   void initState() {
     super.initState();
-    final lobby = context.read<LobbyProvider>();
-    if (lobby.isConsoleMode) WakelockPlus.enable();
-    lobby.onDisruption = (type) {
+    _lobby = context.read<LobbyProvider>();
+    if (_lobby.isConsoleMode) WakelockPlus.enable();
+    _lobby.onDisruption = (type) {
       if (!mounted) return;
       _disruptionTimer?.cancel();
       setState(() => _activeDisruption = type);
@@ -55,22 +58,21 @@ class _GameHubScreenState extends State<GameHubScreen> {
         if (mounted) setState(() => _activeDisruption = null);
       });
     };
-    lobby.onSystemPause = () {
+    _lobby.onSystemPause = () {
       if (!mounted) return;
       final lp = context.read<LobbyProvider>();
       final gp = context.read<GameProvider>();
       _showPauseMenu(context, lp, gp);
     };
-    lobby.onEmoteReceived = (emoji) => EmoteLayer.of(context)?.showEmote(emoji);
+    _lobby.onEmoteReceived = (emoji) => EmoteLayer.of(context)?.showEmote(emoji);
   }
 
   @override
   void dispose() {
-    final lobby = context.read<LobbyProvider>();
-    lobby.onDisruption = null;
-    lobby.onSystemPause = null;
-    lobby.onEmoteReceived = null;
-    if (lobby.isConsoleMode) WakelockPlus.disable();
+    _lobby.onDisruption = null;
+    _lobby.onSystemPause = null;
+    _lobby.onEmoteReceived = null;
+    if (_lobby.isConsoleMode) WakelockPlus.disable();
     _disruptionTimer?.cancel();
     super.dispose();
   }
@@ -129,7 +131,25 @@ class _GameHubScreenState extends State<GameHubScreen> {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (mounted) const ScoreboardRoute().go(context);
             });
+          } else if (!gameProvider.showScoreboard && _goingToScoreboard) {
+            _goingToScoreboard = false;
           }
+
+          if (lobby.state == LobbyState.inRoom && !_goingToRoom) {
+            _goingToRoom = true;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) const RoomRoute().go(context);
+            });
+          }
+          if (lobby.state != LobbyState.inRoom) _goingToRoom = false;
+
+          if (lobby.state == LobbyState.idle && !_goingToLobby) {
+            _goingToLobby = true;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) const LobbyRoute().go(context);
+            });
+          }
+          if (lobby.state != LobbyState.idle) _goingToLobby = false;
 
           // Launch game một lần duy nhất mỗi gameStartToken
           if (lobby.gameStartToken > gameProvider.lastLaunchToken &&
@@ -169,59 +189,65 @@ class _GameHubScreenState extends State<GameHubScreen> {
             );
           }
 
-          return EmoteLayer(
-            child: Stack(
-              children: [
-                // ── Flame canvas ───────────────────────────────────────────────
-                if (game != null)
-                  GestureDetector(
-                    onLongPress: () =>
-                        _showPauseMenu(context, lobby, gameProvider),
-                    behavior: HitTestBehavior.translucent,
-                    child: GameWidget(game: game),
-                  ),
-
-                // ── Flutter game UI (các game dùng Flutter UI thay vì Flame) ──
-                if (game != null && !gameProvider.showScoreboard)
-                  _buildGameUi(context, game),
-
-                // ── Disruption overlay (khán giả phá đám) ─────────────────────
-                if (_activeDisruption != null)
-                  _DisruptionOverlay(type: _activeDisruption!),
-
-                // ── Nút pause nhỏ góc trên phải (khi đang chơi) ───────────────
-                if (game != null &&
-                    !gameProvider.showScoreboard &&
-                    !_showCountdown)
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: SafeArea(
-                      child: GestureDetector(
-                        onTap: () =>
+          return Scaffold(
+            backgroundColor: Colors.black,
+            body: SizedBox.expand(
+              child: EmoteLayer(
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    // ── Flame canvas ───────────────────────────────────────────────
+                    if (game != null)
+                      GestureDetector(
+                        onLongPress: () =>
                             _showPauseMenu(context, lobby, gameProvider),
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.45),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.15),
-                              width: 1,
+                        behavior: HitTestBehavior.translucent,
+                        child: GameWidget(game: game),
+                      ),
+
+                    // ── Flutter game UI (các game dùng Flutter UI thay vì Flame) ──
+                    if (game != null && !gameProvider.showScoreboard)
+                      _buildGameUi(context, game),
+
+                    // ── Disruption overlay (khán giả phá đám) ─────────────────────
+                    if (_activeDisruption != null)
+                      _DisruptionOverlay(type: _activeDisruption!),
+
+                    // ── Nút pause nhỏ góc trên phải (khi đang chơi) ───────────────
+                    if (game != null &&
+                        !gameProvider.showScoreboard &&
+                        !_showCountdown)
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: SafeArea(
+                          child: GestureDetector(
+                            onTap: () =>
+                                _showPauseMenu(context, lobby, gameProvider),
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withValues(alpha: 0.45),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: Colors.white.withValues(alpha: 0.15),
+                                  width: 1,
+                                ),
+                              ),
+                              child: const Icon(
+                                Icons.pause,
+                                color: Colors.white70,
+                                size: 18,
+                              ),
                             ),
-                          ),
-                          child: const Icon(
-                            Icons.pause,
-                            color: Colors.white70,
-                            size: 18,
                           ),
                         ),
                       ),
-                    ),
-                  ),
-              ],
+                  ],
+                ),
+              ),
             ),
-          ); // Stack + EmoteLayer
+          ); // Stack + EmoteLayer + SizedBox
         },
       ),
     );

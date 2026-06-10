@@ -339,7 +339,9 @@ class DrawGuessGame extends BaseMiniGame {
         if (!gameProvider.lobbyProvider.isHost) {
           _roundActive = false;
           final raw = payload['scores'] as Map?;
-          raw?.forEach((k, v) => _scores[k.toString()] = v is num ? v.toInt() : 0);
+          raw?.forEach(
+            (k, v) => _scores[k.toString()] = v is num ? v.toInt() : 0,
+          );
           final word = payload['word'] as String;
           _resultText = 'Đúng! Từ là "$word" 🎉';
           _resultColor = Colors.green;
@@ -369,7 +371,9 @@ class DrawGuessGame extends BaseMiniGame {
           _gameOver = true;
           _roundActive = false;
           final raw = payload['scores'] as Map?;
-          raw?.forEach((k, v) => _scores[k.toString()] = v is num ? v.toInt() : 0);
+          raw?.forEach(
+            (k, v) => _scores[k.toString()] = v is num ? v.toInt() : 0,
+          );
           _statusText = 'Kết thúc!';
           _notify();
           Future.delayed(const Duration(seconds: 2), () {

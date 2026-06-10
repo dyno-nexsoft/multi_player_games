@@ -50,7 +50,8 @@ class CountdownRoute extends GoRouteData with $CountdownRoute {
         barrierColor: Colors.transparent,
         transitionDuration: Duration.zero,
         reverseTransitionDuration: Duration.zero,
-        transitionsBuilder: (context, animation, secondaryAnimation, child) => child,
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            child,
         child: const CountdownScreen(),
       );
 }
@@ -78,10 +79,7 @@ class PauseRoute extends GoRouteData with $PauseRoute {
           return FadeTransition(
             opacity: curved,
             child: ScaleTransition(
-              scale: Tween<double>(
-                begin: 0.92,
-                end: 1.0,
-              ).animate(curved),
+              scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
               child: child,
             ),
           );

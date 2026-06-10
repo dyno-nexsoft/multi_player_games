@@ -105,14 +105,11 @@ class ConsoleProvider extends ChangeNotifier {
 
   void _startGyro() {
     try {
-      _gyroSub = gyroscopeEventStream().listen(
-        (event) {
-          _gyroX = event.x;
-          _gyroY = event.y;
-          _inputDirty = true;
-        },
-        onError: (_) {},
-      );
+      _gyroSub = gyroscopeEventStream().listen((event) {
+        _gyroX = event.x;
+        _gyroY = event.y;
+        _inputDirty = true;
+      }, onError: (_) {});
     } catch (_) {}
   }
 

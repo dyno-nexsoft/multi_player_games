@@ -107,9 +107,10 @@ class RouletteRoute extends GoRouteData with $RouletteRoute {
         transitionsBuilder: (ctx, anim, _, child) => FadeTransition(
           opacity: CurvedAnimation(parent: anim, curve: Curves.easeOut),
           child: ScaleTransition(
-            scale: Tween<double>(begin: 0.85, end: 1.0).animate(
-              CurvedAnimation(parent: anim, curve: Curves.easeOutBack),
-            ),
+            scale: Tween<double>(
+              begin: 0.85,
+              end: 1.0,
+            ).animate(CurvedAnimation(parent: anim, curve: Curves.easeOutBack)),
             child: child,
           ),
         ),

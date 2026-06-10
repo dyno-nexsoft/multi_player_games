@@ -20,21 +20,37 @@ class ScoreboardScreen extends StatefulWidget {
 
 class _ScoreboardScreenState extends State<ScoreboardScreen> {
   bool _goingToGame = false;
+  bool _goingToRoom = false;
+  bool _goingToLobby = false;
 
   @override
   Widget build(BuildContext context) {
     return Consumer2<GameProvider, LobbyProvider>(
       builder: (context, gp, lobby, _) {
         // Reactive: both host and client navigate to /game when next round starts.
-        if (lobby.state == LobbyState.inGame &&
-            lobby.pendingGameId != null &&
-            !_goingToGame) {
+        if (!gp.showScoreboard && !_goingToGame) {
           _goingToGame = true;
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) const GameRoute().go(context);
           });
         }
-        if (lobby.state != LobbyState.inGame) _goingToGame = false;
+        if (gp.showScoreboard) _goingToGame = false;
+
+        if (lobby.state == LobbyState.inRoom && !_goingToRoom) {
+          _goingToRoom = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) const RoomRoute().go(context);
+          });
+        }
+        if (lobby.state != LobbyState.inRoom) _goingToRoom = false;
+
+        if (lobby.state == LobbyState.idle && !_goingToLobby) {
+          _goingToLobby = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) const LobbyRoute().go(context);
+          });
+        }
+        if (lobby.state != LobbyState.idle) _goingToLobby = false;
 
         final scores = gp.totalScores;
         final isSeries = gp.seriesLength > 1;
@@ -115,8 +131,9 @@ class _ScoreboardScreenState extends State<ScoreboardScreen> {
                         icon: const Icon(Icons.replay, size: 18),
                         label: Text(l10n.rematchBtn),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              Theme.of(context).colorScheme.secondary,
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.secondary,
                         ),
                       ),
                     ),
@@ -149,8 +166,9 @@ class _ScoreboardScreenState extends State<ScoreboardScreen> {
                   ),
                 )
               : Scaffold(
-                  backgroundColor:
-                      const Color(0xFF0D0D12).withValues(alpha: 0.96),
+                  backgroundColor: const Color(
+                    0xFF0D0D12,
+                  ).withValues(alpha: 0.96),
                   body: content,
                 ),
         );
@@ -171,7 +189,11 @@ class _VictoryBanner extends StatelessWidget {
     if (iWon) {
       return Column(
         children: [
-          NeonTitle('🏆 VICTORY!', fontSize: 36, color: const Color(0xFFFFD700)),
+          NeonTitle(
+            '🏆 VICTORY!',
+            fontSize: 36,
+            color: const Color(0xFFFFD700),
+          ),
           const SizedBox(height: 2),
           Text(
             l10n.victorySubtitle,

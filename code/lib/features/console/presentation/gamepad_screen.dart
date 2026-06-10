@@ -56,7 +56,9 @@ class _GamepadScreenState extends State<GamepadScreen> {
             onPopInvokedWithResult: (didPop, result) async {
               if (didPop) return;
               final lobby = context.read<LobbyProvider>();
-              final shouldLeave = await const ExitGamepadRoute().push<bool>(context);
+              final shouldLeave = await const ExitGamepadRoute().push<bool>(
+                context,
+              );
               if (shouldLeave == true && context.mounted) {
                 lobby.leaveRoom();
               }

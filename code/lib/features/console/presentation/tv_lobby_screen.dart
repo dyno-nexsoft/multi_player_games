@@ -167,7 +167,9 @@ class _TvLobbyScreenState extends State<TvLobbyScreen>
           canPop: false,
           onPopInvokedWithResult: (didPop, result) async {
             if (didPop) return;
-            final shouldLeave = await const ExitTvLobbyRoute().push<bool>(context);
+            final shouldLeave = await const ExitTvLobbyRoute().push<bool>(
+              context,
+            );
             if (shouldLeave == true && context.mounted) {
               lobby.leaveRoom();
             }
@@ -353,10 +355,7 @@ class _StagePanel extends StatelessWidget {
         Expanded(
           child: players.isEmpty
               ? const _EmptyStage()
-              : _AvatarStage(
-                  players: players,
-                  dropAnimations: dropAnimations,
-                ),
+              : _AvatarStage(players: players, dropAnimations: dropAnimations),
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(32, 8, 32, 28),
@@ -416,10 +415,7 @@ class _AvatarStage extends StatelessWidget {
   final List<Player> players;
   final Map<String, Animation<Offset>> dropAnimations;
 
-  const _AvatarStage({
-    required this.players,
-    required this.dropAnimations,
-  });
+  const _AvatarStage({required this.players, required this.dropAnimations});
 
   @override
   Widget build(BuildContext context) {
@@ -510,10 +506,7 @@ class _PlayerAvatar extends StatelessWidget {
         if (player.isHost)
           Text(
             'Host',
-            style: TextStyle(
-              color: color.withValues(alpha: 0.5),
-              fontSize: 13,
-            ),
+            style: TextStyle(color: color.withValues(alpha: 0.5), fontSize: 13),
           ),
       ],
     );

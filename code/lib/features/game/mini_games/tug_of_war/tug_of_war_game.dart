@@ -1,6 +1,7 @@
 import 'dart:ui' show lerpDouble;
 
 import 'package:flame/components.dart';
+import 'package:flame/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
@@ -56,14 +57,38 @@ class TugOfWarGame extends BaseMiniGame {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    camera.viewfinder.visibleGameSize = Vector2(400, 800);
+    camera.viewport = FixedResolutionViewport(resolution: Vector2(400, 800));
 
     world.add(_TugBackground());
 
     _rope = RopeComponent()..size = Vector2(400, 800);
     world.add(_rope);
 
-    _powerBar = _PowerBarComponent(position: Vector2(200, 400));
+    final players = gameProvider.lobbyProvider.players;
+    final host = players.firstWhere(
+      (p) => p.isHost,
+      orElse: () => players.first,
+    );
+    final clients = players.where((p) => !p.isHost).toList();
+    
+    String cName = 'CLIENT';
+    if (clients.isNotEmpty) {
+      if (clients.length == 1) {
+        cName = clients.first.name;
+        if (cName.length > 10) cName = '${cName.substring(0, 10)}...';
+      } else {
+        cName = 'CLIENTS (${clients.length})';
+      }
+    }
+    
+    String hName = host.name;
+    if (hName.length > 10) hName = '${hName.substring(0, 10)}...';
+
+    _powerBar = _PowerBarComponent(
+      position: Vector2(200, 400),
+      hostName: hName.toUpperCase(),
+      clientName: cName.toUpperCase(),
+    );
     world.add(_powerBar);
 
     // Nút tap — chiếm phần lớn màn hình
@@ -280,11 +305,16 @@ class _TugBackground extends Component {
 // ── Power Bar ─────────────────────────────────────────────────────────────
 class _PowerBarComponent extends PositionComponent {
   double ropePosition = 0.0;
+  final String hostName;
+  final String clientName;
   static const double _barW = 300.0;
   static const double _barH = 12.0;
 
-  _PowerBarComponent({required super.position})
-    : super(anchor: Anchor.center, size: Vector2(_barW, _barH));
+  _PowerBarComponent({
+    required super.position,
+    required this.hostName,
+    required this.clientName,
+  }) : super(anchor: Anchor.center, size: Vector2(_barW, _barH));
 
   @override
   void render(Canvas canvas) {
@@ -329,13 +359,13 @@ class _PowerBarComponent extends PositionComponent {
       fontWeight: FontWeight.bold,
     );
     final hostPainter = TextPainter(
-      text: const TextSpan(text: 'HOST', style: textStyle),
+      text: TextSpan(text: hostName, style: textStyle),
       textDirection: TextDirection.ltr,
     )..layout();
-    hostPainter.paint(canvas, const Offset(_barW - 36, _barH + 6));
+    hostPainter.paint(canvas, Offset(_barW - hostPainter.width, _barH + 6));
 
     final clientPainter = TextPainter(
-      text: const TextSpan(text: 'CLIENT', style: textStyle),
+      text: TextSpan(text: clientName, style: textStyle),
       textDirection: TextDirection.ltr,
     )..layout();
     clientPainter.paint(canvas, const Offset(0, _barH + 6));

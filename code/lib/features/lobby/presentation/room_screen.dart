@@ -87,8 +87,7 @@ class _RoomScreenState extends State<RoomScreen> {
           canPop: !lobby.isHost,
           onPopInvokedWithResult: (didPop, result) async {
             if (didPop) return;
-            final shouldLeave =
-                await const ExitRoomRoute().push<bool>(context);
+            final shouldLeave = await const ExitRoomRoute().push<bool>(context);
             if (shouldLeave == true && context.mounted) {
               lobby.leaveRoom();
             }
@@ -331,7 +330,9 @@ class _GameSelector extends StatelessWidget {
                   glowColor: const Color(0xFFFFD700),
                   child: ElevatedButton.icon(
                     onPressed: () async {
-                      final gameId = await const RouletteRoute().push<String>(context);
+                      final gameId = await const RouletteRoute().push<String>(
+                        context,
+                      );
                       if (gameId != null && context.mounted) {
                         lobby.setTournamentMode(true);
                         lobby.startGame(gameId);

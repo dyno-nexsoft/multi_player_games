@@ -104,11 +104,13 @@ class MinesweeperGame extends BaseMiniGame {
   @override
   void update(double dt) {
     super.update(dt);
-    if (_gameOver || !gameProvider.lobbyProvider.isHost) return;
+    if (_gameOver) return;
     _timeLeft -= dt;
     if (_timeLeft <= 0) {
       _timeLeft = 0;
-      _finishGame();
+      if (gameProvider.lobbyProvider.isHost) {
+        _finishGame();
+      }
     }
     _notify();
   }
@@ -198,14 +200,18 @@ class MinesweeperGame extends BaseMiniGame {
         }
       case 'reveal':
         _revealed[payload['row'] as int][payload['col'] as int] = true;
-        final scoreMap = (payload['scores'] as Map).cast<String, int>();
-        _scores.addAll(scoreMap);
+        if (payload['scores'] != null) {
+          final rawScores = payload['scores'] as Map<String, dynamic>;
+          rawScores.forEach((k, v) => _scores[k] = v is num ? v.toInt() : 0);
+        }
         _notify();
       case 'game_over':
         if (!_gameOver) {
           _gameOver = true;
-          final scoreMap = (payload['scores'] as Map).cast<String, int>();
-          _scores.addAll(scoreMap);
+          if (payload['scores'] != null) {
+            final rawScores = payload['scores'] as Map<String, dynamic>;
+            rawScores.forEach((k, v) => _scores[k] = v is num ? v.toInt() : 0);
+          }
           _statusText = 'Hết giờ!';
           _notify();
           Future.delayed(const Duration(seconds: 2), () {
@@ -265,7 +271,7 @@ class _MinesweeperOverlayState extends State<_MinesweeperOverlay> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.fromLTRB(16, 8, 56, 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

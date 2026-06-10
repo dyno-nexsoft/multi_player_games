@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flame/components.dart';
+import 'package:flame/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
 import 'package:party_game_hub/core/network/game_packet.dart';
@@ -44,7 +45,9 @@ class NeonDodgeGame extends BaseMiniGame {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    camera.viewfinder.visibleGameSize = Vector2(gameW, gameH);
+    camera.viewport = FixedResolutionViewport(
+      resolution: Vector2(gameW, gameH),
+    );
 
     world.add(_NeonArena());
 
