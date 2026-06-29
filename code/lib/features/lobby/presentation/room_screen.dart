@@ -248,13 +248,9 @@ class _GameSelector extends StatelessWidget {
     return switch (gameId) {
       GameIds.tugOfWar => l10n.gameTugOfWarTitle,
       GameIds.sumoBumper => l10n.gameSumoBumperTitle,
-      GameIds.penaltyShootout => l10n.gamePenaltyShootoutTitle,
-      GameIds.airHockey => l10n.gameAirHockeyTitle,
       GameIds.reactionTap => l10n.gameReactionTapTitle,
       GameIds.minesweeper => l10n.gameMinesweeperTitle,
-      GameIds.billiards => l10n.gameBilliardsTitle,
       GameIds.drawGuess => l10n.gameDrawGuessTitle,
-      GameIds.battleship => l10n.gameBattleshipTitle,
       GameIds.hotPotato => l10n.gameHotPotatoTitle,
       _ => game.title,
     };

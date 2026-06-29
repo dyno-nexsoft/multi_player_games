@@ -26,7 +26,6 @@ class TugOfWarGame extends BaseMiniGame {
   double _syncTimer = 0;
   double _timeLeft = _gameDuration;
   bool _gameEnded = false;
-  bool _cancelled = false;
 
   static final _timerPaintNormal = TextPaint(
     style: const TextStyle(
@@ -249,17 +248,12 @@ class TugOfWarGame extends BaseMiniGame {
       }
       // endMiniGame trong base class sẽ phát win/lose audio cho host
       Future.delayed(const Duration(seconds: 2), () {
-        if (!_cancelled) endMiniGame(scores);
+        if (!cancelled) endMiniGame(scores);
       });
     }
     // Client: GameProvider phát win/lose audio khi nhận gói end_game từ host.
   }
 
-  @override
-  void onDetach() {
-    _cancelled = true;
-    super.onDetach();
-  }
 
   @override
   void onNetworkDataReceived(String senderId, Map<String, dynamic> payload) {

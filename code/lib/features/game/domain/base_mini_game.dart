@@ -1,5 +1,6 @@
 import 'package:flame/game.dart';
 import 'package:flame/components.dart';
+import 'package:meta/meta.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
 import '../presentation/game_provider.dart';
 
@@ -9,6 +10,36 @@ abstract class BaseMiniGame extends FlameGame {
   final GameProvider gameProvider;
 
   BaseMiniGame(this.gameProvider);
+
+  // ── Shared lifecycle ────────────────────────────────────────────────────────
+
+  /// Callback được gọi khi trạng thái game thay đổi để trigger setState trên overlay.
+  void Function()? onStateChanged;
+
+  /// Gọi callback này thay vì trực tiếp `onStateChanged?.call()` để dễ override sau này.
+  @protected
+  void notifyOverlay() => onStateChanged?.call();
+
+  /// True sau khi widget bị dispose — mọi delayed callback phải kiểm tra trước khi chạy.
+  bool cancelled = false;
+
+  @override
+  void onDetach() {
+    cancelled = true;
+    super.onDetach();
+  }
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+
+  /// Tra cứu tên người chơi theo id. Trả về id nếu không tìm thấy.
+  String playerNameFor(String id) =>
+      gameProvider.lobbyProvider.players
+          .where((p) => p.id == id)
+          .map((p) => p.name)
+          .firstOrNull ??
+      id;
+
+  // ── Lifecycle (Flame) ──────────────────────────────────────────────────────
 
   @override
   Future<void> onLoad() async {
@@ -27,7 +58,6 @@ abstract class BaseMiniGame extends FlameGame {
     final localId = gameProvider.lobbyProvider.localPlayer?.id;
     final myScore = localId != null ? (playerScores[localId] ?? 0) : 0;
     final best = playerScores.values.fold(0, (a, b) => a > b ? a : b);
-    // Không phát audio nếu tất cả điểm bằng 0 (hòa / không có ai ghi điểm)
     if (best > 0) {
       myScore >= best ? AppAudio.playWin() : AppAudio.playLose();
     }

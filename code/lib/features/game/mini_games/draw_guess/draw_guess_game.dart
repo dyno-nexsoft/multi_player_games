@@ -35,7 +35,6 @@ class DrawGuessGame extends BaseMiniGame {
 
   bool _roundActive = false;
   bool _gameOver = false;
-  bool _cancelled = false;
 
   final Map<String, int> _scores = {};
   Map<String, int> get scores => Map.unmodifiable(_scores);
@@ -56,8 +55,7 @@ class DrawGuessGame extends BaseMiniGame {
   Color _resultColor = Colors.transparent;
   Color get resultColor => _resultColor;
 
-  void Function()? onStateChanged;
-  void _notify() => onStateChanged?.call();
+  void _notify() => notifyOverlay();
 
   // ── Word list ─────────────────────────────────────────────────────────────
 
@@ -279,7 +277,7 @@ class DrawGuessGame extends BaseMiniGame {
     });
 
     Future.delayed(const Duration(seconds: 2), () {
-      if (!_cancelled) endMiniGame(Map.from(_scores));
+      if (!cancelled) endMiniGame(Map.from(_scores));
     });
   }
 
@@ -349,7 +347,7 @@ class DrawGuessGame extends BaseMiniGame {
           AppAudio.playGoal();
           _notify();
           Future.delayed(const Duration(seconds: 2), () {
-            if (!_cancelled) _afterWordClient();
+            if (!cancelled) _afterWordClient();
           });
         }
 
@@ -362,7 +360,7 @@ class DrawGuessGame extends BaseMiniGame {
           _wordIndex = (payload['word_index'] as int) + 1;
           _notify();
           Future.delayed(const Duration(seconds: 3), () {
-            if (!_cancelled) _afterWordClient();
+            if (!cancelled) _afterWordClient();
           });
         }
 
@@ -377,7 +375,7 @@ class DrawGuessGame extends BaseMiniGame {
           _statusText = 'Kết thúc!';
           _notify();
           Future.delayed(const Duration(seconds: 2), () {
-            if (!_cancelled) endMiniGame(Map.from(_scores));
+            if (!cancelled) endMiniGame(Map.from(_scores));
           });
         }
     }
@@ -392,7 +390,7 @@ class DrawGuessGame extends BaseMiniGame {
       _statusText = 'Kết thúc!';
       _notify();
       Future.delayed(const Duration(seconds: 1), () {
-        if (!_cancelled) endMiniGame(Map.from(_scores));
+        if (!cancelled) endMiniGame(Map.from(_scores));
       });
     } else {
       _statusText = 'Chờ từ tiếp theo...';
@@ -400,11 +398,6 @@ class DrawGuessGame extends BaseMiniGame {
     }
   }
 
-  @override
-  void onDetach() {
-    _cancelled = true;
-    super.onDetach();
-  }
 
   Widget buildOverlay(BuildContext context) => _DrawGuessOverlay(game: this);
 }

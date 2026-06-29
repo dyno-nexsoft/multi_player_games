@@ -10,14 +10,14 @@ import 'package:provider/provider.dart';
 import '../../lobby/presentation/lobby_provider.dart';
 import '../domain/base_mini_game.dart';
 import '../domain/mini_game_registry.dart';
-import '../mini_games/battleship/battleship_game.dart';
-import '../mini_games/billiards/billiards_game.dart';
-import '../mini_games/code_breaker/code_breaker_game.dart';
 import '../mini_games/draw_guess/draw_guess_game.dart';
 import '../mini_games/hot_potato/hot_potato_game.dart';
 import '../mini_games/liars_dice/liars_dice_game.dart';
 import '../mini_games/minesweeper/minesweeper_game.dart';
+import '../mini_games/never_have_i_ever/never_have_i_ever_game.dart';
 import '../mini_games/reaction_tap/reaction_tap_game.dart';
+import '../mini_games/spin_picker/spin_picker_game.dart';
+import '../mini_games/truth_or_dare/truth_or_dare_game.dart';
 import 'emote_layer.dart';
 import 'game_provider.dart';
 import '../../../router.dart';
@@ -102,12 +102,12 @@ class _GameHubScreenState extends State<GameHubScreen> {
   Widget _buildGameUi(BuildContext context, BaseMiniGame game) {
     if (game is ReactionTapGame) return game.buildOverlay(context);
     if (game is MinesweeperGame) return game.buildOverlay(context);
-    if (game is BilliardsGame) return game.buildOverlay(context);
     if (game is DrawGuessGame) return game.buildOverlay(context);
-    if (game is BattleshipGame) return game.buildOverlay(context);
     if (game is HotPotatoGame) return game.buildOverlay(context);
-    if (game is CodeBreakerGame) return game.buildOverlay(context);
     if (game is LiarsDiceGame) return game.buildOverlay(context);
+    if (game is TruthOrDareGame) return game.buildOverlay(context);
+    if (game is SpinPickerGame) return game.buildOverlay(context);
+    if (game is NeverHaveIEverGame) return game.buildOverlay(context);
     return const SizedBox.shrink();
   }
 

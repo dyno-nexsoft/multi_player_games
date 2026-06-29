@@ -18,26 +18,18 @@ abstract class MiniGameHints {
       emoji: '💥',
       instruction: 'HÚC THẬT MẠNH!',
     ),
-    GameIds.penaltyShootout: MiniGameHint(
-      emoji: '⚽',
-      instruction: 'SÚT VÀO KHUNG!',
-    ),
-    GameIds.airHockey: MiniGameHint(emoji: '🏒', instruction: 'KÉO ĐỂ ĐỠ!'),
     GameIds.reactionTap: MiniGameHint(emoji: '⚡', instruction: 'TAP KHI SÁNG!'),
     GameIds.minesweeper: MiniGameHint(emoji: '💣', instruction: 'TRÁNH Ô MÌN!'),
-    GameIds.billiards: MiniGameHint(emoji: '🎱', instruction: 'NGẮM VÀ BẮN!'),
     GameIds.drawGuess: MiniGameHint(emoji: '✏️', instruction: 'VẼ - ĐOÁN!'),
-    GameIds.battleship: MiniGameHint(
-      emoji: '🚢',
-      instruction: 'ĐẶT TÀU - BẮN!',
-    ),
     GameIds.hotPotato: MiniGameHint(emoji: '💣', instruction: 'VUỐT ĐỂ NÉM!'),
-    GameIds.codeBreaker: MiniGameHint(emoji: '🔐', instruction: 'ĐOÁN MÃ SỐ!'),
     GameIds.liarsDice: MiniGameHint(emoji: '🎲', instruction: 'TỐ BÀI DỐI!'),
     GameIds.neonDodge: MiniGameHint(
       emoji: '🕹️',
       instruction: 'NÉ CHƯỚNG NGẠI!',
     ),
+    GameIds.truthOrDare: MiniGameHint(emoji: '🃏', instruction: 'THẬT HAY THÁCH!'),
+    GameIds.spinPicker: MiniGameHint(emoji: '🎡', instruction: 'VÒNG QUAY QUYẾT ĐỊNH!'),
+    GameIds.neverHaveIEver: MiniGameHint(emoji: '✋', instruction: 'AI ĐÃ TỪNG?'),
   };
 
   static MiniGameHint? forGame(String gameId) => _hints[gameId];

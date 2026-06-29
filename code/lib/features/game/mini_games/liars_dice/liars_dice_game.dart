@@ -29,7 +29,6 @@ class LiarsDiceGame extends BaseMiniGame {
 
   bool _myTurn = false;
   bool _gameOver = false;
-  bool _cancelled = false;
 
   int? _bidQty;
   int? _bidFace;
@@ -41,8 +40,7 @@ class LiarsDiceGame extends BaseMiniGame {
   int _revealCount = 0;
 
   String _status = '';
-  void Function()? onStateChanged;
-  void _notify() => onStateChanged?.call();
+  void _notify() => notifyOverlay();
 
   // ── Getters cho overlay ────────────────────────────────────────────────────
   List<int> get myDice => _myDice;
@@ -167,15 +165,10 @@ class LiarsDiceGame extends BaseMiniGame {
     iWon ? AppAudio.playWin() : AppAudio.playLose();
     _notify();
     Future.delayed(const Duration(seconds: 2), () {
-      if (!_cancelled) endMiniGame(scores);
+      if (!cancelled) endMiniGame(scores);
     });
   }
 
-  @override
-  void onDetach() {
-    _cancelled = true;
-    super.onDetach();
-  }
 
   Widget buildOverlay(BuildContext context) => _LiarsDiceOverlay(game: this);
 }

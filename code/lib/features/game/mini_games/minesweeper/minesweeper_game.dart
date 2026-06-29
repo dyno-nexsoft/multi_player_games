@@ -29,12 +29,10 @@ class MinesweeperGame extends BaseMiniGame {
   // ── Timer ──────────────────────────────────────────────────────────────────
   double _timeLeft = _gameDuration;
   bool _gameOver = false;
-  bool _cancelled = false;
-  void Function()? onStateChanged;
 
   String _statusText = 'Tap để reveal ô trống!';
 
-  void _notify() => onStateChanged?.call();
+  void _notify() => notifyOverlay();
 
   // ── Lifecycle ──────────────────────────────────────────────────────────────
 
@@ -172,7 +170,7 @@ class MinesweeperGame extends BaseMiniGame {
       'scores': _scores,
     });
     Future.delayed(const Duration(seconds: 2), () {
-      if (!_cancelled) endMiniGame(Map.from(_scores));
+      if (!cancelled) endMiniGame(Map.from(_scores));
     });
   }
 
@@ -215,17 +213,12 @@ class MinesweeperGame extends BaseMiniGame {
           _statusText = 'Hết giờ!';
           _notify();
           Future.delayed(const Duration(seconds: 2), () {
-            if (!_cancelled) endMiniGame(Map.from(_scores));
+            if (!cancelled) endMiniGame(Map.from(_scores));
           });
         }
     }
   }
 
-  @override
-  void onDetach() {
-    _cancelled = true;
-    super.onDetach();
-  }
 
   // ── Overlay ───────────────────────────────────────────────────────────────
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
 import 'package:party_game_hub/core/theme/app_theme.dart';
+import '../../../lobby/domain/player.dart';
 import '../../domain/base_mini_game.dart';
 import '../../domain/game_ids.dart';
 
@@ -59,14 +60,12 @@ class NeverHaveIEverGame extends BaseMiniGame {
   Map<String, int> _lives = {};
   List<String> _revealedVoterIds = [];
   bool _gameOver = false;
-  bool _cancelled = false;
 
   // Host-only: accumulate votes before reveal
   final List<String> _pendingVoters = [];
   bool _revealSent = false;
 
-  void Function()? onStateChanged;
-  void _notify() => onStateChanged?.call();
+  void _notify() => notifyOverlay();
 
   // ── Getters ────────────────────────────────────────────────────────────────
   int get round => _round;
@@ -83,10 +82,7 @@ class NeverHaveIEverGame extends BaseMiniGame {
 
   bool get iRevealed => _revealedVoterIds.contains(myId);
 
-  String _playerName(String id) => gameProvider.lobbyProvider.players
-      .where((p) => p.id == id)
-      .map((p) => p.name)
-      .firstOrNull ?? id;
+  String _playerName(String id) => playerNameFor(id);
 
   List<String> get revealedVoterNames =>
       _revealedVoterIds.map(_playerName).toList();
@@ -104,7 +100,7 @@ class NeverHaveIEverGame extends BaseMiniGame {
   }
 
   void _startRound() {
-    if (_gameOver || _cancelled) return;
+    if (_gameOver || cancelled) return;
     final rng = Random();
     final text = _statements[(_round + rng.nextInt(3)) % _statements.length];
 
@@ -138,18 +134,20 @@ class NeverHaveIEverGame extends BaseMiniGame {
     HapticFeedback.lightImpact();
 
     if (hasDone) {
-      // Send to host
+      final id = myId;
+      if (id == null) return;
       gameProvider.sendGameData(gameId, {
         'action': 'vote',
-        'voter_id': myId,
+        'voter_id': id,
       });
-      // If I am host, add to pending
       if (gameProvider.lobbyProvider.isHost) {
-        _pendingVoters.add(myId!);
+        _pendingVoters.add(id);
       }
     }
     _notify();
   }
+
+  int _lastTimerTick = -1;
 
   // ── Game loop (Host only) ──────────────────────────────────────────────────
   @override
@@ -163,7 +161,12 @@ class NeverHaveIEverGame extends BaseMiniGame {
       _voteTimer = 0;
       _broadcastReveal();
     }
-    _notify();
+    // Only rebuild when the displayed second changes — avoids 60fps setState.
+    final tick = _voteTimer.ceil();
+    if (tick != _lastTimerTick) {
+      _lastTimerTick = tick;
+      _notify();
+    }
   }
 
   void _broadcastReveal() {
@@ -172,8 +175,8 @@ class NeverHaveIEverGame extends BaseMiniGame {
 
     final voters = List<String>.from(_pendingVoters);
     for (final id in voters) {
-      _lives[id] = (_lives[id] ?? 1) - 1;
-      if (_lives[id]! < 0) _lives[id] = 0;
+      final current = _lives[id] ?? _initialLives;
+      _lives[id] = (current - 1).clamp(0, _initialLives);
     }
 
     gameProvider.sendGameData(gameId, {
@@ -196,7 +199,7 @@ class NeverHaveIEverGame extends BaseMiniGame {
     _notify();
 
     Future.delayed(const Duration(seconds: 4), () {
-      if (_cancelled) return;
+      if (cancelled) return;
       _round++;
       if (_round >= _totalRounds) {
         _endGame();
@@ -217,7 +220,7 @@ class NeverHaveIEverGame extends BaseMiniGame {
     final scores = _lives.map((id, l) => MapEntry(id, l * 20));
     _notify();
     Future.delayed(const Duration(seconds: 2), () {
-      if (!_cancelled) endMiniGame(scores);
+      if (!cancelled) endMiniGame(scores);
     });
   }
 
@@ -249,11 +252,6 @@ class NeverHaveIEverGame extends BaseMiniGame {
     }
   }
 
-  @override
-  void onDetach() {
-    _cancelled = true;
-    super.onDetach();
-  }
 
   Widget buildOverlay(BuildContext context) =>
       _NeverHaveIEverOverlay(game: this);
@@ -340,7 +338,7 @@ class _RoundHeader extends StatelessWidget {
 
 class _LivesBar extends StatelessWidget {
   final Map<String, int> lives;
-  final List players;
+  final List<Player> players;
   const _LivesBar({required this.lives, required this.players});
 
   @override

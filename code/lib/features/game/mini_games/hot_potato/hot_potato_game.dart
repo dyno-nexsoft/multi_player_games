@@ -25,10 +25,11 @@ class HotPotatoGame extends BaseMiniGame {
 
   String _holderId = ''; // player id currently holding the bomb
   double _timeLeft = _roundDuration;
+  double _roundStartDuration = _roundDuration;
   double get timeLeft => _timeLeft;
+  double get roundStartDuration => _roundStartDuration;
 
   bool _gameOver = false;
-  bool _cancelled = false;
   bool _exploding = false;
 
   // Lock mechanic
@@ -49,16 +50,12 @@ class HotPotatoGame extends BaseMiniGame {
 
   final Map<String, int> _scores = {};
 
-  void Function()? onStateChanged;
-  void _notify() => onStateChanged?.call();
+  void _notify() => notifyOverlay();
 
   bool get iHoldBomb =>
       _holderId == (gameProvider.lobbyProvider.localPlayer?.id ?? '');
 
-  String get holderName => gameProvider.lobbyProvider.players
-      .where((p) => p.id == _holderId)
-      .map((p) => p.name)
-      .firstOrNull ?? '?';
+  String get holderName => playerNameFor(_holderId);
 
   // ── Lifecycle ──────────────────────────────────────────────────────────────
 
@@ -78,6 +75,7 @@ class HotPotatoGame extends BaseMiniGame {
   void _startRound() {
     final rng = Random();
     _timeLeft = _minDuration + rng.nextDouble() * (_maxDuration - _minDuration);
+    _roundStartDuration = _timeLeft;
 
     // Host always starts with the bomb
     final players = gameProvider.lobbyProvider.players;
@@ -162,7 +160,7 @@ class HotPotatoGame extends BaseMiniGame {
     _notify();
 
     Future.delayed(const Duration(seconds: 2), () {
-      if (!_cancelled) endMiniGame(Map.from(_scores));
+      if (!cancelled) endMiniGame(Map.from(_scores));
     });
   }
 
@@ -251,6 +249,7 @@ class HotPotatoGame extends BaseMiniGame {
       case 'round_start':
         _holderId = payload['holder_id'] as String;
         _timeLeft = (payload['time_left'] as num).toDouble();
+        _roundStartDuration = _timeLeft;
         final seq = (payload['lock_sequence'] as List?)?.cast<int>() ?? <int>[];
         _lockSequence = seq;
         _locked = seq.isNotEmpty;
@@ -293,7 +292,7 @@ class HotPotatoGame extends BaseMiniGame {
           iLose ? AppAudio.playLose() : AppAudio.playWin();
           _notify();
           Future.delayed(const Duration(seconds: 2), () {
-            if (!_cancelled) endMiniGame(Map.from(_scores));
+            if (!cancelled) endMiniGame(Map.from(_scores));
           });
         }
     }
@@ -301,7 +300,6 @@ class HotPotatoGame extends BaseMiniGame {
 
   @override
   void onDetach() {
-    _cancelled = true;
     AppAudio.stopLoop();
     super.onDetach();
   }
@@ -352,10 +350,7 @@ class _HotPotatoOverlayState extends State<_HotPotatoOverlay>
   @override
   Widget build(BuildContext context) {
     final g = widget.game;
-    final timeRatio = (g.timeLeft / HotPotatoGame._roundDuration).clamp(
-      0.0,
-      1.0,
-    );
+    final timeRatio = (g.timeLeft / g.roundStartDuration).clamp(0.0, 1.0);
     final urgentColor = Color.lerp(Colors.green, Colors.red, 1 - timeRatio)!;
     final bgColor = g._exploding
         ? Colors.red.shade900

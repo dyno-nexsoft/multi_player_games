@@ -48,10 +48,8 @@ class SpinPickerGame extends BaseMiniGame {
   String? _winnerId;
   String _taskText = '';
   bool _gameOver = false;
-  bool _cancelled = false;
 
-  void Function()? onStateChanged;
-  void _notify() => onStateChanged?.call();
+  void _notify() => notifyOverlay();
 
   // ── Getters ────────────────────────────────────────────────────────────────
   int get round => _round;
@@ -65,10 +63,8 @@ class SpinPickerGame extends BaseMiniGame {
       _winnerId != null &&
       _winnerId == gameProvider.lobbyProvider.localPlayer?.id;
 
-  String get winnerName => gameProvider.lobbyProvider.players
-      .where((p) => p.id == _winnerId)
-      .map((p) => p.name)
-      .firstOrNull ?? '?';
+  String get winnerName =>
+      _winnerId != null ? playerNameFor(_winnerId!) : '?';
 
   List<String> get playerNames =>
       gameProvider.lobbyProvider.players.map((p) => p.name).toList();
@@ -88,7 +84,7 @@ class SpinPickerGame extends BaseMiniGame {
   }
 
   void _spinRound() {
-    if (_gameOver || _cancelled) return;
+    if (_gameOver || cancelled) return;
     final players = gameProvider.lobbyProvider.players;
     final rng = Random();
     final winner = players[rng.nextInt(players.length)];
@@ -113,7 +109,7 @@ class SpinPickerGame extends BaseMiniGame {
 
     // Spin animation duration = 3s, then show result
     Future.delayed(const Duration(milliseconds: 3200), () {
-      if (_cancelled) return;
+      if (cancelled) return;
       _phase = 'result';
       AppAudio.playGoal();
       HapticFeedback.heavyImpact();
@@ -121,7 +117,7 @@ class SpinPickerGame extends BaseMiniGame {
 
       // Auto advance after 5s
       Future.delayed(const Duration(seconds: 5), () {
-        if (_cancelled) return;
+        if (cancelled) return;
         _round++;
         if (_round >= _totalRounds) {
           _endGame();
@@ -145,7 +141,7 @@ class SpinPickerGame extends BaseMiniGame {
     };
     _notify();
     Future.delayed(const Duration(seconds: 2), () {
-      if (!_cancelled) endMiniGame(scores);
+      if (!cancelled) endMiniGame(scores);
     });
   }
 
@@ -162,11 +158,6 @@ class SpinPickerGame extends BaseMiniGame {
     }
   }
 
-  @override
-  void onDetach() {
-    _cancelled = true;
-    super.onDetach();
-  }
 
   Widget buildOverlay(BuildContext context) => _SpinPickerOverlay(game: this);
 }

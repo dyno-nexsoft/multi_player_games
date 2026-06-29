@@ -155,20 +155,11 @@ class ReactionTapGame extends BaseMiniGame {
       scores[p.id] = (_wins[p.id] ?? 0) * 20;
     }
     Future.delayed(const Duration(seconds: 2), () {
-      if (!_cancelled) endMiniGame(scores);
+      if (!cancelled) endMiniGame(scores);
     });
   }
 
-  bool _cancelled = false;
-  void Function()? onStateChanged;
-
-  void _notify() => onStateChanged?.call();
-
-  @override
-  void onDetach() {
-    _cancelled = true;
-    super.onDetach();
-  }
+  void _notify() => notifyOverlay();
 
   // ── Client/shared ─────────────────────────────────────────────────────────
 

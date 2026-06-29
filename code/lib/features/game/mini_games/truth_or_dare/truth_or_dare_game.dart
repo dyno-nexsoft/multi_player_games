@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
 import 'package:party_game_hub/core/theme/app_theme.dart';
+import '../../../lobby/domain/player.dart';
 import '../../domain/base_mini_game.dart';
 import '../../domain/game_ids.dart';
 
@@ -78,11 +79,9 @@ class TruthOrDareGame extends BaseMiniGame {
   bool _timerActive = false;
   bool _roundResultSent = false;
   bool _gameOver = false;
-  bool _cancelled = false;
   Map<String, int> _scores = {};
 
-  void Function()? onStateChanged;
-  void _notify() => onStateChanged?.call();
+  void _notify() => notifyOverlay();
 
   // ── Getters ────────────────────────────────────────────────────────────────
   int get round => _round;
@@ -101,10 +100,8 @@ class TruthOrDareGame extends BaseMiniGame {
       _chosenId == gameProvider.lobbyProvider.localPlayer?.id &&
       _phase == 'card_shown';
 
-  String get chosenPlayerName => gameProvider.lobbyProvider.players
-      .where((p) => p.id == _chosenId)
-      .map((p) => p.name)
-      .firstOrNull ?? '?';
+  String get chosenPlayerName =>
+      _chosenId != null ? playerNameFor(_chosenId!) : '?';
 
   // ── Lifecycle ──────────────────────────────────────────────────────────────
   @override
@@ -119,7 +116,7 @@ class TruthOrDareGame extends BaseMiniGame {
   }
 
   void _startRound() {
-    if (_gameOver || _cancelled) return;
+    if (_gameOver || cancelled) return;
     final players = gameProvider.lobbyProvider.players;
     final rng = Random();
     final chosen = players[rng.nextInt(players.length)];
@@ -168,8 +165,9 @@ class TruthOrDareGame extends BaseMiniGame {
     });
     _notify();
 
-    if (gameProvider.lobbyProvider.isHost) {
-      _processResponse(_chosenId!, accepted);
+    final chosen = _chosenId;
+    if (gameProvider.lobbyProvider.isHost && chosen != null) {
+      _processResponse(chosen, accepted);
     }
   }
 
@@ -205,7 +203,7 @@ class TruthOrDareGame extends BaseMiniGame {
     _notify();
 
     Future.delayed(const Duration(seconds: 3), () {
-      if (_cancelled) return;
+      if (cancelled) return;
       _round++;
       if (_round >= _totalRounds) {
         _endGame();
@@ -225,9 +223,11 @@ class TruthOrDareGame extends BaseMiniGame {
     AppAudio.playWin();
     _notify();
     Future.delayed(const Duration(seconds: 2), () {
-      if (!_cancelled) endMiniGame(Map.from(_scores));
+      if (!cancelled) endMiniGame(Map.from(_scores));
     });
   }
+
+  int _lastTimerTick = -1;
 
   // ── Game loop ──────────────────────────────────────────────────────────────
   @override
@@ -238,11 +238,17 @@ class TruthOrDareGame extends BaseMiniGame {
     if (_timeLeft <= 0) {
       _timeLeft = 0;
       _timerActive = false;
-      if (gameProvider.lobbyProvider.isHost) {
-        _processResponse(_chosenId!, false);
+      final chosen = _chosenId;
+      if (gameProvider.lobbyProvider.isHost && chosen != null) {
+        _processResponse(chosen, false);
       }
     }
-    _notify();
+    // Only rebuild when the displayed second changes — avoids 60fps setState.
+    final tick = _timeLeft.ceil();
+    if (tick != _lastTimerTick) {
+      _lastTimerTick = tick;
+      _notify();
+    }
   }
 
   // ── Network ────────────────────────────────────────────────────────────────
@@ -283,11 +289,6 @@ class TruthOrDareGame extends BaseMiniGame {
     }
   }
 
-  @override
-  void onDetach() {
-    _cancelled = true;
-    super.onDetach();
-  }
 
   Widget buildOverlay(BuildContext context) => _TruthOrDareOverlay(game: this);
 }
@@ -620,7 +621,7 @@ class _ResultBanner extends StatelessWidget {
 
 class _ScoreRow extends StatelessWidget {
   final Map<String, int> scores;
-  final List players;
+  final List<Player> players;
   const _ScoreRow({required this.scores, required this.players});
 
   @override

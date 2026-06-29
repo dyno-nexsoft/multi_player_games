@@ -59,7 +59,7 @@ abstract class MiniGameRegistry {
       description: 'Ra giá xúc xắc, bắt bài nói dối của đối thủ — ai tố sai phải uống!',
       iconPath: 'assets/icons/liars_dice.svg',
       minPlayers: 2,
-      maxPlayers: 4,
+      maxPlayers: 2,
     ),
 
     // ── Quick reflex / arcade (nhiều người) ──────────────────────────────────
@@ -93,7 +93,7 @@ abstract class MiniGameRegistry {
       description: 'Vẽ hình, cả nhóm tranh nhau đoán từ — không ai đoán được thì người vẽ uống!',
       iconPath: 'assets/icons/draw_guess.svg',
       minPlayers: 2,
-      maxPlayers: 8,
+      maxPlayers: 2,
     ),
 
     // ── Multiplayer action (Console / gamepad mode) ───────────────────────────

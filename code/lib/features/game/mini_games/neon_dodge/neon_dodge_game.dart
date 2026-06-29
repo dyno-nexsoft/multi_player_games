@@ -37,7 +37,6 @@ class NeonDodgeGame extends BaseMiniGame {
   double _spawnTimer = 0;
   double _spawnInterval = 2.2;
   bool _gameOver = false;
-  bool _cancelled = false;
 
   late TextComponent _timerText;
   final _rng = Random();
@@ -229,7 +228,7 @@ class NeonDodgeGame extends BaseMiniGame {
     });
 
     Future.delayed(const Duration(seconds: 2), () {
-      if (!_cancelled) endMiniGame(scores);
+      if (!cancelled) endMiniGame(scores);
     });
   }
 
@@ -267,18 +266,13 @@ class NeonDodgeGame extends BaseMiniGame {
               (k, v) => MapEntry(k.toString(), (v as num).toInt()),
             );
             Future.delayed(const Duration(seconds: 2), () {
-              if (!_cancelled) endMiniGame(scores);
+              if (!cancelled) endMiniGame(scores);
             });
           }
         }
     }
   }
 
-  @override
-  void onDetach() {
-    _cancelled = true;
-    super.onDetach();
-  }
 }
 
 // ── Player Entity ─────────────────────────────────────────────────────────────
