@@ -8,14 +8,20 @@ Tài liệu này lưu trữ tiến độ phát triển và các ý tưởng tín
 
 _Ghi chú: Các Phase 1 (Haptic, Rematch), Phase 2 (QR, Color), Phase 3 (Network) đã hoàn thành 95%._
 
-### Phase 4: Mở rộng Mini-Games (Sắp tới)
+### Phase 4: Mở rộng Mini-Games
 
-- [x] **Khúc Côn Cầu Chéo (Cross Air Hockey):** Sân đấu chia đôi 2 thiết bị. Chuyển giao vật lý (Ownership) khi puck bay qua màn hình.
+- ~~[x] **Khúc Côn Cầu Chéo (Cross Air Hockey)**~~ — Đã xóa (quá phức tạp cho party)
 - [x] **Đấu Xe Tăng (Tank Fight):** Cơ chế "Fog of War" che khuất tầm nhìn chéo.
-- [x] **Bắn Cung (Archer Duel):** Bắn cung vượt màn hình theo quỹ đạo Parabol.
-- [x] **Hải Chiến Không Gian (Battleship):** 2 màn hình riêng biệt, đặt tàu và phán đoán bắn.
+- ~~[x] **Bắn Cung (Archer Duel)**~~ — Đã xóa (2 người)
+- ~~[x] **Hải Chiến Không Gian (Battleship)**~~ — Đã xóa (2 người)
 - [x] **Trốn Tìm Mê Cung (Maze Hide & Seek):** Đuổi bắt với tầm nhìn giới hạn, có dùng skill (Radar, Dash).
-- [x] **Rà Mìn Cảm Tử (Boomerang Hot Potato):** Ném bom hẹn giờ qua lại giữa 2 thiết bị.
+- [x] **Bom Hẹn Giờ (Hot Potato):** Ném bom ngẫu nhiên sang bất kỳ ai trong nhóm (2–6 người).
+
+### Phase 4b: Party / Drinking Games (Hoàn thành)
+
+- [x] **Thật Hay Thách (Truth or Dare):** Vòng quay chọn ngẫu nhiên 1 người, bộ câu hỏi/thách tiếng Việt. 3–8 người, 8 vòng.
+- [x] **Vòng Quay Số Phận (Spin Picker):** Bánh xe quay chỉ vào ai — họ nhận nhiệm vụ ngẫu nhiên (uống, hát, bắt chước...). 3–8 người, 10 vòng.
+- [x] **Tôi Chưa Bao Giờ (Never Have I Ever):** 5 ngón tay, ai đã từng làm mất 1 ngón. Bộ 24 câu tiếng Việt phù hợp nhậu. 3–8 người, 12 vòng.
 
 ### Phase 5: Advanced & Scaling
 

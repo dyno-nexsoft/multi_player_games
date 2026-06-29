@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Dark bg -->
+  <circle cx="32" cy="32" r="28" fill="#1A1A2E"/>
+  <circle cx="32" cy="32" r="28" stroke="#FFD700" stroke-width="2" opacity="0.4"/>
+
+  <!-- Wheel segments -->
+  <path d="M32 32 L32 8 A24 24 0 0 1 53.1 20 Z" fill="#6C63FF" opacity="0.9"/>
+  <path d="M32 32 L53.1 20 A24 24 0 0 1 53.1 44 Z" fill="#FF6584" opacity="0.9"/>
+  <path d="M32 32 L53.1 44 A24 24 0 0 1 32 56 Z" fill="#FFD700" opacity="0.9"/>
+  <path d="M32 32 L32 56 A24 24 0 0 1 10.9 44 Z" fill="#43A047" opacity="0.9"/>
+  <path d="M32 32 L10.9 44 A24 24 0 0 1 10.9 20 Z" fill="#FF6584" opacity="0.8"/>
+  <path d="M32 32 L10.9 20 A24 24 0 0 1 32 8 Z" fill="#6C63FF" opacity="0.8"/>
+
+  <!-- Wheel dividers -->
+  <line x1="32" y1="32" x2="32" y2="8" stroke="#1A1A2E" stroke-width="1.5"/>
+  <line x1="32" y1="32" x2="53.1" y2="20" stroke="#1A1A2E" stroke-width="1.5"/>
+  <line x1="32" y1="32" x2="53.1" y2="44" stroke="#1A1A2E" stroke-width="1.5"/>
+  <line x1="32" y1="32" x2="32" y2="56" stroke="#1A1A2E" stroke-width="1.5"/>
+  <line x1="32" y1="32" x2="10.9" y2="44" stroke="#1A1A2E" stroke-width="1.5"/>
+  <line x1="32" y1="32" x2="10.9" y2="20" stroke="#1A1A2E" stroke-width="1.5"/>
+
+  <!-- Center hub -->
+  <circle cx="32" cy="32" r="5" fill="#1A1A2E"/>
+  <circle cx="32" cy="32" r="3" fill="#FFD700"/>
+
+  <!-- Arrow pointer (top) -->
+  <polygon points="32,4 28,12 36,12" fill="#FFD700"/>
+</svg>

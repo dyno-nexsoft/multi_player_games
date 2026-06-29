@@ -80,12 +80,13 @@ class _NeonGameCardState extends State<NeonGameCard> {
   static Color _accent(String id, AppColors colors) => switch (id) {
     GameIds.tugOfWar => colors.neonPurple,
     GameIds.sumoBumper => const Color(0xFFFF6B35),
-    GameIds.penaltyShootout => const Color(0xFF4CAF50),
-    GameIds.airHockey => colors.neonCyan,
     GameIds.reactionTap => const Color(0xFFFFD700),
     GameIds.minesweeper => const Color(0xFFE53935),
-    GameIds.billiards => const Color(0xFFCD853F),
     GameIds.drawGuess => colors.neonPink,
+    GameIds.truthOrDare => colors.neonPurple,
+    GameIds.spinPicker => const Color(0xFFFFD700),
+    GameIds.neverHaveIEver => const Color(0xFFFF6584),
+    GameIds.hotPotato => const Color(0xFFFF6B35),
     _ => colors.neonPurple,
   };
 

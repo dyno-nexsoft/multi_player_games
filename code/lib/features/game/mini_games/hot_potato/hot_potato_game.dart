@@ -55,6 +55,11 @@ class HotPotatoGame extends BaseMiniGame {
   bool get iHoldBomb =>
       _holderId == (gameProvider.lobbyProvider.localPlayer?.id ?? '');
 
+  String get holderName => gameProvider.lobbyProvider.players
+      .where((p) => p.id == _holderId)
+      .map((p) => p.name)
+      .firstOrNull ?? '?';
+
   // ── Lifecycle ──────────────────────────────────────────────────────────────
 
   @override
@@ -94,7 +99,7 @@ class HotPotatoGame extends BaseMiniGame {
 
     _statusText = iHoldBomb
         ? (_locked ? '🔒 Mở khóa rồi ném!' : '💣 Ném ngay!')
-        : 'Đối thủ đang cầm bom...';
+        : '$holderName đang cầm bom!';
     _updateTickingSound();
     _notify();
   }
@@ -196,26 +201,25 @@ class HotPotatoGame extends BaseMiniGame {
     HapticFeedback.mediumImpact();
     AppAudio.playPuckHit();
 
-    final players = gameProvider.lobbyProvider.players;
-    final nextHolder = players.firstWhere(
-      (p) => p.id != _holderId,
-      orElse: () => players.first,
-    );
-
     if (gameProvider.lobbyProvider.isHost) {
-      // Host throws directly
-      _transferBomb(nextHolder.id);
+      // Host picks a random recipient from all non-holders
+      _transferBomb(_pickNextHolder());
     } else {
-      // Client requests throw
-      gameProvider.sendGameData(gameId, {
-        'action': 'throw_request',
-        'target_id': nextHolder.id,
-      });
+      // Client requests throw — host decides target
+      gameProvider.sendGameData(gameId, {'action': 'throw_request'});
     }
 
     Future.delayed(const Duration(milliseconds: 300), () {
       _throwing = false;
     });
+  }
+
+  String _pickNextHolder() {
+    final players = gameProvider.lobbyProvider.players
+        .where((p) => p.id != _holderId)
+        .toList();
+    if (players.isEmpty) return _holderId;
+    return players[Random().nextInt(players.length)].id;
   }
 
   void _transferBomb(String newHolderId) {
@@ -234,7 +238,7 @@ class HotPotatoGame extends BaseMiniGame {
 
     _statusText = iHoldBomb
         ? (_locked ? '🔒 Mở khóa rồi ném!' : '💣 Ném ngay!')
-        : 'Đối thủ đang cầm bom...';
+        : '$holderName đang cầm bom!';
     _updateTickingSound();
     _notify();
   }
@@ -253,12 +257,12 @@ class HotPotatoGame extends BaseMiniGame {
         _lockProgress = 0;
         _statusText = iHoldBomb
             ? (_locked ? '🔒 Mở khóa rồi ném!' : '💣 Ném ngay!')
-            : 'Đối thủ đang cầm bom...';
+            : '$holderName đang cầm bom!';
         _notify();
 
       case 'throw_request':
         if (gameProvider.lobbyProvider.isHost) {
-          _transferBomb(payload['target_id'] as String);
+          _transferBomb(_pickNextHolder());
         }
 
       case 'bomb_transfer':
@@ -269,7 +273,7 @@ class HotPotatoGame extends BaseMiniGame {
         _lockProgress = 0;
         _statusText = iHoldBomb
             ? (_locked ? '🔒 Mở khóa rồi ném!' : '💣 Ném ngay!')
-            : 'Đối thủ đang cầm bom...';
+            : '$holderName đang cầm bom!';
         HapticFeedback.heavyImpact();
         AppAudio.playPuckHit();
         _updateTickingSound();
