@@ -14,6 +14,9 @@ _Ghi chú: Các Phase 1 (Haptic, Rematch), Phase 2 (QR, Color), Phase 3 (Network
 - [x] **Đấu Xe Tăng (Tank Fight):** Cơ chế "Fog of War" che khuất tầm nhìn chéo.
 - ~~[x] **Bắn Cung (Archer Duel)**~~ — Đã xóa (2 người)
 - ~~[x] **Hải Chiến Không Gian (Battleship)**~~ — Đã xóa (2 người)
+- ~~[x] **Kéo Co Tốc Độ (Tug of War)**~~ — Đã xóa (chỉ 2 người, không phù hợp party)
+- ~~[x] **Xúc Xắc Tố (Liars Dice)**~~ — Đã xóa (chỉ 2 người)
+- ~~[x] **Vẽ & Đoán (Draw & Guess)**~~ — Đã xóa (chỉ 2 người)
 - [x] **Trốn Tìm Mê Cung (Maze Hide & Seek):** Đuổi bắt với tầm nhìn giới hạn, có dùng skill (Radar, Dash).
 - [x] **Bom Hẹn Giờ (Hot Potato):** Ném bom ngẫu nhiên sang bất kỳ ai trong nhóm (2–6 người).
 
