@@ -120,5 +120,54 @@
   "pauseTitle": "⏸ Tạm Dừng",
   "victorySubtitle": "Xuất sắc!",
   "defeatSubtitle": "Cố lên lần sau!",
-  "youSuffix": " (bạn)"
+  "youSuffix": " (bạn)",
+  "gameRoundLabel": "Vòng {current}/{total}",
+  "@gameRoundLabel": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "todGameTitle": "🃏 Thật Hay Thách",
+  "todWaiting": "Đang chọn người...",
+  "todChosen": "🎯  {name}  được chọn!",
+  "@todChosen": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "todWaitingForPlayer": "Chờ {name} trả lời...",
+  "@todWaitingForPlayer": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "todTruthLabel": "❓ SỰ THẬT",
+  "todDareLabel": "⭐ THÁCH",
+  "todAcceptBtn": "Chấp nhận",
+  "todSkipBtn": "Uống & Bỏ",
+  "todAccepted": "🎉 Hoàn thành! +10 điểm",
+  "todSkipped": "🍺 Bỏ qua — phải uống!",
+  "spinGameTitle": "🎡 Vòng Quay Số Phận",
+  "spinWaiting": "Đang chờ...",
+  "spinYouAreIt": "👆 Đó là BẠN! Hãy thực hiện nhiệm vụ nhé 😄",
+  "spinNextRoundAuto": "Vòng tiếp theo tự động...",
+  "nhieGameTitle": "✋ Tôi Chưa Bao Giờ",
+  "nhiePreparing": "Đang chuẩn bị câu tiếp theo...",
+  "nhieStatementHeader": "TÔI CHƯA BAO GIỜ...",
+  "nhieQuestion": "Bạn đã từng làm điều này chưa?",
+  "nhieDoneBtn": "Tôi đã làm!\n(uống 1 ngụm)",
+  "nhieSafeBtn": "Tôi chưa bao giờ\n(an toàn)",
+  "nhieVotedDone": "✋ Bạn đã bỏ phiếu \"Tôi đã làm\" — Đang chờ kết quả...",
+  "nhieVotedSafe": "🙅 Bạn đã bỏ phiếu \"Chưa bao giờ\" — An toàn!",
+  "nhieSipCount": "phải uống {count} ngụm! 🍺",
+  "@nhieSipCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "nhieYouInGroup": "👆 Bạn nằm trong nhóm này!",
+  "nhieNextRound": "Vòng tiếp theo...",
+  "nhieNobodyConfessed": "Không ai thú nhận!\nMọi người vẫn an toàn 👏",
+  "nhieResultTitle": "KẾT QUẢ"
 }

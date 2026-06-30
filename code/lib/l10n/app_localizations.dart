@@ -62,8 +62,7 @@ import 'app_localizations_vi.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale)
-    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -71,8 +70,7 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate =
-      _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -84,18 +82,17 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
-      <LocalizationsDelegate<dynamic>>[
-        delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
-    Locale('vi'),
+    Locale('vi')
   ];
 
   /// No description provided for @appName.
@@ -679,10 +676,177 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **' (bạn)'**
   String get youSuffix;
+
+  /// No description provided for @gameRoundLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Vòng {current}/{total}'**
+  String gameRoundLabel(int current, int total);
+
+  /// No description provided for @todGameTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'🃏 Thật Hay Thách'**
+  String get todGameTitle;
+
+  /// No description provided for @todWaiting.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đang chọn người...'**
+  String get todWaiting;
+
+  /// No description provided for @todChosen.
+  ///
+  /// In vi, this message translates to:
+  /// **'🎯  {name}  được chọn!'**
+  String todChosen(String name);
+
+  /// No description provided for @todWaitingForPlayer.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chờ {name} trả lời...'**
+  String todWaitingForPlayer(String name);
+
+  /// No description provided for @todTruthLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'❓ SỰ THẬT'**
+  String get todTruthLabel;
+
+  /// No description provided for @todDareLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'⭐ THÁCH'**
+  String get todDareLabel;
+
+  /// No description provided for @todAcceptBtn.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chấp nhận'**
+  String get todAcceptBtn;
+
+  /// No description provided for @todSkipBtn.
+  ///
+  /// In vi, this message translates to:
+  /// **'Uống & Bỏ'**
+  String get todSkipBtn;
+
+  /// No description provided for @todAccepted.
+  ///
+  /// In vi, this message translates to:
+  /// **'🎉 Hoàn thành! +10 điểm'**
+  String get todAccepted;
+
+  /// No description provided for @todSkipped.
+  ///
+  /// In vi, this message translates to:
+  /// **'🍺 Bỏ qua — phải uống!'**
+  String get todSkipped;
+
+  /// No description provided for @spinGameTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'🎡 Vòng Quay Số Phận'**
+  String get spinGameTitle;
+
+  /// No description provided for @spinWaiting.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đang chờ...'**
+  String get spinWaiting;
+
+  /// No description provided for @spinYouAreIt.
+  ///
+  /// In vi, this message translates to:
+  /// **'👆 Đó là BẠN! Hãy thực hiện nhiệm vụ nhé 😄'**
+  String get spinYouAreIt;
+
+  /// No description provided for @spinNextRoundAuto.
+  ///
+  /// In vi, this message translates to:
+  /// **'Vòng tiếp theo tự động...'**
+  String get spinNextRoundAuto;
+
+  /// No description provided for @nhieGameTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'✋ Tôi Chưa Bao Giờ'**
+  String get nhieGameTitle;
+
+  /// No description provided for @nhiePreparing.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đang chuẩn bị câu tiếp theo...'**
+  String get nhiePreparing;
+
+  /// No description provided for @nhieStatementHeader.
+  ///
+  /// In vi, this message translates to:
+  /// **'TÔI CHƯA BAO GIỜ...'**
+  String get nhieStatementHeader;
+
+  /// No description provided for @nhieQuestion.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bạn đã từng làm điều này chưa?'**
+  String get nhieQuestion;
+
+  /// No description provided for @nhieDoneBtn.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tôi đã làm!\n(uống 1 ngụm)'**
+  String get nhieDoneBtn;
+
+  /// No description provided for @nhieSafeBtn.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tôi chưa bao giờ\n(an toàn)'**
+  String get nhieSafeBtn;
+
+  /// No description provided for @nhieVotedDone.
+  ///
+  /// In vi, this message translates to:
+  /// **'✋ Bạn đã bỏ phiếu \"Tôi đã làm\" — Đang chờ kết quả...'**
+  String get nhieVotedDone;
+
+  /// No description provided for @nhieVotedSafe.
+  ///
+  /// In vi, this message translates to:
+  /// **'🙅 Bạn đã bỏ phiếu \"Chưa bao giờ\" — An toàn!'**
+  String get nhieVotedSafe;
+
+  /// No description provided for @nhieSipCount.
+  ///
+  /// In vi, this message translates to:
+  /// **'phải uống {count} ngụm! 🍺'**
+  String nhieSipCount(int count);
+
+  /// No description provided for @nhieYouInGroup.
+  ///
+  /// In vi, this message translates to:
+  /// **'👆 Bạn nằm trong nhóm này!'**
+  String get nhieYouInGroup;
+
+  /// No description provided for @nhieNextRound.
+  ///
+  /// In vi, this message translates to:
+  /// **'Vòng tiếp theo...'**
+  String get nhieNextRound;
+
+  /// No description provided for @nhieNobodyConfessed.
+  ///
+  /// In vi, this message translates to:
+  /// **'Không ai thú nhận!\nMọi người vẫn an toàn 👏'**
+  String get nhieNobodyConfessed;
+
+  /// No description provided for @nhieResultTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'KẾT QUẢ'**
+  String get nhieResultTitle;
 }
 
-class _AppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -691,26 +855,25 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['en', 'vi'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['en', 'vi'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en':
-      return AppLocalizationsEn();
-    case 'vi':
-      return AppLocalizationsVi();
+    case 'en': return AppLocalizationsEn();
+    case 'vi': return AppLocalizationsVi();
   }
 
   throw FlutterError(
     'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.',
+    'that was used.'
   );
 }

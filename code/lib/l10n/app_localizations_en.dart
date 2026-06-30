@@ -108,8 +108,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gameTugOfWarTitle => 'Speed Tug-of-War';
 
   @override
-  String get gameTugOfWarDesc =>
-      'Tap repeatedly to pull the rope to your side!';
+  String get gameTugOfWarDesc => 'Tap repeatedly to pull the rope to your side!';
 
   @override
   String get tugOfWarTapLabel => 'TAP NOW! ▼';
@@ -130,8 +129,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gamePenaltyShootoutTitle => 'Penalty Shootout';
 
   @override
-  String get gamePenaltyShootoutDesc =>
-      'Shoot the ball past the goalkeeper to score!';
+  String get gamePenaltyShootoutDesc => 'Shoot the ball past the goalkeeper to score!';
 
   @override
   String get penaltyTapToShoot => 'Tap to shoot!';
@@ -140,50 +138,43 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gameAirHockeyTitle => 'Air Hockey';
 
   @override
-  String get gameAirHockeyDesc =>
-      'Hit the puck into opponent\'s screen — each phone is half of the rink!';
+  String get gameAirHockeyDesc => 'Hit the puck into opponent\'s screen — each phone is half of the rink!';
 
   @override
   String get gameDrawGuessTitle => 'Draw & Guess';
 
   @override
-  String get gameDrawGuessDesc =>
-      'Draw a word, opponent guesses — alternate roles across 5 words!';
+  String get gameDrawGuessDesc => 'Draw a word, opponent guesses — alternate roles across 5 words!';
 
   @override
   String get gameReactionTapTitle => 'Reaction Tap';
 
   @override
-  String get gameReactionTapDesc =>
-      'Tap the moment the screen flashes — fastest wins the round!';
+  String get gameReactionTapDesc => 'Tap the moment the screen flashes — fastest wins the round!';
 
   @override
   String get gameMinesweeperTitle => 'Minesweeper Race';
 
   @override
-  String get gameMinesweeperDesc =>
-      'Reveal the most safe cells in 60s — avoid the mines!';
+  String get gameMinesweeperDesc => 'Reveal the most safe cells in 60s — avoid the mines!';
 
   @override
   String get gameBilliardsTitle => '9-Ball Billiards';
 
   @override
-  String get gameBilliardsDesc =>
-      'Pocket balls in order — score more than your opponent to win!';
+  String get gameBilliardsDesc => 'Pocket balls in order — score more than your opponent to win!';
 
   @override
   String get gameBattleshipTitle => 'Space Naval Battle';
 
   @override
-  String get gameBattleshipDesc =>
-      'Place ships secretly, then hunt down the enemy fleet!';
+  String get gameBattleshipDesc => 'Place ships secretly, then hunt down the enemy fleet!';
 
   @override
   String get gameHotPotatoTitle => 'Hot Potato Bomb';
 
   @override
-  String get gameHotPotatoDesc =>
-      'Swipe to throw the ticking bomb before it explodes!';
+  String get gameHotPotatoDesc => 'Swipe to throw the ticking bomb before it explodes!';
 
   @override
   String get closeBtn => 'Close';
@@ -204,15 +195,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get exitRoomTitleClient => 'Leave Room?';
 
   @override
-  String get exitRoomDescHost =>
-      'All players will be disconnected. Are you sure?';
+  String get exitRoomDescHost => 'All players will be disconnected. Are you sure?';
 
   @override
   String get exitRoomDescClient => 'Are you sure you want to leave this room?';
 
   @override
-  String get clientWaitingConsoleMode =>
-      'Your device will act as the Gamepad\nWaiting for Host to start...';
+  String get clientWaitingConsoleMode => 'Your device will act as the Gamepad\nWaiting for Host to start...';
 
   @override
   String get invalidQrCode => 'Invalid QR code';
@@ -236,8 +225,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get emojiSearching => 'Searching for room...';
 
   @override
-  String get emojiNotFound =>
-      '❌ Room not found. Check emojis and ensure same WiFi.';
+  String get emojiNotFound => '❌ Room not found. Check emojis and ensure same WiFi.';
 
   @override
   String get tapToJoinDesc => 'Tap to join';
@@ -252,8 +240,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get letsGo => 'Let\'s Go 🚀';
 
   @override
-  String get onboardingDesc1 =>
-      'A local multiplayer mini-game collection\nright on your phone.';
+  String get onboardingDesc1 => 'A local multiplayer mini-game collection\nright on your phone.';
 
   @override
   String get onboardingFeature1 => '🎮 10+ mini-games';
@@ -271,19 +258,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingTitle2 => 'Same WiFi Network';
 
   @override
-  String get onboardingDesc2 =>
-      '📡 Make sure all players are connected to the same WiFi network or LAN hotspot.';
+  String get onboardingDesc2 => '📡 Make sure all players are connected to the same WiFi network or LAN hotspot.';
 
   @override
-  String get onboardingSub2 =>
-      'Games use local P2P connections — no internet required.';
+  String get onboardingSub2 => 'Games use local P2P connections — no internet required.';
 
   @override
   String get onboardingTitle3 => 'Ready to play!';
 
   @override
-  String get onboardingDesc3 =>
-      'One player hosts, others search and join. Have fun! 🎮';
+  String get onboardingDesc3 => 'One player hosts, others search and join. Have fun! 🎮';
 
   @override
   String get spinningText => 'Spinning...';
@@ -304,8 +288,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get endGameTitle => 'End Game?';
 
   @override
-  String get endGameDesc =>
-      'The game will be cancelled and all players will return to the lobby. Are you sure?';
+  String get endGameDesc => 'The game will be cancelled and all players will return to the lobby. Are you sure?';
 
   @override
   String get endGameBtn => 'End Game';
@@ -321,4 +304,96 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get youSuffix => ' (you)';
+
+  @override
+  String gameRoundLabel(int current, int total) {
+    return 'Round $current/$total';
+  }
+
+  @override
+  String get todGameTitle => '🃏 Truth or Dare';
+
+  @override
+  String get todWaiting => 'Selecting player...';
+
+  @override
+  String todChosen(String name) {
+    return '🎯  $name  selected!';
+  }
+
+  @override
+  String todWaitingForPlayer(String name) {
+    return 'Waiting for $name...';
+  }
+
+  @override
+  String get todTruthLabel => '❓ TRUTH';
+
+  @override
+  String get todDareLabel => '⭐ DARE';
+
+  @override
+  String get todAcceptBtn => 'Accept';
+
+  @override
+  String get todSkipBtn => 'Drink & Skip';
+
+  @override
+  String get todAccepted => '🎉 Done! +10 pts';
+
+  @override
+  String get todSkipped => '🍺 Skipped — drink up!';
+
+  @override
+  String get spinGameTitle => '🎡 Wheel of Fate';
+
+  @override
+  String get spinWaiting => 'Waiting...';
+
+  @override
+  String get spinYouAreIt => '👆 That\'s YOU! Time to do the task 😄';
+
+  @override
+  String get spinNextRoundAuto => 'Next round starting...';
+
+  @override
+  String get nhieGameTitle => '✋ Never Have I Ever';
+
+  @override
+  String get nhiePreparing => 'Preparing next statement...';
+
+  @override
+  String get nhieStatementHeader => 'NEVER HAVE I EVER...';
+
+  @override
+  String get nhieQuestion => 'Have you ever done this?';
+
+  @override
+  String get nhieDoneBtn => 'I have!\n(take a sip)';
+
+  @override
+  String get nhieSafeBtn => 'Never have I\n(safe)';
+
+  @override
+  String get nhieVotedDone => '✋ You voted \"I have\" — Waiting for results...';
+
+  @override
+  String get nhieVotedSafe => '🙅 You voted \"Never\" — Safe!';
+
+  @override
+  String nhieSipCount(int count) {
+    return 'must take $count sips! 🍺';
+  }
+
+  @override
+  String get nhieYouInGroup => '👆 You\'re in this group!';
+
+  @override
+  String get nhieNextRound => 'Next round...';
+
+  @override
+  String get nhieNobodyConfessed => 'Nobody confessed!\nEveryone\'s safe 👏';
+
+  @override
+  String get nhieResultTitle => 'RESULTS';
 }

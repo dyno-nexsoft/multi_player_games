@@ -120,5 +120,54 @@
   "pauseTitle": "⏸ Paused",
   "victorySubtitle": "Excellent!",
   "defeatSubtitle": "Better luck next time!",
-  "youSuffix": " (you)"
+  "youSuffix": " (you)",
+  "gameRoundLabel": "Round {current}/{total}",
+  "@gameRoundLabel": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "todGameTitle": "🃏 Truth or Dare",
+  "todWaiting": "Selecting player...",
+  "todChosen": "🎯  {name}  selected!",
+  "@todChosen": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "todWaitingForPlayer": "Waiting for {name}...",
+  "@todWaitingForPlayer": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "todTruthLabel": "❓ TRUTH",
+  "todDareLabel": "⭐ DARE",
+  "todAcceptBtn": "Accept",
+  "todSkipBtn": "Drink & Skip",
+  "todAccepted": "🎉 Done! +10 pts",
+  "todSkipped": "🍺 Skipped — drink up!",
+  "spinGameTitle": "🎡 Wheel of Fate",
+  "spinWaiting": "Waiting...",
+  "spinYouAreIt": "👆 That's YOU! Time to do the task 😄",
+  "spinNextRoundAuto": "Next round starting...",
+  "nhieGameTitle": "✋ Never Have I Ever",
+  "nhiePreparing": "Preparing next statement...",
+  "nhieStatementHeader": "NEVER HAVE I EVER...",
+  "nhieQuestion": "Have you ever done this?",
+  "nhieDoneBtn": "I have!\n(take a sip)",
+  "nhieSafeBtn": "Never have I\n(safe)",
+  "nhieVotedDone": "✋ You voted \"I have\" — Waiting for results...",
+  "nhieVotedSafe": "🙅 You voted \"Never\" — Safe!",
+  "nhieSipCount": "must take {count} sips! 🍺",
+  "@nhieSipCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "nhieYouInGroup": "👆 You're in this group!",
+  "nhieNextRound": "Next round...",
+  "nhieNobodyConfessed": "Nobody confessed!\nEveryone's safe 👏",
+  "nhieResultTitle": "RESULTS"
 }

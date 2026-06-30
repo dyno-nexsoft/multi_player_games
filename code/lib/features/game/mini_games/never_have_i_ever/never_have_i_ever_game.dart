@@ -1,11 +1,15 @@
 import 'dart:math';
+import 'dart:ui' show PlatformDispatcher;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
 import 'package:party_game_hub/core/theme/app_theme.dart';
+import 'package:party_game_hub/l10n/app_localizations.dart';
 import '../../../lobby/domain/player.dart';
 import '../../domain/base_mini_game.dart';
 import '../../domain/game_ids.dart';
+
+enum NhiePhase { waiting, voting, reveal, gameOver }
 
 /// Tôi Chưa Bao Giờ — drinking party game nhiều người.
 ///
@@ -42,6 +46,82 @@ class NeverHaveIEverGame extends BaseMiniGame {
     '...kể chuyện của người khác cho người thứ ba nghe',
     '...làm điều gì đó chỉ vì peer pressure',
     '...đặt 10 cái báo thức nhưng tắt hết rồi ngủ tiếp',
+    // Thêm mới
+    '...ăn sầu riêng xong bị người xung quanh chê mùi',
+    '...quên sinh nhật bạn thân rồi phải xin lỗi rất lâu',
+    '...lộn xe hoặc té xe trước mặt người đông đúc',
+    '...bị bắt gặp đang nói xấu người đang đứng ngay sau lưng',
+    '...gọi nhầm tên thầy/cô hoặc sếp bằng "mẹ" hoặc "ba"',
+    '...thức đến 5 giờ sáng không vì lý do gì chính đáng',
+    '...ăn đồ ăn của người khác vì tưởng là của mình',
+    '...đứng chờ thang máy 1 phút rồi mới nhận ra cửa đang mở sẵn',
+    '...tự hứa sẽ ăn kiêng rồi phá luật ngay hôm đó',
+    '...nhìn giá trước khi order rồi vẫn order đồ đắt nhất',
+    '...khóc vì 1 bộ phim hoạt hình',
+    '...gửi nhầm ảnh/video cho người không đúng',
+    '...bị block trên mạng xã hội mà không biết lý do',
+    '...nói "mình sắp đến rồi" trong khi chưa ra khỏi nhà',
+    '...bình luận trên post cũ của người ta rồi bị tụi bạn tease',
+    '...ngủ quên trong buổi họp hoặc lớp học',
+    '...đặt báo thức nhưng tắt đi tiếp mà không nhớ gì',
+    '...mua vé xem phim xong ngủ gật trong rạp',
+    '...nhảy vào hồ bơi hoặc biển mà quên là có điện thoại trong túi',
+    '...đi chơi xa quên mang thứ quan trọng nhất',
+    '...cố nuôi cây hoặc thú cưng rồi để nó chết',
+    '...nói "1 phút nữa thôi" nhưng thực ra mất cả tiếng',
+    '...giả vờ không nghe thấy khi ai đó gọi tên mình',
+    '...lỡ fart trước mặt người khác và cố giả vờ không có gì',
+  ];
+
+  static const List<String> _statementsEn = [
+    '...walked home alone at 4 in the morning',
+    '...sent a message to the wrong person and wanted to disappear',
+    '...pretended not to be home when someone rang the doorbell',
+    '...eaten food that dropped on the floor (5-second rule)',
+    '...fallen asleep in public (train, bus, library...)',
+    '...texted a crush and immediately regretted it',
+    '...made up an excuse to skip an event you didn\'t want to attend',
+    '...eaten or taken someone else\'s food from the shared fridge',
+    '...sung loudly when alone in the car or bathroom',
+    '...stayed up all night watching shows then regretted it next morning',
+    '...bought something just because it was on sale even though you didn\'t need it',
+    '...lied to your parents about where you were going',
+    '...taken more than 10 selfies to get just one good shot',
+    '...drunk more than you planned at a party',
+    '...deliberately ignored a call then texted "I\'m busy"',
+    '...met a stranger online and became close friends in real life',
+    '...stayed up late reading social media comments and got stressed',
+    '...broken a traffic rule (at least once)',
+    '...gotten back together with an ex at least once',
+    '...sent a confession text then couldn\'t sleep waiting for the reply',
+    '...told yourself "just a little" but ended up drinking a lot',
+    '...shared someone else\'s secret with a third person',
+    '...done something purely because of peer pressure',
+    '...set 10 alarms but turned them all off and went back to sleep',
+    '...eaten durian and been told you smell bad by everyone nearby',
+    '...forgotten a best friend\'s birthday and had to apologize for days',
+    '...crashed a bike or fallen off in front of a crowd',
+    '...been caught talking badly about someone standing right behind you',
+    '...accidentally called a teacher or boss "mom" or "dad"',
+    '...stayed up until 5am for absolutely no good reason',
+    '...eaten someone else\'s food thinking it was yours',
+    '...waited a full minute for an elevator that was already open',
+    '...promised yourself you\'d diet then broke it that same day',
+    '...checked the menu prices then still ordered the most expensive thing',
+    '...cried at an animated movie',
+    '...sent a photo or video to the wrong person',
+    '...been blocked on social media without knowing why',
+    '...said "I\'m almost there" while still at home',
+    '...liked an old post while stalking someone and panicked',
+    '...fallen asleep in a meeting or class',
+    '...set an alarm then turned it off while half asleep and remembered nothing',
+    '...bought a movie ticket then slept through it at the cinema',
+    '...jumped in a pool or ocean and remembered your phone was in your pocket',
+    '...gone on a trip and forgotten the most important thing',
+    '...tried to keep a plant or pet alive and failed',
+    '...said "just one more minute" but it turned into over an hour',
+    '...pretended not to hear someone calling your name',
+    '...accidentally farted in front of others and pretended nothing happened',
   ];
 
   NeverHaveIEverGame(super.gameProvider);
@@ -49,10 +129,12 @@ class NeverHaveIEverGame extends BaseMiniGame {
   @override
   String get gameId => GameIds.neverHaveIEver;
 
+  bool get _isEnglish =>
+      PlatformDispatcher.instance.locale.languageCode == 'en';
+
   // ── State ──────────────────────────────────────────────────────────────────
   int _round = 0;
-  // phases: waiting | voting | reveal | game_over
-  String _phase = 'waiting';
+  NhiePhase _phase = NhiePhase.waiting;
   String _statementText = '';
   double _voteTimer = 0;
   bool _voteSubmitted = false;
@@ -70,7 +152,7 @@ class NeverHaveIEverGame extends BaseMiniGame {
   // ── Getters ────────────────────────────────────────────────────────────────
   int get round => _round;
   int get totalRounds => _totalRounds;
-  String get phase => _phase;
+  NhiePhase get phase => _phase;
   String get statement => _statementText;
   double get voteTimer => _voteTimer;
   bool get voteSubmitted => _voteSubmitted;
@@ -82,10 +164,8 @@ class NeverHaveIEverGame extends BaseMiniGame {
 
   bool get iRevealed => _revealedVoterIds.contains(myId);
 
-  String _playerName(String id) => playerNameFor(id);
-
   List<String> get revealedVoterNames =>
-      _revealedVoterIds.map(_playerName).toList();
+      _revealedVoterIds.map(playerNameFor).toList();
 
   // ── Lifecycle ──────────────────────────────────────────────────────────────
   @override
@@ -102,7 +182,8 @@ class NeverHaveIEverGame extends BaseMiniGame {
   void _startRound() {
     if (_gameOver || cancelled) return;
     final rng = Random();
-    final text = _statements[(_round + rng.nextInt(3)) % _statements.length];
+    final stmts = _isEnglish ? _statementsEn : _statements;
+    final text = stmts[(_round + rng.nextInt(3)) % stmts.length];
 
     gameProvider.sendGameData(gameId, {
       'action': 'new_statement',
@@ -115,7 +196,7 @@ class NeverHaveIEverGame extends BaseMiniGame {
   void _applyNewStatement(int round, String text) {
     _round = round;
     _statementText = text;
-    _phase = 'voting';
+    _phase = NhiePhase.voting;
     _voteTimer = _votingDuration;
     _voteSubmitted = false;
     _myVote = false;
@@ -128,7 +209,7 @@ class NeverHaveIEverGame extends BaseMiniGame {
 
   // ── Input ──────────────────────────────────────────────────────────────────
   void tapVote(bool hasDone) {
-    if (_voteSubmitted || _phase != 'voting') return;
+    if (_voteSubmitted || _phase != NhiePhase.voting) return;
     _myVote = hasDone;
     _voteSubmitted = true;
     HapticFeedback.lightImpact();
@@ -153,7 +234,8 @@ class NeverHaveIEverGame extends BaseMiniGame {
   @override
   void update(double dt) {
     super.update(dt);
-    if (_phase != 'voting' || _gameOver || !gameProvider.lobbyProvider.isHost) {
+    if (_phase != NhiePhase.voting || _gameOver ||
+        !gameProvider.lobbyProvider.isHost) {
       return;
     }
     _voteTimer -= dt;
@@ -190,7 +272,7 @@ class NeverHaveIEverGame extends BaseMiniGame {
   void _applyReveal(List<String> voters, Map<String, int> newLives) {
     _revealedVoterIds = voters;
     _lives = Map.from(newLives);
-    _phase = 'reveal';
+    _phase = NhiePhase.reveal;
     if (voters.isNotEmpty) {
       AppAudio.playLose();
     } else {
@@ -206,7 +288,7 @@ class NeverHaveIEverGame extends BaseMiniGame {
       } else if (gameProvider.lobbyProvider.isHost) {
         _startRound();
       } else {
-        _phase = 'waiting';
+        _phase = NhiePhase.waiting;
         _notify();
       }
     });
@@ -214,7 +296,7 @@ class NeverHaveIEverGame extends BaseMiniGame {
 
   void _endGame() {
     _gameOver = true;
-    _phase = 'game_over';
+    _phase = NhiePhase.gameOver;
     AppAudio.playWin();
     // Score = lives remaining * 20 pts
     final scores = _lives.map((id, l) => MapEntry(id, l * 20));
@@ -313,22 +395,23 @@ class _RoundHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            'Vòng ${round + 1}/$total',
+            l10n.gameRoundLabel(round + 1, total),
             style: const TextStyle(
               color: Colors.white70,
               fontSize: 15,
               fontWeight: FontWeight.bold,
             ),
           ),
-          const Text(
-            '✋ Tôi Chưa Bao Giờ',
-            style: TextStyle(color: Colors.white38, fontSize: 13),
+          Text(
+            l10n.nhieGameTitle,
+            style: const TextStyle(color: Colors.white38, fontSize: 13),
           ),
         ],
       ),
@@ -380,30 +463,32 @@ class _MainContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final g = game;
     return switch (g.phase) {
-      'waiting' => const _WaitingPane(),
-      'voting' => _VotingPane(game: g),
-      'reveal' => _RevealPane(game: g),
-      _ => const _WaitingPane(),
+      NhiePhase.waiting => _WaitingPane(label: l10n.nhiePreparing),
+      NhiePhase.voting => _VotingPane(game: g),
+      NhiePhase.reveal => _RevealPane(game: g),
+      NhiePhase.gameOver => _WaitingPane(label: l10n.nhiePreparing),
     };
   }
 }
 
 class _WaitingPane extends StatelessWidget {
-  const _WaitingPane();
+  final String label;
+  const _WaitingPane({required this.label});
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('✋', style: TextStyle(fontSize: 56)),
-          SizedBox(height: 16),
+          const Text('✋', style: TextStyle(fontSize: 56)),
+          const SizedBox(height: 16),
           Text(
-            'Đang chuẩn bị câu tiếp theo...',
-            style: TextStyle(color: Colors.white38, fontSize: 15),
+            label,
+            style: const TextStyle(color: Colors.white38, fontSize: 15),
           ),
         ],
       ),
@@ -417,17 +502,19 @@ class _VotingPane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final g = game;
-    final timeRatio = (g.voteTimer / NeverHaveIEverGame._votingDuration).clamp(0.0, 1.0);
+    final timeRatio =
+        (g.voteTimer / NeverHaveIEverGame._votingDuration).clamp(0.0, 1.0);
 
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
         children: [
           const SizedBox(height: 8),
-          const Text(
-            'TÔI CHƯA BAO GIỜ...',
-            style: TextStyle(
+          Text(
+            l10n.nhieStatementHeader,
+            style: const TextStyle(
               color: Colors.white38,
               fontSize: 12,
               letterSpacing: 2,
@@ -476,9 +563,9 @@ class _VotingPane extends StatelessWidget {
           ),
           const Spacer(),
           if (!g.voteSubmitted) ...[
-            const Text(
-              'Bạn đã từng làm điều này chưa?',
-              style: TextStyle(color: Colors.white70, fontSize: 14),
+            Text(
+              l10n.nhieQuestion,
+              style: const TextStyle(color: Colors.white70, fontSize: 14),
             ),
             const SizedBox(height: 12),
             Row(
@@ -493,14 +580,14 @@ class _VotingPane extends StatelessWidget {
                         borderRadius: BorderRadius.circular(14),
                       ),
                     ),
-                    child: const Column(
+                    child: Column(
                       children: [
-                        Text('✋', style: TextStyle(fontSize: 24)),
-                        SizedBox(height: 4),
+                        const Text('✋', style: TextStyle(fontSize: 24)),
+                        const SizedBox(height: 4),
                         Text(
-                          'Tôi đã làm!\n(uống 1 ngụm)',
+                          l10n.nhieDoneBtn,
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
@@ -520,14 +607,14 @@ class _VotingPane extends StatelessWidget {
                         borderRadius: BorderRadius.circular(14),
                       ),
                     ),
-                    child: const Column(
+                    child: Column(
                       children: [
-                        Text('🙅', style: TextStyle(fontSize: 24)),
-                        SizedBox(height: 4),
+                        const Text('🙅', style: TextStyle(fontSize: 24)),
+                        const SizedBox(height: 4),
                         Text(
-                          'Tôi chưa bao giờ\n(an toàn)',
+                          l10n.nhieSafeBtn,
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
@@ -555,9 +642,7 @@ class _VotingPane extends StatelessWidget {
                 ),
               ),
               child: Text(
-                g._myVote
-                    ? '✋ Bạn đã bỏ phiếu "Tôi đã làm" — Đang chờ kết quả...'
-                    : '🙅 Bạn đã bỏ phiếu "Chưa bao giờ" — An toàn!',
+                g._myVote ? l10n.nhieVotedDone : l10n.nhieVotedSafe,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: g._myVote
@@ -580,6 +665,7 @@ class _RevealPane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final g = game;
     final names = g.revealedVoterNames;
 
@@ -588,9 +674,9 @@ class _RevealPane extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
-            'KẾT QUẢ',
-            style: TextStyle(
+          Text(
+            l10n.nhieResultTitle,
+            style: const TextStyle(
               color: Colors.white38,
               fontSize: 12,
               letterSpacing: 3,
@@ -609,14 +695,14 @@ class _RevealPane extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           if (names.isEmpty)
-            const Column(
+            Column(
               children: [
-                Text('😇', style: TextStyle(fontSize: 48)),
-                SizedBox(height: 12),
+                const Text('😇', style: TextStyle(fontSize: 48)),
+                const SizedBox(height: 12),
                 Text(
-                  'Không ai thú nhận!\nMọi người vẫn an toàn 👏',
+                  l10n.nhieNobodyConfessed,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Color(0xFF81C784),
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -638,7 +724,7 @@ class _RevealPane extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'phải uống ${names.length} ngụm! 🍺',
+              l10n.nhieSipCount(names.length),
               style: const TextStyle(
                 color: Colors.white70,
                 fontSize: 16,
@@ -647,17 +733,17 @@ class _RevealPane extends StatelessWidget {
           ],
           const SizedBox(height: 24),
           if (g.iRevealed)
-            const Text(
-              '👆 Bạn nằm trong nhóm này!',
-              style: TextStyle(
+            Text(
+              l10n.nhieYouInGroup,
+              style: const TextStyle(
                 color: Color(0xFFFFD700),
                 fontWeight: FontWeight.bold,
               ),
             ),
           const SizedBox(height: 8),
-          const Text(
-            'Vòng tiếp theo...',
-            style: TextStyle(color: Colors.white24, fontSize: 12),
+          Text(
+            l10n.nhieNextRound,
+            style: const TextStyle(color: Colors.white24, fontSize: 12),
           ),
         ],
       ),

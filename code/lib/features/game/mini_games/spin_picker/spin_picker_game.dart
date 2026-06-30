@@ -1,10 +1,14 @@
 import 'dart:math';
+import 'dart:ui' show PlatformDispatcher;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
 import 'package:party_game_hub/core/theme/app_theme.dart';
+import 'package:party_game_hub/l10n/app_localizations.dart';
 import '../../domain/base_mini_game.dart';
 import '../../domain/game_ids.dart';
+
+enum SpinPhase { waiting, spinning, result, gameOver }
 
 /// Vòng Quay Số Phận — bánh xe quay chọn ngẫu nhiên ai trong nhóm.
 ///
@@ -34,6 +38,69 @@ class SpinPickerGame extends BaseMiniGame {
     '🤡 Làm mặt hề trong 15 giây',
     '👑 Chọn 1 người phải uống cùng bạn',
     '💬 Nói điều thật sự nghĩ về người ngồi đối diện',
+    '🎤 Hát bài quốc ca với giọng opera',
+    '🤸 Đứng 1 chân trong 30 giây không được té',
+    '👁️ Nhìn vào mắt người bên cạnh 10 giây không cười',
+    '🎭 Diễn tả 1 bộ phim không nói — mọi người đoán',
+    '💌 Đọc to lời yêu thương gửi đến người ngồi đối diện',
+    '🚶 Đi lại trong phòng theo kiểu catwalk 20 giây',
+    '🔢 Đếm ngược từ 50 càng nhanh càng tốt',
+    '💃 Dạy mọi người 1 điệu nhảy trong 30 giây',
+    '🎯 Tung đồ vật lên và bắt được 5 lần liên tiếp',
+    '📸 Pose ảnh đẹp nhất có thể trong 5 giây',
+    '🍺🍺🍺🍺 Uống 4 ngụm — xứng đáng là vua tiệc!',
+    '💋 Mô tả nụ hôn đầu tiên của bạn',
+    '🛁 Kể trải nghiệm ngại nhất khi ở nhà người khác',
+    '🤫 Tiết lộ 1 điều bạn chưa bao giờ nói với ai trong nhóm',
+    '😏 Mô tả kiểu người bạn thích trong 15 giây',
+    '🎰 Chọn 2 người phải uống cùng bạn ngay bây giờ',
+    '🙊 Đọc to tin nhắn lãng mạn nhất trong điện thoại của bạn',
+    '👗 Mặc đồ ngược hoặc lộn trong 2 vòng tiếp theo',
+    '🤦 Mô tả khoảnh khắc xấu hổ nhất của bạn năm nay',
+    '💸 Cho biết bạn chi tiêu nhiều nhất vào việc gì từ trước đến nay',
+  ];
+
+  static const List<String> _tasksEn = [
+    '🍺 Take 1 sip',
+    '🤫 Share 1 small secret of yours',
+    '🎵 Sing any one line right now',
+    '💪 Do 10 squats right now',
+    '😄 Say the thing you like most about the person on your right',
+    '🎭 Imitate someone in the room — everyone guesses who',
+    '💃 Dance freely for 20 seconds',
+    '😂 Tell a joke — if no one laughs you drink more',
+    '🍺🍺 Take 2 sips',
+    '📱 Read out the last text message you received',
+    '🤗 Hug everyone in the room',
+    '😜 Give a funny nickname to the person on your left',
+    '🙈 Describe your ideal crush in 30 seconds',
+    '🍺🍺🍺 Take 3 sips (or pick someone to drink for you)',
+    '🎤 Sing your favorite song in an opera voice',
+    '🙏 Apologize to someone in the group you owe an apology to',
+    '📸 Change your social media profile picture to the funniest photo you can take',
+    '🤡 Make a clown face for 15 seconds',
+    '👑 Pick 1 person who must drink with you',
+    '💬 Say what you truly think about the person across from you',
+    '🎤 Sing the national anthem in an opera voice',
+    '🤸 Balance on one leg for 30 seconds without falling',
+    '👁️ Stare into the eyes of the person next to you for 10 seconds without laughing',
+    '🎭 Act out a movie without speaking — everyone guesses',
+    '💌 Read out a loving message to the person across from you',
+    '🚶 Walk across the room like a catwalk model for 20 seconds',
+    '🔢 Count down from 50 as fast as you can',
+    '💃 Teach everyone a dance move in 30 seconds',
+    '🎯 Toss something up and catch it 5 times in a row',
+    '📸 Strike your best pose in 5 seconds',
+    '🍺🍺🍺🍺 Drink 4 sips — the king of the party!',
+    '💋 Describe your first kiss',
+    '🛁 Share your most embarrassing moment at someone else\'s house',
+    '🤫 Reveal one thing you\'ve never told anyone in this group',
+    '😏 Describe your ideal type in 15 seconds',
+    '🎰 Pick 2 people who must drink with you right now',
+    '🙊 Read aloud the most romantic text in your phone',
+    '👗 Wear your clothes backwards or inside-out for the next 2 rounds',
+    '🤦 Describe your most embarrassing moment this year',
+    '💸 Share the most money you\'ve ever spent on something embarrassing',
   ];
 
   SpinPickerGame(super.gameProvider);
@@ -41,10 +108,12 @@ class SpinPickerGame extends BaseMiniGame {
   @override
   String get gameId => GameIds.spinPicker;
 
+  bool get _isEnglish =>
+      PlatformDispatcher.instance.locale.languageCode == 'en';
+
   // ── State ──────────────────────────────────────────────────────────────────
   int _round = 0;
-  // phases: waiting | spinning | result | game_over
-  String _phase = 'waiting';
+  SpinPhase _phase = SpinPhase.waiting;
   String? _winnerId;
   String _taskText = '';
   bool _gameOver = false;
@@ -54,7 +123,7 @@ class SpinPickerGame extends BaseMiniGame {
   // ── Getters ────────────────────────────────────────────────────────────────
   int get round => _round;
   int get totalRounds => _totalRounds;
-  String get phase => _phase;
+  SpinPhase get phase => _phase;
   String? get winnerId => _winnerId;
   String get taskText => _taskText;
   bool get isGameOver => _gameOver;
@@ -88,7 +157,8 @@ class SpinPickerGame extends BaseMiniGame {
     final players = gameProvider.lobbyProvider.players;
     final rng = Random();
     final winner = players[rng.nextInt(players.length)];
-    final task = _tasks[rng.nextInt(_tasks.length)];
+    final taskList = _isEnglish ? _tasksEn : _tasks;
+    final task = taskList[rng.nextInt(taskList.length)];
 
     gameProvider.sendGameData(gameId, {
       'action': 'spin_result',
@@ -103,14 +173,14 @@ class SpinPickerGame extends BaseMiniGame {
     _round = round;
     _winnerId = winnerId;
     _taskText = task;
-    _phase = 'spinning';
+    _phase = SpinPhase.spinning;
     AppAudio.playTap();
     _notify();
 
     // Spin animation duration = 3s, then show result
     Future.delayed(const Duration(milliseconds: 3200), () {
       if (cancelled) return;
-      _phase = 'result';
+      _phase = SpinPhase.result;
       AppAudio.playGoal();
       HapticFeedback.heavyImpact();
       _notify();
@@ -124,7 +194,7 @@ class SpinPickerGame extends BaseMiniGame {
         } else if (gameProvider.lobbyProvider.isHost) {
           _spinRound();
         } else {
-          _phase = 'waiting';
+          _phase = SpinPhase.waiting;
           _notify();
         }
       });
@@ -133,7 +203,7 @@ class SpinPickerGame extends BaseMiniGame {
 
   void _endGame() {
     _gameOver = true;
-    _phase = 'game_over';
+    _phase = SpinPhase.gameOver;
     AppAudio.playWin();
     // Everyone gets 50 pts — it's a party, everyone wins
     final scores = <String, int>{
@@ -199,7 +269,7 @@ class _SpinPickerOverlayState extends State<_SpinPickerOverlay>
 
   void _rebuild() {
     if (!mounted) return;
-    if (widget.game.phase == 'spinning') {
+    if (widget.game.phase == SpinPhase.spinning) {
       _startSpin();
     }
     setState(() {});
@@ -226,18 +296,19 @@ class _SpinPickerOverlayState extends State<_SpinPickerOverlay>
   @override
   Widget build(BuildContext context) {
     final g = widget.game;
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       color: AppTheme.bgDeep,
       child: SafeArea(
         child: Column(
           children: [
-            _header(g),
+            _header(context, g),
             const SizedBox(height: 12),
             Expanded(
               child: Center(
-                child: g.phase == 'result'
-                    ? _ResultPane(game: g)
-                    : _WheelPane(game: g, spinAngle: _spinAngle),
+                child: g.phase == SpinPhase.result
+                    ? _ResultPane(game: g, l10n: l10n)
+                    : _WheelPane(game: g, spinAngle: _spinAngle, l10n: l10n),
               ),
             ),
             const SizedBox(height: 16),
@@ -247,23 +318,24 @@ class _SpinPickerOverlayState extends State<_SpinPickerOverlay>
     );
   }
 
-  Widget _header(SpinPickerGame g) {
+  Widget _header(BuildContext context, SpinPickerGame g) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            'Vòng ${g.round + 1}/${g.totalRounds}',
+            l10n.gameRoundLabel(g.round + 1, g.totalRounds),
             style: const TextStyle(
               color: Colors.white70,
               fontSize: 15,
               fontWeight: FontWeight.bold,
             ),
           ),
-          const Text(
-            '🎡 Vòng Quay Số Phận',
-            style: TextStyle(color: Colors.white38, fontSize: 13),
+          Text(
+            l10n.spinGameTitle,
+            style: const TextStyle(color: Colors.white38, fontSize: 13),
           ),
         ],
       ),
@@ -274,7 +346,12 @@ class _SpinPickerOverlayState extends State<_SpinPickerOverlay>
 class _WheelPane extends StatelessWidget {
   final SpinPickerGame game;
   final Animation<double> spinAngle;
-  const _WheelPane({required this.game, required this.spinAngle});
+  final AppLocalizations l10n;
+  const _WheelPane({
+    required this.game,
+    required this.spinAngle,
+    required this.l10n,
+  });
 
   static const _segColors = [
     Color(0xFF6C63FF),
@@ -295,10 +372,8 @@ class _WheelPane extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Arrow pointer
         const Text('▼', style: TextStyle(color: Color(0xFFFFD700), fontSize: 28)),
         const SizedBox(height: 4),
-        // Spinning wheel
         AnimatedBuilder(
           animation: spinAngle,
           builder: (context, _) {
@@ -312,15 +387,15 @@ class _WheelPane extends StatelessWidget {
           },
         ),
         const SizedBox(height: 24),
-        if (game.phase == 'waiting')
-          const Text(
-            'Đang chờ...',
-            style: TextStyle(color: Colors.white38, fontSize: 14),
+        if (game.phase == SpinPhase.waiting)
+          Text(
+            l10n.spinWaiting,
+            style: const TextStyle(color: Colors.white38, fontSize: 14),
           )
         else
-          const Text(
-            'Đang quay...',
-            style: TextStyle(
+          Text(
+            l10n.spinningText,
+            style: const TextStyle(
               color: Color(0xFFFFD700),
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -420,14 +495,14 @@ class _WheelPainter extends CustomPainter {
 
 class _ResultPane extends StatelessWidget {
   final SpinPickerGame game;
-  const _ResultPane({required this.game});
+  final AppLocalizations l10n;
+  const _ResultPane({required this.game, required this.l10n});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Confetti-like effect using big emoji
         const Text('🎉', style: TextStyle(fontSize: 48)),
         const SizedBox(height: 16),
         Container(
@@ -481,19 +556,19 @@ class _ResultPane extends StatelessWidget {
               color: const Color(0xFFFF6584).withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Text(
-              '👆 Đó là BẠN! Hãy thực hiện nhiệm vụ nhé 😄',
+            child: Text(
+              l10n.spinYouAreIt,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Color(0xFFFF6584),
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
         const SizedBox(height: 12),
-        const Text(
-          'Vòng tiếp theo tự động...',
-          style: TextStyle(color: Colors.white24, fontSize: 12),
+        Text(
+          l10n.spinNextRoundAuto,
+          style: const TextStyle(color: Colors.white24, fontSize: 12),
         ),
       ],
     );

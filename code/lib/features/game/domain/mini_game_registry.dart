@@ -173,36 +173,25 @@ abstract class MiniGameRegistry {
     _ => throw ArgumentError('Unknown game id: $gameId'),
   };
 
+  static final _factories = <String, BaseMiniGame Function(GameProvider)>{
+    GameIds.truthOrDare: TruthOrDareGame.new,
+    GameIds.spinPicker: SpinPickerGame.new,
+    GameIds.neverHaveIEver: NeverHaveIEverGame.new,
+    GameIds.hotPotato: HotPotatoGame.new,
+    GameIds.liarsDice: LiarsDiceGame.new,
+    GameIds.reactionTap: ReactionTapGame.new,
+    GameIds.tugOfWar: TugOfWarGame.new,
+    GameIds.minesweeper: MinesweeperGame.new,
+    GameIds.drawGuess: DrawGuessGame.new,
+    GameIds.sumoBumper: SumoGame.new,
+    GameIds.neonDodge: NeonDodgeGame.new,
+    GameIds.tankFight: TankGame.new,
+    GameIds.mazeHideSeek: MazeGame.new,
+  };
+
   static BaseMiniGame createGame(String gameId, GameProvider provider) {
-    switch (gameId) {
-      case GameIds.truthOrDare:
-        return TruthOrDareGame(provider);
-      case GameIds.spinPicker:
-        return SpinPickerGame(provider);
-      case GameIds.neverHaveIEver:
-        return NeverHaveIEverGame(provider);
-      case GameIds.hotPotato:
-        return HotPotatoGame(provider);
-      case GameIds.liarsDice:
-        return LiarsDiceGame(provider);
-      case GameIds.reactionTap:
-        return ReactionTapGame(provider);
-      case GameIds.tugOfWar:
-        return TugOfWarGame(provider);
-      case GameIds.minesweeper:
-        return MinesweeperGame(provider);
-      case GameIds.drawGuess:
-        return DrawGuessGame(provider);
-      case GameIds.sumoBumper:
-        return SumoGame(provider);
-      case GameIds.neonDodge:
-        return NeonDodgeGame(provider);
-      case GameIds.tankFight:
-        return TankGame(provider);
-      case GameIds.mazeHideSeek:
-        return MazeGame(provider);
-      default:
-        throw Exception('Game ID "$gameId" không tồn tại trong Registry');
-    }
+    final factory = _factories[gameId];
+    if (factory == null) throw Exception('Game "$gameId" không có trong Registry');
+    return factory(provider);
   }
 }

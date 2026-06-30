@@ -1,11 +1,15 @@
 import 'dart:math';
+import 'dart:ui' show PlatformDispatcher;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
 import 'package:party_game_hub/core/theme/app_theme.dart';
+import 'package:party_game_hub/l10n/app_localizations.dart';
 import '../../../lobby/domain/player.dart';
 import '../../domain/base_mini_game.dart';
 import '../../domain/game_ids.dart';
+
+enum TodPhase { waiting, cardShown, responded, result, gameOver }
 
 /// Thật Hay Thách — party game nhiều người.
 ///
@@ -37,6 +41,59 @@ class TruthOrDareGame extends BaseMiniGame {
     'Điều gì về bạn mà ít người trong nhóm biết?',
     'Lần cuối bạn làm điều gì đó mà cha mẹ không biết?',
     'Nếu được đọc tâm trí 1 người trong nhóm, bạn chọn ai?',
+    'Điều gì bạn đã làm mà nếu cha mẹ biết họ sẽ rất buồn?',
+    'Bạn đã từng cảm thấy ghen tị với ai trong nhóm này không?',
+    'Lần gần nhất bạn thực sự khóc một mình là bao giờ?',
+    'Bạn có bí mật nào mà bạn nghĩ sẽ không bao giờ kể với ai không?',
+    'Điều tồi tệ nhất bạn từng nghĩ về một người bạn thân?',
+    'Nếu có thể xóa 1 kỷ niệm, bạn sẽ xóa cái gì?',
+    'Bạn đã từng thích ai trong nhóm này không (hiện tại hoặc quá khứ)?',
+    'Điều bạn giả vờ thích nhưng thực ra không thích là gì?',
+    'Lần cuối bạn nói dối để bảo vệ ai đó là khi nào?',
+    'Bạn có kế hoạch bí mật nào mà chưa ai biết không?',
+    'Điều bạn hối tiếc nhất trong 1 năm gần đây là gì?',
+    'Thứ gì trên điện thoại của bạn mà bạn sẽ xấu hổ nếu ai đó thấy?',
+    'Bạn nghĩ người nào trong nhóm phù hợp với bạn nhất không phải là bạn bè?',
+    'Bạn đã từng giả vờ thích quà của ai đó dù thực ra không thích không?',
+    'Mô tả lần bạn cảm thấy cô đơn nhất trong 2 năm qua.',
+  ];
+
+  static const List<String> _truthCardsEn = [
+    'When was the last time you lied and to whom?',
+    'What is the biggest secret you have not shared with anyone in this group?',
+    'Who is your current crush?',
+    'What is the most embarrassing thing you have ever done in public?',
+    'Have you ever looked through someone else\'s phone without permission?',
+    'What was the last thing that made you cry?',
+    'What is the one thing you hate most about yourself?',
+    'Who do you find the most attractive person in this group?',
+    'What is the strangest thing you have ever searched on Google?',
+    'Have you ever talked bad about anyone in this group?',
+    'What is the dumbest thing you have ever done for someone?',
+    'What is your most embarrassing memory?',
+    'Who in this group do you think has the most secrets?',
+    'What is the one thing from your past you wish you could change?',
+    'Who in this group do you like the most and why?',
+    'Have you ever faked being sick to skip something?',
+    'What app do you delete when handing your phone to someone?',
+    'What is something about you that few people in this group know?',
+    'When was the last time you did something your parents do not know about?',
+    'If you could read one person\'s mind in this group, whose would it be?',
+    'What have you done that would deeply disappoint your parents if they knew?',
+    'Have you ever felt jealous of anyone in this group?',
+    'When was the last time you truly cried alone?',
+    'Do you have a secret you think you will never tell anyone?',
+    'What is the worst thought you have ever had about a close friend?',
+    'If you could erase one memory, what would it be?',
+    'Have you ever had a crush on anyone in this group — past or present?',
+    'What is something you pretend to like but actually do not?',
+    'When was the last time you lied to protect someone?',
+    'Do you have any secret plans that nobody knows about?',
+    'What is your biggest regret from the past year?',
+    'What is on your phone that you would be embarrassed if someone saw?',
+    'Who in this group do you think would be more than just a friend?',
+    'Have you ever pretended to like a gift even though you did not?',
+    'Describe the loneliest moment you have felt in the past two years.',
   ];
 
   static const List<String> _dareCards = [
@@ -48,7 +105,7 @@ class TruthOrDareGame extends BaseMiniGame {
     'Kể 1 truyện cười — không ai cười thì uống thêm',
     'Nhảy tự do trong 30 giây',
     'Đặt biệt danh hài hước cho tất cả mọi người',
-    'Làm mặt xấu nhất và giữ trong 10 giây',
+    'Làm mặt xấu nhất có thể và giữ trong 10 giây',
     'Bắt chước con vật yêu thích của bạn',
     'Nói 5 điều bạn thích ở người ngồi đối diện',
     'Đọc to tin nhắn cuối cùng bạn nhận được',
@@ -60,6 +117,59 @@ class TruthOrDareGame extends BaseMiniGame {
     'Đứng im như tượng 1 phút, mọi người cố làm bạn cười',
     'Massage vai cho người bên cạnh trong 1 phút',
     'Nói điều bạn thật sự nghĩ về người ngồi bên trái',
+    'Làm 5 lần push-up ngay bây giờ (nếu không được thì uống)',
+    'Gọi tên pet name yêu thích và gọi người bên trái bằng tên đó cả vòng này',
+    'Mô tả cảm xúc của bạn bằng âm thanh — không dùng chữ — trong 15 giây',
+    'Thực hiện 3 kiểu chào hỏi khác nhau với 3 người trong nhóm',
+    'Đặt điện thoại xuống và không sờ vào trong 15 phút tiếp theo',
+    'Nói chuyện bằng giọng siêu nhân cho đến vòng tiếp theo',
+    'Chụp ảnh mặt ngốc nhất và đặt làm ảnh đại diện zalo/fb trong 10 phút',
+    'Gọi điện ngẫu nhiên cho 1 người trong danh bạ và nói "Em nhớ anh/chị"',
+    'Nhờ người ngồi bên phải viết gì đó lên mặt bạn bằng bút',
+    'Giữ biểu cảm nghiêm trang nhất trong 2 phút, ai làm bạn cười thì bạn uống',
+    'Làm một bài thơ ngẫu hứng về người ngồi đối diện trong 30 giây',
+    'Thực hiện nghi thức bắt tay bí mật với người ngồi bên cạnh, cả nhóm học theo',
+    'Nói 3 điều thật lòng bạn đánh giá cao về người vừa chọn bạn',
+    'Điều khiển điện thoại của người ngồi bên cạnh trong 30 giây (họ có thể canh)',
+    'Đeo mắt kính hoặc dùng tay che một mắt cho đến hết vòng tiếp theo',
+  ];
+
+  static const List<String> _dareCardsEn = [
+    'Imitate someone in the room for 30 seconds',
+    'Call someone and sing a song for 20 seconds',
+    'Do 10 squats right now',
+    'Say one honest thing to the person on your right',
+    'Speak like a robot for the next minute',
+    'Tell a joke — if no one laughs you drink more',
+    'Dance freely for 30 seconds',
+    'Give everyone a funny nickname',
+    'Make the ugliest face possible and hold it for 10 seconds',
+    'Imitate your favorite animal',
+    'Say 5 things you like about the person across from you',
+    'Read out the last text message you received',
+    'Sing one line from whatever song is stuck in your head',
+    'Do the most difficult yoga pose you know',
+    'Tell a joke in a different accent',
+    'Describe your ideal crush in 30 seconds',
+    'Say "I love you" in the funniest voice possible',
+    'Stand still like a statue for 1 minute — everyone tries to make you laugh',
+    'Give the person next to you a shoulder massage for 1 minute',
+    'Say what you truly think about the person on your left',
+    'Do 5 push-ups right now (or drink if you can\'t)',
+    'Give the person on your left a cute pet name and call them by it this round',
+    'Express your current emotion using only sounds — no words — for 15 seconds',
+    'Greet 3 different people in 3 completely different ways',
+    'Put your phone down and do not touch it for the next 15 minutes',
+    'Speak in a superhero voice until the next round',
+    'Take the goofiest photo you can and set it as your profile picture for 10 minutes',
+    'Call a random contact and say "I miss you so much"',
+    'Let the person on your right write something on your face with a pen',
+    'Keep the most serious expression you can for 2 minutes — drink if you laugh',
+    'Compose an improvised poem about the person across from you in 30 seconds',
+    'Create a secret handshake with the person next to you — everyone must learn it',
+    'Say 3 genuine things you appreciate about the person who chose you',
+    'Take control of the phone of the person next to you for 30 seconds (they can watch)',
+    'Wear glasses or cover one eye for the rest of this round',
   ];
 
   TruthOrDareGame(super.gameProvider);
@@ -67,10 +177,12 @@ class TruthOrDareGame extends BaseMiniGame {
   @override
   String get gameId => GameIds.truthOrDare;
 
+  bool get _isEnglish =>
+      PlatformDispatcher.instance.locale.languageCode == 'en';
+
   // ── State ──────────────────────────────────────────────────────────────────
   int _round = 0;
-  // phases: waiting | card_shown | responded | result | game_over
-  String _phase = 'waiting';
+  TodPhase _phase = TodPhase.waiting;
   String? _chosenId;
   String _cardType = '';
   String _cardText = '';
@@ -86,7 +198,7 @@ class TruthOrDareGame extends BaseMiniGame {
   // ── Getters ────────────────────────────────────────────────────────────────
   int get round => _round;
   int get totalRounds => _totalRounds;
-  String get phase => _phase;
+  TodPhase get phase => _phase;
   String? get chosenId => _chosenId;
   String get cardType => _cardType;
   String get cardText => _cardText;
@@ -98,7 +210,7 @@ class TruthOrDareGame extends BaseMiniGame {
   bool get isMyTurn =>
       _chosenId != null &&
       _chosenId == gameProvider.lobbyProvider.localPlayer?.id &&
-      _phase == 'card_shown';
+      _phase == TodPhase.cardShown;
 
   String get chosenPlayerName =>
       _chosenId != null ? playerNameFor(_chosenId!) : '?';
@@ -121,7 +233,9 @@ class TruthOrDareGame extends BaseMiniGame {
     final rng = Random();
     final chosen = players[rng.nextInt(players.length)];
     final isTruth = rng.nextBool();
-    final cards = isTruth ? _truthCards : _dareCards;
+    final truthList = _isEnglish ? _truthCardsEn : _truthCards;
+    final dareList = _isEnglish ? _dareCardsEn : _dareCards;
+    final cards = isTruth ? truthList : dareList;
     final text = cards[rng.nextInt(cards.length)];
     final type = isTruth ? 'truth' : 'dare';
 
@@ -141,7 +255,7 @@ class TruthOrDareGame extends BaseMiniGame {
     _cardType = type;
     _cardText = text;
     _completed = null;
-    _phase = 'card_shown';
+    _phase = TodPhase.cardShown;
     _timeLeft = _responseTimeout;
     _timerActive = true;
     _roundResultSent = false;
@@ -154,7 +268,7 @@ class TruthOrDareGame extends BaseMiniGame {
     if (!isMyTurn) return;
     _completed = accepted;
     _timerActive = false;
-    _phase = 'responded';
+    _phase = TodPhase.responded;
     accepted ? HapticFeedback.mediumImpact() : HapticFeedback.lightImpact();
     AppAudio.playTap();
 
@@ -197,7 +311,7 @@ class TruthOrDareGame extends BaseMiniGame {
   ) {
     _scores = Map.from(scores);
     _completed = completed;
-    _phase = 'result';
+    _phase = TodPhase.result;
     _timerActive = false;
     completed ? AppAudio.playGoal() : AppAudio.playLose();
     _notify();
@@ -210,7 +324,7 @@ class TruthOrDareGame extends BaseMiniGame {
       } else if (gameProvider.lobbyProvider.isHost) {
         _startRound();
       } else {
-        _phase = 'waiting';
+        _phase = TodPhase.waiting;
         _notify();
       }
     });
@@ -218,7 +332,7 @@ class TruthOrDareGame extends BaseMiniGame {
 
   void _endGame() {
     _gameOver = true;
-    _phase = 'game_over';
+    _phase = TodPhase.gameOver;
     _timerActive = false;
     AppAudio.playWin();
     _notify();
@@ -271,7 +385,7 @@ class TruthOrDareGame extends BaseMiniGame {
           );
         } else {
           _completed = payload['completed'] as bool;
-          _phase = 'responded';
+          _phase = TodPhase.responded;
           _timerActive = false;
           _notify();
         }
@@ -329,7 +443,7 @@ class _TruthOrDareOverlayState extends State<_TruthOrDareOverlay>
   void _rebuild() {
     if (!mounted) return;
     setState(() {});
-    if (widget.game.phase == 'card_shown') {
+    if (widget.game.phase == TodPhase.cardShown) {
       _cardCtrl.forward(from: 0);
     }
   }
@@ -337,6 +451,7 @@ class _TruthOrDareOverlayState extends State<_TruthOrDareOverlay>
   @override
   Widget build(BuildContext context) {
     final g = widget.game;
+    final l10n = AppLocalizations.of(context)!;
     final isTruth = g.cardType == 'truth';
     final cardColor = isTruth
         ? const Color(0xFF6C63FF)
@@ -349,10 +464,10 @@ class _TruthOrDareOverlayState extends State<_TruthOrDareOverlay>
           children: [
             _RoundHeader(round: g.round, total: g.totalRounds),
             const SizedBox(height: 12),
-            if (g.phase == 'waiting')
-              const Expanded(child: _WaitingPane())
+            if (g.phase == TodPhase.waiting)
+              Expanded(child: _WaitingPane(label: l10n.todWaiting))
             else ...[
-              _PlayerChip(name: g.chosenPlayerName),
+              _PlayerChip(label: l10n.todChosen(g.chosenPlayerName)),
               const SizedBox(height: 16),
               Expanded(
                 child: Padding(
@@ -366,29 +481,40 @@ class _TruthOrDareOverlayState extends State<_TruthOrDareOverlay>
                       timeLeft: g.timeLeft,
                       timeout: TruthOrDareGame._responseTimeout,
                       phase: g.phase,
-                      completed: g.completed,
+                      truthLabel: l10n.todTruthLabel,
+                      dareLabel: l10n.todDareLabel,
                     ),
                   ),
                 ),
               ),
               const SizedBox(height: 16),
-              if (g.phase == 'card_shown' && g.isMyTurn)
+              if (g.phase == TodPhase.cardShown && g.isMyTurn)
                 _ActionRow(
+                  acceptLabel: l10n.todAcceptBtn,
+                  skipLabel: l10n.todSkipBtn,
                   onAccept: () => g.respond(true),
                   onSkip: () => g.respond(false),
                 )
-              else if (g.phase == 'result' || g.phase == 'responded')
-                _ResultBanner(completed: g.completed ?? false)
-              else if (g.phase == 'card_shown' && !g.isMyTurn)
+              else if (g.phase == TodPhase.result ||
+                  g.phase == TodPhase.responded)
+                _ResultBanner(
+                  completed: g.completed ?? false,
+                  acceptedText: l10n.todAccepted,
+                  skippedText: l10n.todSkipped,
+                )
+              else if (g.phase == TodPhase.cardShown && !g.isMyTurn)
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Text(
-                    'Chờ ${g.chosenPlayerName} trả lời...',
+                    l10n.todWaitingForPlayer(g.chosenPlayerName),
                     style: const TextStyle(color: Colors.white54),
                   ),
                 ),
               const SizedBox(height: 12),
-              _ScoreRow(scores: g.scores, players: g.gameProvider.lobbyProvider.players),
+              _ScoreRow(
+                scores: g.scores,
+                players: g.gameProvider.lobbyProvider.players,
+              ),
               const SizedBox(height: 8),
             ],
           ],
@@ -405,22 +531,23 @@ class _RoundHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            'Vòng ${round + 1}/$total',
+            l10n.gameRoundLabel(round + 1, total),
             style: const TextStyle(
               color: Colors.white70,
               fontSize: 15,
               fontWeight: FontWeight.bold,
             ),
           ),
-          const Text(
-            '🃏 Thật Hay Thách',
-            style: TextStyle(color: Colors.white38, fontSize: 13),
+          Text(
+            l10n.todGameTitle,
+            style: const TextStyle(color: Colors.white38, fontSize: 13),
           ),
         ],
       ),
@@ -429,8 +556,8 @@ class _RoundHeader extends StatelessWidget {
 }
 
 class _PlayerChip extends StatelessWidget {
-  final String name;
-  const _PlayerChip({required this.name});
+  final String label;
+  const _PlayerChip({required this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -444,7 +571,7 @@ class _PlayerChip extends StatelessWidget {
         ),
       ),
       child: Text(
-        '🎯  $name  được chọn!',
+        label,
         style: const TextStyle(
           color: Color(0xFFFFD700),
           fontWeight: FontWeight.bold,
@@ -461,8 +588,9 @@ class _CardWidget extends StatelessWidget {
   final String text;
   final double timeLeft;
   final double timeout;
-  final String phase;
-  final bool? completed;
+  final TodPhase phase;
+  final String truthLabel;
+  final String dareLabel;
 
   const _CardWidget({
     required this.isTruth,
@@ -471,7 +599,8 @@ class _CardWidget extends StatelessWidget {
     required this.timeLeft,
     required this.timeout,
     required this.phase,
-    required this.completed,
+    required this.truthLabel,
+    required this.dareLabel,
   });
 
   @override
@@ -492,7 +621,7 @@ class _CardWidget extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                isTruth ? '❓ SỰ THẬT' : '⭐ THÁCH',
+                isTruth ? truthLabel : dareLabel,
                 style: TextStyle(
                   color: cardColor,
                   fontSize: 14,
@@ -512,7 +641,7 @@ class _CardWidget extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              if (phase == 'card_shown')
+              if (phase == TodPhase.cardShown)
                 SizedBox(
                   height: 6,
                   child: LinearProgressIndicator(
@@ -533,9 +662,16 @@ class _CardWidget extends StatelessWidget {
 }
 
 class _ActionRow extends StatelessWidget {
+  final String acceptLabel;
+  final String skipLabel;
   final VoidCallback onAccept;
   final VoidCallback onSkip;
-  const _ActionRow({required this.onAccept, required this.onSkip});
+  const _ActionRow({
+    required this.acceptLabel,
+    required this.skipLabel,
+    required this.onAccept,
+    required this.onSkip,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -547,9 +683,9 @@ class _ActionRow extends StatelessWidget {
             child: ElevatedButton.icon(
               onPressed: onAccept,
               icon: const Text('✅', style: TextStyle(fontSize: 18)),
-              label: const Text(
-                'Chấp nhận',
-                style: TextStyle(fontWeight: FontWeight.bold),
+              label: Text(
+                acceptLabel,
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF43A047),
@@ -566,9 +702,9 @@ class _ActionRow extends StatelessWidget {
             child: ElevatedButton.icon(
               onPressed: onSkip,
               icon: const Text('🍺', style: TextStyle(fontSize: 18)),
-              label: const Text(
-                'Uống & Bỏ',
-                style: TextStyle(fontWeight: FontWeight.bold),
+              label: Text(
+                skipLabel,
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFFF6584),
@@ -588,7 +724,13 @@ class _ActionRow extends StatelessWidget {
 
 class _ResultBanner extends StatelessWidget {
   final bool completed;
-  const _ResultBanner({required this.completed});
+  final String acceptedText;
+  final String skippedText;
+  const _ResultBanner({
+    required this.completed,
+    required this.acceptedText,
+    required this.skippedText,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -607,7 +749,7 @@ class _ResultBanner extends StatelessWidget {
         ),
       ),
       child: Text(
-        completed ? '🎉 Hoàn thành! +10 điểm' : '🍺 Bỏ qua — phải uống!',
+        completed ? acceptedText : skippedText,
         textAlign: TextAlign.center,
         style: TextStyle(
           color: completed ? const Color(0xFF81C784) : const Color(0xFFFF6584),
@@ -626,6 +768,7 @@ class _ScoreRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return SizedBox(
       height: 52,
       child: ListView.separated(
@@ -650,7 +793,7 @@ class _ScoreRow extends StatelessWidget {
                   style: const TextStyle(color: Colors.white70, fontSize: 11),
                 ),
                 Text(
-                  '$score đ',
+                  l10n.pointsText(score),
                   style: const TextStyle(
                     color: Color(0xFFFFD700),
                     fontWeight: FontWeight.bold,
@@ -667,19 +810,20 @@ class _ScoreRow extends StatelessWidget {
 }
 
 class _WaitingPane extends StatelessWidget {
-  const _WaitingPane();
+  final String label;
+  const _WaitingPane({required this.label});
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('🎴', style: TextStyle(fontSize: 56)),
-          SizedBox(height: 16),
+          const Text('🎴', style: TextStyle(fontSize: 56)),
+          const SizedBox(height: 16),
           Text(
-            'Đang chọn người...',
-            style: TextStyle(color: Colors.white54, fontSize: 16),
+            label,
+            style: const TextStyle(color: Colors.white54, fontSize: 16),
           ),
         ],
       ),
