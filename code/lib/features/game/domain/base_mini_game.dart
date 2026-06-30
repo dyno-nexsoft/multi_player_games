@@ -1,6 +1,6 @@
 import 'package:flame/components.dart';
 import 'package:flame/game.dart';
-import 'package:meta/meta.dart';
+import 'package:flutter/foundation.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
 
 import '../presentation/game_provider.dart';

@@ -219,7 +219,6 @@ class MinesweeperGame extends BaseMiniGame {
     }
   }
 
-
   // ── Overlay ───────────────────────────────────────────────────────────────
 
   Widget buildOverlay(BuildContext context) => _MinesweeperOverlay(game: this);

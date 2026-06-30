@@ -62,7 +62,8 @@ class _GameHubScreenState extends State<GameHubScreen> {
       final gp = context.read<GameProvider>();
       _showPauseMenu(context, lp, gp);
     };
-    _lobby.onEmoteReceived = (emoji) => EmoteLayer.of(context)?.showEmote(emoji);
+    _lobby.onEmoteReceived = (emoji) =>
+        EmoteLayer.of(context)?.showEmote(emoji);
   }
 
   @override

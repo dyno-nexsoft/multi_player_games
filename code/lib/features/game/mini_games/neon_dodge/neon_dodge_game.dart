@@ -272,7 +272,6 @@ class NeonDodgeGame extends BaseMiniGame {
         }
     }
   }
-
 }
 
 // ── Player Entity ─────────────────────────────────────────────────────────────

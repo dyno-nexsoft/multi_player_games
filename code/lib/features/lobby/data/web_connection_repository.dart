@@ -17,7 +17,7 @@ class WebConnectionRepository implements ConnectionRepository {
 
   final StreamController<nsd.Service> _serviceController =
       StreamController.broadcast();
-      
+
   @override
   Stream<nsd.Service> get discoveredServices => _serviceController.stream;
 
@@ -41,22 +41,31 @@ class WebConnectionRepository implements ConnectionRepository {
 
   @override
   Future<void> startServer(String roomName) async {
-    AppLogger.info('Web: Server started via BroadcastChannel', tag: 'Connection');
+    AppLogger.info(
+      'Web: Server started via BroadcastChannel',
+      tag: 'Connection',
+    );
     _webChannel = web.BroadcastChannel(_webRoomChannel);
     _webChannel!.onmessage = ((web.MessageEvent event) {
       final dartData = event.data.dartify();
-      AppLogger.info('Host received dartData: $dartData', tag: 'ConnectionDebug');
+      AppLogger.info(
+        'Host received dartData: $dartData',
+        tag: 'ConnectionDebug',
+      );
       if (dartData is String) {
         final str = dartData;
         final splitIndex = str.indexOf('|');
         if (splitIndex == -1) return;
         final target = str.substring(0, splitIndex);
         final payloadStr = str.substring(splitIndex + 1);
-        
-        AppLogger.info('Host parsed target: $target, payload length: ${payloadStr.length}', tag: 'ConnectionDebug');
-        
+
+        AppLogger.info(
+          'Host parsed target: $target, payload length: ${payloadStr.length}',
+          tag: 'ConnectionDebug',
+        );
+
         if (target != 'HOST') return;
-        
+
         final packet = GamePacket.tryParse(payloadStr);
         if (packet != null) {
           final sender = packet.senderId ?? 'unknown';
@@ -90,7 +99,9 @@ class WebConnectionRepository implements ConnectionRepository {
   Future<void> startDiscovery() async {
     AppLogger.info('Web: Mocking discovery', tag: 'Connection');
     Future.delayed(const Duration(milliseconds: 500), () {
-      _serviceController.add(nsd.Service(name: 'Phòng Web Local', type: '_pgamehub._tcp'));
+      _serviceController.add(
+        nsd.Service(name: 'Phòng Web Local', type: '_pgamehub._tcp'),
+      );
     });
   }
 
@@ -100,18 +111,24 @@ class WebConnectionRepository implements ConnectionRepository {
     _webChannel = web.BroadcastChannel(_webRoomChannel);
     _webChannel!.onmessage = ((web.MessageEvent event) {
       final dartData = event.data.dartify();
-      AppLogger.info('Client received dartData: $dartData', tag: 'ConnectionDebug');
+      AppLogger.info(
+        'Client received dartData: $dartData',
+        tag: 'ConnectionDebug',
+      );
       if (dartData is String) {
         final str = dartData;
         final splitIndex = str.indexOf('|');
         if (splitIndex == -1) return;
         final target = str.substring(0, splitIndex);
         final payloadStr = str.substring(splitIndex + 1);
-        
-        AppLogger.info('Client parsed target: $target, myId: $webLocalClientId', tag: 'ConnectionDebug');
-        
+
+        AppLogger.info(
+          'Client parsed target: $target, myId: $webLocalClientId',
+          tag: 'ConnectionDebug',
+        );
+
         if (target != 'ALL' && target != webLocalClientId) return;
-        
+
         final packet = GamePacket.tryParse(payloadStr);
         if (packet != null) onPacketReceived?.call(packet);
       }

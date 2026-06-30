@@ -21,7 +21,8 @@ abstract class MiniGameRegistry {
     MiniGameMetadata(
       id: GameIds.truthOrDare,
       title: 'Thật Hay Thách',
-      description: 'Vòng quay chọn ngẫu nhiên — trả lời thật hoặc thực hiện thách!',
+      description:
+          'Vòng quay chọn ngẫu nhiên — trả lời thật hoặc thực hiện thách!',
       iconPath: 'assets/icons/truth_or_dare.svg',
       minPlayers: 3,
       maxPlayers: 8,
@@ -29,7 +30,8 @@ abstract class MiniGameRegistry {
     MiniGameMetadata(
       id: GameIds.spinPicker,
       title: 'Vòng Quay Số Phận',
-      description: 'Bánh xe ngẫu nhiên chỉ vào ai đó — họ phải uống hoặc thực hiện nhiệm vụ!',
+      description:
+          'Bánh xe ngẫu nhiên chỉ vào ai đó — họ phải uống hoặc thực hiện nhiệm vụ!',
       iconPath: 'assets/icons/spin_picker.svg',
       minPlayers: 3,
       maxPlayers: 8,
@@ -37,7 +39,8 @@ abstract class MiniGameRegistry {
     MiniGameMetadata(
       id: GameIds.neverHaveIEver,
       title: 'Tôi Chưa Bao Giờ',
-      description: 'Ai đã từng làm thì mất 1 ngón tay — phải uống! Giữ được nhiều ngón nhất thắng.',
+      description:
+          'Ai đã từng làm thì mất 1 ngón tay — phải uống! Giữ được nhiều ngón nhất thắng.',
       iconPath: 'assets/icons/never_have_i_ever.svg',
       minPlayers: 3,
       maxPlayers: 8,
@@ -45,7 +48,8 @@ abstract class MiniGameRegistry {
     MiniGameMetadata(
       id: GameIds.hotPotato,
       title: 'Bom Hẹn Giờ',
-      description: 'Vuốt để ném bom ngẫu nhiên sang bất kỳ ai — ai cầm khi nổ phải uống!',
+      description:
+          'Vuốt để ném bom ngẫu nhiên sang bất kỳ ai — ai cầm khi nổ phải uống!',
       iconPath: 'assets/icons/hot_potato.svg',
       minPlayers: 3,
       maxPlayers: 6,
@@ -54,7 +58,8 @@ abstract class MiniGameRegistry {
     MiniGameMetadata(
       id: GameIds.reactionTap,
       title: 'Phản Xạ Thần Tốc',
-      description: 'Tap ngay khi màn hình sáng lên — ai chậm nhất vòng này uống!',
+      description:
+          'Tap ngay khi màn hình sáng lên — ai chậm nhất vòng này uống!',
       iconPath: 'assets/icons/reaction_tap.svg',
       minPlayers: 2,
       maxPlayers: 6,
@@ -85,7 +90,8 @@ abstract class MiniGameRegistry {
     MiniGameMetadata(
       id: GameIds.neonDodge,
       title: 'Neon Dodge',
-      description: 'Né chướng ngại vật rơi — Host là màn hình lớn, bạn là tay cầm!',
+      description:
+          'Né chướng ngại vật rơi — Host là màn hình lớn, bạn là tay cầm!',
       iconPath: 'assets/icons/neon_dodge.svg',
       minPlayers: 2,
       maxPlayers: 6,
@@ -114,7 +120,8 @@ abstract class MiniGameRegistry {
     MiniGameMetadata(
       id: GameIds.mazeHideSeek,
       title: 'Trốn Tìm Mê Cung',
-      description: 'Cảnh sát truy bắt kẻ trộm trong mê cung tối với Radar và Dash!',
+      description:
+          'Cảnh sát truy bắt kẻ trộm trong mê cung tối với Radar và Dash!',
       iconPath: 'assets/icons/maze_hide_seek.svg',
       minPlayers: 2,
       maxPlayers: 4,
@@ -156,7 +163,9 @@ abstract class MiniGameRegistry {
 
   static BaseMiniGame createGame(String gameId, GameProvider provider) {
     final factory = _factories[gameId];
-    if (factory == null) throw Exception('Game "$gameId" không có trong Registry');
+    if (factory == null) {
+      throw Exception('Game "$gameId" không có trong Registry');
+    }
     return factory(provider);
   }
 }

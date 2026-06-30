@@ -263,8 +263,6 @@ class LobbyProvider extends ChangeNotifier {
     await _repo.startServer(EmojiCode.embed(roomName, _emojiCode));
     _state = LobbyState.hosting;
     notifyListeners();
-
-
   }
 
   /// Host nhận gói tin kèm socket nguồn — map join → socket để dọn dẹp khi rớt,
@@ -344,8 +342,6 @@ class LobbyProvider extends ChangeNotifier {
     await _repo.startDiscovery();
     _state = LobbyState.discovering;
     notifyListeners();
-
-
   }
 
   Service? _lastJoinedService;
@@ -358,7 +354,6 @@ class LobbyProvider extends ChangeNotifier {
     _repo.onHostDisconnected = _onHostDisconnected;
     _repo.webLocalClientId = _localPlayer?.id;
     await _repo.connectToService(service);
-
 
     final packet = GamePacket(
       type: PacketType.join,
@@ -377,7 +372,6 @@ class LobbyProvider extends ChangeNotifier {
     _repo.onHostDisconnected = _onHostDisconnected;
     _repo.webLocalClientId = _localPlayer?.id;
     await _repo.connectToAddress(ip, port);
-
 
     final packet = GamePacket(
       type: PacketType.join,

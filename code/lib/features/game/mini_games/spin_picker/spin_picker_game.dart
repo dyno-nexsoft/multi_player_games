@@ -132,8 +132,7 @@ class SpinPickerGame extends BaseMiniGame {
       _winnerId != null &&
       _winnerId == gameProvider.lobbyProvider.localPlayer?.id;
 
-  String get winnerName =>
-      _winnerId != null ? playerNameFor(_winnerId!) : '?';
+  String get winnerName => _winnerId != null ? playerNameFor(_winnerId!) : '?';
 
   List<String> get playerNames =>
       gameProvider.lobbyProvider.players.map((p) => p.name).toList();
@@ -228,7 +227,6 @@ class SpinPickerGame extends BaseMiniGame {
     }
   }
 
-
   Widget buildOverlay(BuildContext context) => _SpinPickerOverlay(game: this);
 }
 
@@ -255,9 +253,10 @@ class _SpinPickerOverlayState extends State<_SpinPickerOverlay>
       vsync: this,
       duration: const Duration(milliseconds: 3000),
     );
-    _spinAngle = Tween<double>(begin: 0, end: 0).animate(
-      CurvedAnimation(parent: _spinCtrl, curve: Curves.easeOut),
-    );
+    _spinAngle = Tween<double>(
+      begin: 0,
+      end: 0,
+    ).animate(CurvedAnimation(parent: _spinCtrl, curve: Curves.easeOut));
   }
 
   @override
@@ -372,7 +371,10 @@ class _WheelPane extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text('▼', style: TextStyle(color: Color(0xFFFFD700), fontSize: 28)),
+        const Text(
+          '▼',
+          style: TextStyle(color: Color(0xFFFFD700), fontSize: 28),
+        ),
         const SizedBox(height: 4),
         AnimatedBuilder(
           animation: spinAngle,
