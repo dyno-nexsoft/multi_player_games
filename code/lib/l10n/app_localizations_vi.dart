@@ -105,15 +105,6 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
-  String get gameTugOfWarTitle => 'Kéo Co Tốc Độ';
-
-  @override
-  String get gameTugOfWarDesc => 'Nhấn nút liên tục để kéo sợi dây về phía bạn!';
-
-  @override
-  String get tugOfWarTapLabel => 'TAP ĐI! ▼';
-
-  @override
   String get winText => '🏆 THẮNG!';
 
   @override
@@ -123,7 +114,8 @@ class AppLocalizationsVi extends AppLocalizations {
   String get gameSumoBumperTitle => 'Húc Bóng Sinh Tồn';
 
   @override
-  String get gameSumoBumperDesc => 'Húc bay đối thủ ra khỏi vòng tròn sinh tồn!';
+  String get gameSumoBumperDesc =>
+      'Húc bay đối thủ ra khỏi vòng tròn sinh tồn!';
 
   @override
   String get gamePenaltyShootoutTitle => 'Sút Phạt Đền';
@@ -138,31 +130,29 @@ class AppLocalizationsVi extends AppLocalizations {
   String get gameAirHockeyTitle => 'Khúc Côn Cầu';
 
   @override
-  String get gameAirHockeyDesc => 'Đánh puck qua màn hình đối thủ — mỗi máy là một nửa sân!';
-
-  @override
-  String get gameDrawGuessTitle => 'Vẽ & Đoán';
-
-  @override
-  String get gameDrawGuessDesc => 'Vẽ hình, đối thủ đoán từ — xen kẽ vai trò qua 5 từ!';
+  String get gameAirHockeyDesc =>
+      'Đánh puck qua màn hình đối thủ — mỗi máy là một nửa sân!';
 
   @override
   String get gameReactionTapTitle => 'Phản Xạ Thần Tốc';
 
   @override
-  String get gameReactionTapDesc => 'Tap ngay khi màn hình sáng lên — ai nhanh hơn thắng!';
+  String get gameReactionTapDesc =>
+      'Tap ngay khi màn hình sáng lên — ai nhanh hơn thắng!';
 
   @override
   String get gameMinesweeperTitle => 'Dò Mìn Tốc Độ';
 
   @override
-  String get gameMinesweeperDesc => 'Reveal ô trống nhiều nhất trong 60s, tránh mìn!';
+  String get gameMinesweeperDesc =>
+      'Reveal ô trống nhiều nhất trong 60s, tránh mìn!';
 
   @override
   String get gameBilliardsTitle => 'Bi-a 9 Ball';
 
   @override
-  String get gameBilliardsDesc => 'Bỏ túi ball theo thứ tự — ai gom điểm nhiều hơn thắng!';
+  String get gameBilliardsDesc =>
+      'Bỏ túi ball theo thứ tự — ai gom điểm nhiều hơn thắng!';
 
   @override
   String get gameBattleshipTitle => 'Hải Chiến Không Gian';
@@ -195,13 +185,15 @@ class AppLocalizationsVi extends AppLocalizations {
   String get exitRoomTitleClient => 'Rời khỏi phòng?';
 
   @override
-  String get exitRoomDescHost => 'Tất cả người chơi sẽ bị ngắt kết nối. Bạn có chắc chắn không?';
+  String get exitRoomDescHost =>
+      'Tất cả người chơi sẽ bị ngắt kết nối. Bạn có chắc chắn không?';
 
   @override
   String get exitRoomDescClient => 'Bạn có chắc chắn muốn rời khỏi phòng này?';
 
   @override
-  String get clientWaitingConsoleMode => 'Thiết bị của bạn sẽ là Tay Cầm\nChờ Host bắt đầu game...';
+  String get clientWaitingConsoleMode =>
+      'Thiết bị của bạn sẽ là Tay Cầm\nChờ Host bắt đầu game...';
 
   @override
   String get invalidQrCode => 'QR không hợp lệ';
@@ -225,7 +217,8 @@ class AppLocalizationsVi extends AppLocalizations {
   String get emojiSearching => 'Đang tìm phòng...';
 
   @override
-  String get emojiNotFound => '❌ Không tìm thấy phòng. Kiểm tra lại emoji và cùng WiFi.';
+  String get emojiNotFound =>
+      '❌ Không tìm thấy phòng. Kiểm tra lại emoji và cùng WiFi.';
 
   @override
   String get tapToJoinDesc => 'Tap để vào phòng';
@@ -240,7 +233,8 @@ class AppLocalizationsVi extends AppLocalizations {
   String get letsGo => 'Let\'s Go 🚀';
 
   @override
-  String get onboardingDesc1 => 'Bộ sưu tập mini-game nhiều người chơi\nngay trên điện thoại của bạn.';
+  String get onboardingDesc1 =>
+      'Bộ sưu tập mini-game nhiều người chơi\nngay trên điện thoại của bạn.';
 
   @override
   String get onboardingFeature1 => '🎮 10+ mini-games';
@@ -258,16 +252,19 @@ class AppLocalizationsVi extends AppLocalizations {
   String get onboardingTitle2 => 'Cùng một mạng WiFi';
 
   @override
-  String get onboardingDesc2 => '📡 Hãy chắc chắn tất cả người chơi đang kết nối cùng một mạng WiFi hoặc điểm truy cập (hotspot) LAN.';
+  String get onboardingDesc2 =>
+      '📡 Hãy chắc chắn tất cả người chơi đang kết nối cùng một mạng WiFi hoặc điểm truy cập (hotspot) LAN.';
 
   @override
-  String get onboardingSub2 => 'Game dùng kết nối nội bộ (P2P)\nkhông cần internet.';
+  String get onboardingSub2 =>
+      'Game dùng kết nối nội bộ (P2P)\nkhông cần internet.';
 
   @override
   String get onboardingTitle3 => 'Sẵn sàng chơi!';
 
   @override
-  String get onboardingDesc3 => 'Một người tạo phòng (Host), người còn lại tìm phòng và tham gia.\nChúc vui vẻ! 🎮';
+  String get onboardingDesc3 =>
+      'Một người tạo phòng (Host), người còn lại tìm phòng và tham gia.\nChúc vui vẻ! 🎮';
 
   @override
   String get spinningText => 'Đang quay...';
@@ -288,7 +285,8 @@ class AppLocalizationsVi extends AppLocalizations {
   String get endGameTitle => 'Kết thúc trò chơi?';
 
   @override
-  String get endGameDesc => 'Trò chơi sẽ bị hủy và tất cả người chơi sẽ quay về sảnh chờ. Bạn có chắc chắn không?';
+  String get endGameDesc =>
+      'Trò chơi sẽ bị hủy và tất cả người chơi sẽ quay về sảnh chờ. Bạn có chắc chắn không?';
 
   @override
   String get endGameBtn => 'Kết thúc';
@@ -375,7 +373,8 @@ class AppLocalizationsVi extends AppLocalizations {
   String get nhieSafeBtn => 'Tôi chưa bao giờ\n(an toàn)';
 
   @override
-  String get nhieVotedDone => '✋ Bạn đã bỏ phiếu \"Tôi đã làm\" — Đang chờ kết quả...';
+  String get nhieVotedDone =>
+      '✋ Bạn đã bỏ phiếu \"Tôi đã làm\" — Đang chờ kết quả...';
 
   @override
   String get nhieVotedSafe => '🙅 Bạn đã bỏ phiếu \"Chưa bao giờ\" — An toàn!';
@@ -392,7 +391,8 @@ class AppLocalizationsVi extends AppLocalizations {
   String get nhieNextRound => 'Vòng tiếp theo...';
 
   @override
-  String get nhieNobodyConfessed => 'Không ai thú nhận!\nMọi người vẫn an toàn 👏';
+  String get nhieNobodyConfessed =>
+      'Không ai thú nhận!\nMọi người vẫn an toàn 👏';
 
   @override
   String get nhieResultTitle => 'KẾT QUẢ';

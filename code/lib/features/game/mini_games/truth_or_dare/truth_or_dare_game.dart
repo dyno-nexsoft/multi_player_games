@@ -1,10 +1,12 @@
 import 'dart:math';
 import 'dart:ui' show PlatformDispatcher;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
 import 'package:party_game_hub/core/theme/app_theme.dart';
 import 'package:party_game_hub/l10n/app_localizations.dart';
+
 import '../../../lobby/domain/player.dart';
 import '../../domain/base_mini_game.dart';
 import '../../domain/game_ids.dart';
@@ -403,7 +405,6 @@ class TruthOrDareGame extends BaseMiniGame {
     }
   }
 
-
   Widget buildOverlay(BuildContext context) => _TruthOrDareOverlay(game: this);
 }
 
@@ -615,7 +616,10 @@ class _CardWidget extends StatelessWidget {
           decoration: BoxDecoration(
             color: cardColor.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: cardColor.withValues(alpha: 0.6), width: 2),
+            border: Border.all(
+              color: cardColor.withValues(alpha: 0.6),
+              width: 2,
+            ),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -775,7 +779,7 @@ class _ScoreRow extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: players.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (context, i) {
           final p = players[i];
           final score = scores[p.id] ?? 0;

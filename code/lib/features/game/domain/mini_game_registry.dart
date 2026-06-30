@@ -1,13 +1,10 @@
 import 'package:party_game_hub/gen/assets.gen.dart';
 
-import '../mini_games/draw_guess/draw_guess_game.dart';
 import '../mini_games/hot_potato/hot_potato_game.dart';
-import '../mini_games/liars_dice/liars_dice_game.dart';
 import '../mini_games/minesweeper/minesweeper_game.dart';
 import '../mini_games/neon_dodge/neon_dodge_game.dart';
 import '../mini_games/reaction_tap/reaction_tap_game.dart';
 import '../mini_games/sumo_bumper/sumo_game.dart';
-import '../mini_games/tug_of_war/tug_of_war_game.dart';
 import '../mini_games/tank_fight/tank_game.dart';
 import '../mini_games/maze_hide_seek/maze_game.dart';
 import '../mini_games/truth_or_dare/truth_or_dare_game.dart';
@@ -53,15 +50,6 @@ abstract class MiniGameRegistry {
       minPlayers: 3,
       maxPlayers: 6,
     ),
-    MiniGameMetadata(
-      id: GameIds.liarsDice,
-      title: 'Xúc Xắc Tố',
-      description: 'Ra giá xúc xắc, bắt bài nói dối của đối thủ — ai tố sai phải uống!',
-      iconPath: 'assets/icons/liars_dice.svg',
-      minPlayers: 2,
-      maxPlayers: 2,
-    ),
-
     // ── Quick reflex / arcade (nhiều người) ──────────────────────────────────
     MiniGameMetadata(
       id: GameIds.reactionTap,
@@ -72,14 +60,6 @@ abstract class MiniGameRegistry {
       maxPlayers: 6,
     ),
     MiniGameMetadata(
-      id: GameIds.tugOfWar,
-      title: 'Kéo Co Tốc Độ',
-      description: 'Nhấn liên tục để kéo dây về phía mình — đội thua uống!',
-      iconPath: 'assets/icons/tug_of_war.svg',
-      minPlayers: 2,
-      maxPlayers: 2,
-    ),
-    MiniGameMetadata(
       id: GameIds.minesweeper,
       title: 'Dò Mìn Tốc Độ',
       description: 'Lật ô trống nhiều nhất trong 60s — ai lật nhầm mìn uống!',
@@ -87,15 +67,6 @@ abstract class MiniGameRegistry {
       minPlayers: 2,
       maxPlayers: 4,
     ),
-    MiniGameMetadata(
-      id: GameIds.drawGuess,
-      title: 'Vẽ & Đoán',
-      description: 'Vẽ hình, cả nhóm tranh nhau đoán từ — không ai đoán được thì người vẽ uống!',
-      iconPath: 'assets/icons/draw_guess.svg',
-      minPlayers: 2,
-      maxPlayers: 2,
-    ),
-
     // ── Multiplayer action (Console / gamepad mode) ───────────────────────────
     MiniGameMetadata(
       id: GameIds.sumoBumper,
@@ -161,11 +132,8 @@ abstract class MiniGameRegistry {
     GameIds.spinPicker => Assets.icons.spinPicker,
     GameIds.neverHaveIEver => Assets.icons.neverHaveIEver,
     GameIds.hotPotato => Assets.icons.hotPotato,
-    GameIds.liarsDice => Assets.icons.liarsDice,
     GameIds.reactionTap => Assets.icons.reactionTap,
-    GameIds.tugOfWar => Assets.icons.tugOfWar,
     GameIds.minesweeper => Assets.icons.minesweeper,
-    GameIds.drawGuess => Assets.icons.drawGuess,
     GameIds.sumoBumper => Assets.icons.sumoBumper,
     GameIds.neonDodge => Assets.icons.neonDodge,
     GameIds.tankFight => Assets.icons.tankFight,
@@ -178,11 +146,8 @@ abstract class MiniGameRegistry {
     GameIds.spinPicker: SpinPickerGame.new,
     GameIds.neverHaveIEver: NeverHaveIEverGame.new,
     GameIds.hotPotato: HotPotatoGame.new,
-    GameIds.liarsDice: LiarsDiceGame.new,
     GameIds.reactionTap: ReactionTapGame.new,
-    GameIds.tugOfWar: TugOfWarGame.new,
     GameIds.minesweeper: MinesweeperGame.new,
-    GameIds.drawGuess: DrawGuessGame.new,
     GameIds.sumoBumper: SumoGame.new,
     GameIds.neonDodge: NeonDodgeGame.new,
     GameIds.tankFight: TankGame.new,

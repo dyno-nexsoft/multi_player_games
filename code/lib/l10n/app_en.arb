@@ -54,9 +54,6 @@
       }
     }
   },
-  "gameTugOfWarTitle": "Speed Tug-of-War",
-  "gameTugOfWarDesc": "Tap repeatedly to pull the rope to your side!",
-  "tugOfWarTapLabel": "TAP NOW! ▼",
   "winText": "🏆 WIN!",
   "loseText": "😢 LOSE!",
   "gameSumoBumperTitle": "Sumo Bumper",
@@ -66,8 +63,6 @@
   "penaltyTapToShoot": "Tap to shoot!",
   "gameAirHockeyTitle": "Air Hockey",
   "gameAirHockeyDesc": "Hit the puck into opponent's screen — each phone is half of the rink!",
-  "gameDrawGuessTitle": "Draw & Guess",
-  "gameDrawGuessDesc": "Draw a word, opponent guesses — alternate roles across 5 words!",
   "gameReactionTapTitle": "Reaction Tap",
   "gameReactionTapDesc": "Tap the moment the screen flashes — fastest wins the round!",
   "gameMinesweeperTitle": "Minesweeper Race",

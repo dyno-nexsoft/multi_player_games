@@ -1,10 +1,12 @@
 import 'dart:math';
 import 'dart:ui' show PlatformDispatcher;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:party_game_hub/core/audio/audio_service.dart';
 import 'package:party_game_hub/core/theme/app_theme.dart';
 import 'package:party_game_hub/l10n/app_localizations.dart';
+
 import '../../../lobby/domain/player.dart';
 import '../../domain/base_mini_game.dart';
 import '../../domain/game_ids.dart';
@@ -217,10 +219,7 @@ class NeverHaveIEverGame extends BaseMiniGame {
     if (hasDone) {
       final id = myId;
       if (id == null) return;
-      gameProvider.sendGameData(gameId, {
-        'action': 'vote',
-        'voter_id': id,
-      });
+      gameProvider.sendGameData(gameId, {'action': 'vote', 'voter_id': id});
       if (gameProvider.lobbyProvider.isHost) {
         _pendingVoters.add(id);
       }
@@ -234,7 +233,8 @@ class NeverHaveIEverGame extends BaseMiniGame {
   @override
   void update(double dt) {
     super.update(dt);
-    if (_phase != NhiePhase.voting || _gameOver ||
+    if (_phase != NhiePhase.voting ||
+        _gameOver ||
         !gameProvider.lobbyProvider.isHost) {
       return;
     }
@@ -311,10 +311,7 @@ class NeverHaveIEverGame extends BaseMiniGame {
   void onNetworkDataReceived(String senderId, Map<String, dynamic> payload) {
     switch (payload['action'] as String?) {
       case 'new_statement':
-        _applyNewStatement(
-          payload['round'] as int,
-          payload['text'] as String,
-        );
+        _applyNewStatement(payload['round'] as int, payload['text'] as String);
 
       case 'vote':
         if (gameProvider.lobbyProvider.isHost) {
@@ -333,7 +330,6 @@ class NeverHaveIEverGame extends BaseMiniGame {
         _applyReveal(voters, newLives);
     }
   }
-
 
   Widget buildOverlay(BuildContext context) =>
       _NeverHaveIEverOverlay(game: this);
@@ -432,7 +428,7 @@ class _LivesBar extends StatelessWidget {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: players.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (context, i) {
           final p = players[i];
           final l = lives[p.id] ?? 5;
@@ -504,8 +500,10 @@ class _VotingPane extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final g = game;
-    final timeRatio =
-        (g.voteTimer / NeverHaveIEverGame._votingDuration).clamp(0.0, 1.0);
+    final timeRatio = (g.voteTimer / NeverHaveIEverGame._votingDuration).clamp(
+      0.0,
+      1.0,
+    );
 
     return Padding(
       padding: const EdgeInsets.all(20),
@@ -629,16 +627,18 @@ class _VotingPane extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: (g.voteSubmitted && g._myVote
-                        ? const Color(0xFFFF6584)
-                        : const Color(0xFF43A047))
-                    .withValues(alpha: 0.15),
+                color:
+                    (g.voteSubmitted && g._myVote
+                            ? const Color(0xFFFF6584)
+                            : const Color(0xFF43A047))
+                        .withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  color: (g.voteSubmitted && g._myVote
-                          ? const Color(0xFFFF6584)
-                          : const Color(0xFF43A047))
-                      .withValues(alpha: 0.5),
+                  color:
+                      (g.voteSubmitted && g._myVote
+                              ? const Color(0xFFFF6584)
+                              : const Color(0xFF43A047))
+                          .withValues(alpha: 0.5),
                 ),
               ),
               child: Text(
@@ -725,10 +725,7 @@ class _RevealPane extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               l10n.nhieSipCount(names.length),
-              style: const TextStyle(
-                color: Colors.white70,
-                fontSize: 16,
-              ),
+              style: const TextStyle(color: Colors.white70, fontSize: 16),
             ),
           ],
           const SizedBox(height: 24),

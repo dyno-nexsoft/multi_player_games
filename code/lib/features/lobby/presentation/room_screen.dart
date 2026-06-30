@@ -246,11 +246,9 @@ class _GameSelector extends StatelessWidget {
   ) {
     final l10n = AppLocalizations.of(context)!;
     return switch (gameId) {
-      GameIds.tugOfWar => l10n.gameTugOfWarTitle,
       GameIds.sumoBumper => l10n.gameSumoBumperTitle,
       GameIds.reactionTap => l10n.gameReactionTapTitle,
       GameIds.minesweeper => l10n.gameMinesweeperTitle,
-      GameIds.drawGuess => l10n.gameDrawGuessTitle,
       GameIds.hotPotato => l10n.gameHotPotatoTitle,
       _ => game.title,
     };

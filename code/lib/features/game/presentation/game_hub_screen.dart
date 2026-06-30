@@ -10,9 +10,7 @@ import 'package:provider/provider.dart';
 import '../../lobby/presentation/lobby_provider.dart';
 import '../domain/base_mini_game.dart';
 import '../domain/mini_game_registry.dart';
-import '../mini_games/draw_guess/draw_guess_game.dart';
 import '../mini_games/hot_potato/hot_potato_game.dart';
-import '../mini_games/liars_dice/liars_dice_game.dart';
 import '../mini_games/minesweeper/minesweeper_game.dart';
 import '../mini_games/never_have_i_ever/never_have_i_ever_game.dart';
 import '../mini_games/reaction_tap/reaction_tap_game.dart';
@@ -102,9 +100,7 @@ class _GameHubScreenState extends State<GameHubScreen> {
   Widget _buildGameUi(BuildContext context, BaseMiniGame game) {
     if (game is ReactionTapGame) return game.buildOverlay(context);
     if (game is MinesweeperGame) return game.buildOverlay(context);
-    if (game is DrawGuessGame) return game.buildOverlay(context);
     if (game is HotPotatoGame) return game.buildOverlay(context);
-    if (game is LiarsDiceGame) return game.buildOverlay(context);
     if (game is TruthOrDareGame) return game.buildOverlay(context);
     if (game is SpinPickerGame) return game.buildOverlay(context);
     if (game is NeverHaveIEverGame) return game.buildOverlay(context);

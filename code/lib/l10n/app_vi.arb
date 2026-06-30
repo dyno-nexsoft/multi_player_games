@@ -54,9 +54,6 @@
       }
     }
   },
-  "gameTugOfWarTitle": "Kéo Co Tốc Độ",
-  "gameTugOfWarDesc": "Nhấn nút liên tục để kéo sợi dây về phía bạn!",
-  "tugOfWarTapLabel": "TAP ĐI! ▼",
   "winText": "🏆 THẮNG!",
   "loseText": "😢 THUA!",
   "gameSumoBumperTitle": "Húc Bóng Sinh Tồn",
@@ -66,8 +63,6 @@
   "penaltyTapToShoot": "Tap để sút!",
   "gameAirHockeyTitle": "Khúc Côn Cầu",
   "gameAirHockeyDesc": "Đánh puck qua màn hình đối thủ — mỗi máy là một nửa sân!",
-  "gameDrawGuessTitle": "Vẽ & Đoán",
-  "gameDrawGuessDesc": "Vẽ hình, đối thủ đoán từ — xen kẽ vai trò qua 5 từ!",
   "gameReactionTapTitle": "Phản Xạ Thần Tốc",
   "gameReactionTapDesc": "Tap ngay khi màn hình sáng lên — ai nhanh hơn thắng!",
   "gameMinesweeperTitle": "Dò Mìn Tốc Độ",
