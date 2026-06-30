@@ -269,25 +269,22 @@ dependencies:
   wakelock_plus: ^1.2.10
 ```
 
-Kích hoạt trong `RoomScreen` khi là Host Console Mode:
+Kích hoạt trong `GameHubScreen` khi là Console Mode (đã implement):
 
 ```dart
 import 'package:wakelock_plus/wakelock_plus.dart';
 
-class _RoomScreenState extends State<RoomScreen> {
+class _GameHubScreenState extends State<GameHubScreen> {
   @override
   void initState() {
     super.initState();
     final lobby = context.read<LobbyProvider>();
-    // Giữ màn hình sáng khi là Host (TV không nhận touch → auto-sleep)
-    if (lobby.isHost && lobby.isConsoleMode) {
-      WakelockPlus.enable();
-    }
+    if (lobby.isConsoleMode) WakelockPlus.enable();
   }
 
   @override
   void dispose() {
-    WakelockPlus.disable(); // Tắt khi rời phòng
+    if (_lobby.isConsoleMode) WakelockPlus.disable();
     super.dispose();
   }
 }
@@ -558,5 +555,5 @@ CI/CD hiện tại (GitHub Actions) đã hỗ trợ build APK tự động — x
 
 ---
 
-_Cập nhật lần cuối: 2026-06-04 | Phiên bản: 1.0.0_
+_Cập nhật lần cuối: 2026-06-30 | Phiên bản: 1.1.0_
 _Tài liệu liên quan: [tv_ui_ux_spec.md](./tv_ui_ux_spec.md) | [architecture.md](./architecture.md) | [roadmap.md](./roadmap.md)_

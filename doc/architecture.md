@@ -98,13 +98,19 @@ Mọi mini-game kế thừa `BaseMiniGame extends FlameGame`:
 
 ```dart
 abstract class BaseMiniGame extends FlameGame {
+  final GameProvider gameProvider;
+  BaseMiniGame(this.gameProvider);
+
+  void Function()? onStateChanged; // overlay gọi setState qua đây
+  bool cancelled = false;          // đánh dấu game bị huỷ giữa chừng
+
   String get gameId;
   void onNetworkDataReceived(String senderId, Map<String, dynamic> payload);
   void endMiniGame(Map<String, int> playerScores);
 }
 ```
 
-`MiniGameRegistry` đăng ký và khởi tạo game theo `gameId`. Thêm game mới chỉ cần thêm 1 entry vào Registry — không ảnh hưởng code network hay lobby.
+`MiniGameRegistry` đăng ký và khởi tạo game theo `gameId` thông qua factory map (`_factories`). Thêm game mới chỉ cần thêm entry vào `availableGames` + `_factories` — không ảnh hưởng code network hay lobby.
 
 ---
 
@@ -129,7 +135,8 @@ RoomScreen → GameHubScreen → [chơi] → ScoreboardScreen → RoomScreen →
 lib/
 ├── core/
 │   ├── audio/                      # Quản lý âm thanh và nhạc nền
-│   ├── localization/               # Đa ngôn ngữ (i18n)
+│   ├── di/                         # Dependency injection helpers
+│   ├── localization/               # Đa ngôn ngữ (i18n) — re-export AppLocalizations
 │   ├── network/
 │   │   ├── game_packet.dart        # Model gói tin + PacketType constants
 │   │   └── network_service.dart    # TCP server/client + mDNS wrapper (tiện ích)
@@ -157,28 +164,27 @@ lib/
 │       │   └── game_network_router.dart    # Định tuyến gói tin đến game active
 │       ├── domain/
 │       │   ├── base_mini_game.dart         # Abstract class — interface mọi mini-game
+│       │   ├── game_ids.dart               # Hằng số ID của từng game
 │       │   ├── mini_game_metadata.dart     # Thông tin cấu hình game (id, title, players)
-│       │   └── mini_game_registry.dart     # Đăng ký + factory tạo game instance
+│       │   └── mini_game_registry.dart     # Đăng ký + factory map tạo game instance
 │       ├── presentation/
 │       │   ├── game_provider.dart          # ChangeNotifier — tournament score + active game
-│       │   └── game_hub_screen.dart        # GameWidget host + ScoreboardScreen
-│       └── mini_games/                     # Danh sách các Mini-games hiện có
-│           ├── air_hockey/
-│           ├── battleship/
-│           ├── billiards/
-│           ├── code_breaker/
-│           ├── draw_guess/
-│           ├── hot_potato/
-│           ├── liars_dice/
-│           ├── minesweeper/
-│           ├── neon_dodge/
-│           ├── penalty_shootout/
-│           ├── reaction_tap/
-│           ├── sumo_bumper/
-│           └── tug_of_war/
+│       │   └── game_hub_screen.dart        # GameWidget host + overlay routing
+│       └── mini_games/                     # 10 mini-games hiện có
+│           ├── hot_potato/                 # 🔥 Party — Bom hẹn giờ (3–6 người)
+│           ├── maze_hide_seek/             # 🎮 Console — Trốn tìm mê cung (2–4 người)
+│           ├── minesweeper/                # 🎮 Arcade — Dò mìn tốc độ (2–4 người)
+│           ├── neon_dodge/                 # 🎮 Console — Né chướng ngại vật (2–6 người)
+│           ├── never_have_i_ever/          # 🍺 Party — Tôi chưa bao giờ (3–8 người)
+│           ├── reaction_tap/               # 🎮 Arcade — Phản xạ thần tốc (2–6 người)
+│           ├── spin_picker/                # 🍺 Party — Vòng quay số phận (3–8 người)
+│           ├── sumo_bumper/                # 🎮 Console — Đẩy nhau Sumo (2–4 người)
+│           ├── tank_fight/                 # 🎮 Console — Đấu xe tăng (2–4 người)
+│           └── truth_or_dare/              # 🍺 Party — Thật hay thách (3–8 người)
 │
-├── router.dart     # GoRouter — 4 routes: /, /discover, /room, /game
-└── main.dart       # MultiProvider + MaterialApp.router
+├── l10n/                           # ARB files + generated AppLocalizations
+├── router.dart                     # GoRouter typed routes (go_router_builder)
+└── main.dart                       # MultiProvider + MaterialApp.router
 ```
 
 ---
@@ -264,13 +270,26 @@ GameWidget(
 ## Navigation Flow
 
 ```
-LobbyScreen (/)
-  ├── → /room          (sau khi Host tạo phòng)
-  ├── → /discover      (sau khi nhấn Join)
-  │     └── → /room   (sau khi chọn phòng)
-  └── /room
-        └── → /game   (khi Host start game)
-              └── → /room  (sau khi xem scoreboard)
+/ (LobbyScreen)
+  ├── → /onboarding            (lần đầu mở app)
+  ├── → /room                  (Host tạo phòng)
+  │     ├── → /room/qr         (hiện QR code)
+  │     ├── → /room/exit-confirm
+  │     └── → /game            (Host start game)
+  │           ├── → /game/countdown
+  │           ├── → /game/pause
+  │           ├── → /game/exit-confirm
+  │           └── → /game/scoreboard → /room
+  ├── → /discover              (Client tìm phòng)
+  │     └── → /room
+  ├── → /qr-scan               (Client quét QR)
+  ├── → /emoji-join            (Client nhập emoji)
+  ├── → /roulette              (Chế độ Roulette Cup)
+  ├── → /tv-lobby              (Console Mode — Host TV)
+  │     ├── → /tv-lobby/game-selector
+  │     └── → /tv-lobby/exit-confirm
+  └── → /gamepad               (Console Mode — Client tay cầm)
+        └── → /gamepad/exit-confirm
 ```
 
 
@@ -494,55 +513,72 @@ class AirHockeyGame extends BaseMiniGame {
 Mở `lib/features/game/domain/mini_game_registry.dart` và thêm vào **2 chỗ**:
 
 ```dart
-// Chỗ 1: danh sách availableGames
+// Chỗ 1: hằng số ID trong game_ids.dart
+abstract class GameIds {
+  // ... id cũ ...
+  static const myGame = 'my_game';
+}
+
+// Chỗ 2: danh sách availableGames
 static const List<MiniGameMetadata> availableGames = [
   // ... game cũ ...
   MiniGameMetadata(
-    id: 'air_hockey',
-    title: 'Khúc Côn Cầu',
-    description: 'Đánh puck qua màn hình đối phương!',
-    iconPath: 'assets/icons/air_hockey.png',
-    minPlayers: 2,
-    maxPlayers: 2,
+    id: GameIds.myGame,
+    title: 'Tên Game',
+    description: 'Mô tả ngắn...',
+    iconPath: 'assets/icons/my_game.svg',
+    minPlayers: 3,
+    maxPlayers: 8,
+    // supportsConsoleMode: true,  // chỉ khi dùng Gamepad/TV
+    // controllerConfig: {...},
   ),
 ];
 
-// Chỗ 2: factory createGame
-static BaseMiniGame createGame(String gameId, GameProvider provider) {
-  switch (gameId) {
-    // ... case cũ ...
-    case 'air_hockey':
-      return AirHockeyGame(provider);  // import class ở đầu file
-    default:
-      throw Exception('Game ID "$gameId" không tồn tại');
-  }
-}
+// Chỗ 3: factory map _factories
+static final _factories = <String, BaseMiniGame Function(GameProvider)>{
+  // ... entry cũ ...
+  GameIds.myGame: MyGame.new,  // import class ở đầu file
+};
 ```
+
+> **Lưu ý:** `createGame()` dùng factory map — không cần sửa switch-case. Chỉ thêm 1 entry vào `availableGames` và 1 entry vào `_factories`.
 
 ---
 
 ## Bước 4: Thêm Icon (Tùy Chọn)
 
-Đặt file icon vào `assets/icons/air_hockey.png`. Nếu chưa có thì để placeholder, `RoomScreen` vẫn chạy bình thường.
+Đặt file SVG icon vào `assets/icons/my_game.svg`. Sau đó thêm 1 entry vào `iconFor()` switch trong `MiniGameRegistry`:
+
+```dart
+static SvgGenImage iconFor(String gameId) => switch (gameId) {
+  // ... entry cũ ...
+  GameIds.myGame => Assets.icons.myGame,
+  _ => throw ArgumentError('Unknown game id: $gameId'),
+};
+```
+
+Chạy `fvm dart run build_runner build` để cập nhật `Assets.icons.*` (flutter_gen).
 
 ---
 
 ## Checklist Trước Khi PR
 
 ```
-[ ] flutter analyze → 0 errors
-[ ] gameId trong class khớp với id trong Registry
+[ ] fvm flutter analyze → 0 errors mới
+[ ] gameId trong class khớp với GameIds.xxx trong Registry
 [ ] Host-only physics: có check gameProvider.lobbyProvider.isHost trước khi tính toán
 [ ] endMiniGame() được gọi khi game kết thúc
 [ ] sendGameData() dùng đúng gameId của game này
-[ ] Test thủ công: chạy trên 2 thiết bị thực
+[ ] Không hardcode string UI — dùng AppLocalizations (ARB + gen-l10n)
+[ ] Dùng phase enum thay raw String cho _phase state machine
+[ ] Test thủ công: chạy trên 2+ thiết bị thực
 ```
 
 ---
 
 ## Ví Dụ: Network Pattern Theo Loại Game
 
-**Game tap (Tug of War pattern)** — dữ liệu nhẹ, tần suất cao:
+**Game tap (HotPotato/ReactionTap pattern)** — dữ liệu nhẹ, tần suất cao:
 ```dart
 // Client: mỗi tap
 gameProvider.sendGameData(gameId, {'action': 'tap'});
