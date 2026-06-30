@@ -23,6 +23,15 @@ _Ghi chú: Các Phase 1 (Haptic, Rematch), Phase 2 (QR, Color), Phase 3 (Network
 - [x] **Vòng Quay Số Phận (Spin Picker):** Bánh xe quay chỉ vào ai — họ nhận nhiệm vụ ngẫu nhiên (uống, hát, bắt chước...). 3–8 người, 10 vòng.
 - [x] **Tôi Chưa Bao Giờ (Never Have I Ever):** 5 ngón tay, ai đã từng làm mất 1 ngón. Bộ 24 câu tiếng Việt phù hợp nhậu. 3–8 người, 12 vòng.
 
+### Phase 4c: Technical Debt + Nội Dung (Hoàn thành 2026-06-30)
+
+- [x] **Phase Enums:** `TodPhase`, `SpinPhase`, `NhiePhase` — thay raw string `_phase` bằng sealed enum, compile-safe.
+- [x] **Registry Factory Map:** Thay 13-case switch trong `MiniGameRegistry.createGame()` bằng `_factories` map — OCP compliant, thêm game mới chỉ cần 2 chỗ.
+- [x] **Localize Party Game Labels:** Tất cả UI label (button text, status, title) trong Truth or Dare / Spin Picker / Never Have I Ever đã localiz qua ARB. Thêm 36+ key vào `app_vi.arb` và `app_en.arb`.
+- [x] **Mở rộng nội dung Truth or Dare:** 20 → 35 câu truth (VI), thêm 35 câu truth (EN) + 35 câu dare (VI + EN).
+- [x] **Mở rộng nội dung Spin Picker:** 20 → 40 nhiệm vụ (VI, chia safe/18+), thêm 40 nhiệm vụ (EN).
+- [x] **Mở rộng nội dung Never Have I Ever:** 24 → 48 câu (VI), thêm 48 câu (EN). Locale-aware via `PlatformDispatcher`.
+
 ### Phase 5: Advanced & Scaling
 
 - [x] **Hỗ trợ 3-4 Người Chơi:** Mở rộng `ConnectionRepository` và UI Lobby để thêm Slot người chơi (Xanh lá, Vàng). Scale các Mini-Game lên 4 player (Tank, Sumo, Maze).
