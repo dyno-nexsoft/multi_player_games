@@ -90,6 +90,8 @@ class _ScoreboardScreenState extends State<ScoreboardScreen> {
                         rank: i + 1,
                         player: player,
                         score: scores[player.id] ?? 0,
+                        topScore:
+                            topScore, // Truyền topScore vào để tính tỷ lệ Bar
                         wins: isSeries ? gp.roundWins[player.id] ?? 0 : null,
                         isLocal: player.id == localId,
                         isWinner: i == 0,
@@ -231,6 +233,7 @@ class _RankTile extends StatelessWidget {
   final int rank;
   final Player player;
   final int score;
+  final int topScore;
   final int? wins;
   final bool isLocal;
   final bool isWinner;
@@ -239,6 +242,7 @@ class _RankTile extends StatelessWidget {
     required this.rank,
     required this.player,
     required this.score,
+    required this.topScore,
     required this.isLocal,
     required this.isWinner,
     this.wins,
@@ -253,8 +257,11 @@ class _RankTile extends StatelessWidget {
         ? Theme.of(context).colorScheme.primary
         : Colors.transparent;
 
+    final fraction = topScore > 0 ? (score / topScore).clamp(0.0, 1.0) : 0.0;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
+      clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
         color: AppTheme.bgSurface,
         borderRadius: BorderRadius.circular(14),
@@ -270,65 +277,93 @@ class _RankTile extends StatelessWidget {
             ? AppTheme.glowShadow(accent, blur: 12)
             : null,
       ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-        leading: Stack(
-          alignment: Alignment.center,
-          children: [
-            CircleAvatar(
-              radius: 22,
-              backgroundColor: Color(player.color),
+      child: Stack(
+        children: [
+          // Bar ngang hiển thị điểm số
+          Positioned.fill(
+            child: FractionallySizedBox(
+              alignment: Alignment.centerLeft,
+              widthFactor: fraction > 0 ? fraction : 0.01,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(player.color).withValues(alpha: 0.1),
+                      Color(player.color).withValues(alpha: 0.35),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // Nội dung Tile
+          ListTile(
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 4,
+            ),
+            leading: Stack(
+              alignment: Alignment.center,
+              children: [
+                CircleAvatar(
+                  radius: 22,
+                  backgroundColor: Color(player.color),
+                  child: Text(
+                    player.name.isNotEmpty ? player.name[0].toUpperCase() : '?',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+                if (rank == 1)
+                  const Positioned(
+                    top: 0,
+                    right: 0,
+                    child: Text('👑', style: TextStyle(fontSize: 12)),
+                  ),
+              ],
+            ),
+            title: Text(
+              '${player.name}${isLocal ? l10n.youSuffix : ''}',
+              style: TextStyle(
+                color: isWinner ? const Color(0xFFFFD700) : Colors.white,
+                fontWeight: isLocal ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+            subtitle: wins != null
+                ? Text(
+                    l10n.seriesWins(wins!),
+                    style: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.85),
+                      fontSize: 12,
+                    ),
+                  )
+                : null,
+            trailing: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: isWinner ? 0.18 : 0.08),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: accent.withValues(alpha: 0.4),
+                  width: 1,
+                ),
+              ),
               child: Text(
-                player.name.isNotEmpty ? player.name[0].toUpperCase() : '?',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-            ),
-            if (rank == 1)
-              const Positioned(
-                top: 0,
-                right: 0,
-                child: Text('👑', style: TextStyle(fontSize: 12)),
-              ),
-          ],
-        ),
-        title: Text(
-          '${player.name}${isLocal ? l10n.youSuffix : ''}',
-          style: TextStyle(
-            color: isWinner ? const Color(0xFFFFD700) : Colors.white,
-            fontWeight: isLocal ? FontWeight.bold : FontWeight.normal,
-          ),
-        ),
-        subtitle: wins != null
-            ? Text(
-                l10n.seriesWins(wins!),
+                l10n.pointsText(score),
                 style: TextStyle(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: 0.85),
-                  fontSize: 12,
+                  color: isWinner ? const Color(0xFFFFD700) : Colors.white70,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
                 ),
-              )
-            : null,
-        trailing: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: accent.withValues(alpha: isWinner ? 0.18 : 0.08),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: accent.withValues(alpha: 0.4), width: 1),
-          ),
-          child: Text(
-            l10n.pointsText(score),
-            style: TextStyle(
-              color: isWinner ? const Color(0xFFFFD700) : Colors.white70,
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

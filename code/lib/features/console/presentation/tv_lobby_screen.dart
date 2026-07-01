@@ -177,7 +177,7 @@ class _TvLobbyScreenState extends State<TvLobbyScreen>
           child: Scaffold(
             backgroundColor: AppTheme.bgDeep,
             body: SafeArea(
-              minimum: const EdgeInsets.all(0),
+              minimum: const EdgeInsets.all(32),
               child: Row(
                 children: [
                   // ── Left panel: Connection info (40%) ───────────────────
@@ -359,23 +359,39 @@ class _StagePanel extends StatelessWidget {
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(32, 8, 32, 28),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Column(
             children: [
-              if (canStart) ...[
-                _TvButton(
-                  label: '⚡  Quick Play',
-                  color: AppTheme.neonCyan,
-                  autofocus: true,
-                  onPressed: onQuickPlay,
+              // D-Pad hint
+              const _DPadNavigationHint(),
+              const SizedBox(height: 12),
+              FocusTraversalGroup(
+                policy: OrderedTraversalPolicy(),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (canStart) ...[
+                      FocusTraversalOrder(
+                        order: const NumericFocusOrder(0),
+                        child: _TvButton(
+                          label: '\u26a1  Quick Play',
+                          color: AppTheme.neonCyan,
+                          autofocus: true,
+                          onPressed: onQuickPlay,
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                    ],
+                    FocusTraversalOrder(
+                      order: const NumericFocusOrder(1),
+                      child: _TvButton(
+                        label: '\ud83c\udfae  Ch\u1ecdn Game',
+                        color: AppTheme.neonPurple,
+                        autofocus: !canStart,
+                        onPressed: onChooseGame,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 20),
-              ],
-              _TvButton(
-                label: '🎮  Chọn Game',
-                color: AppTheme.neonPurple,
-                autofocus: !canStart,
-                onPressed: onChooseGame,
               ),
             ],
           ),
@@ -461,7 +477,7 @@ class _AvatarStage extends StatelessWidget {
   }
 }
 
-// ── Player Avatar ─────────────────────────────────────────────────────────────
+// ── Player Avatar (Neon Gamer Card for TV) ───────────────────────────────────
 
 class _PlayerAvatar extends StatelessWidget {
   final Player player;
@@ -471,44 +487,86 @@ class _PlayerAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = Color(player.color);
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 90,
-          height: 90,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: color.withValues(alpha: 0.15),
-            border: Border.all(color: color, width: 3),
-            boxShadow: AppTheme.glowShadow(color, blur: 24, spread: 3),
+    return Container(
+      width: 140,
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A1A2E),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color, width: 2.5),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.35),
+            blurRadius: 24,
+            spreadRadius: 2,
           ),
-          child: Center(
-            child: Text(
-              player.name.isNotEmpty ? player.name[0].toUpperCase() : '?',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 38,
-                fontWeight: FontWeight.bold,
+          BoxShadow(
+            color: Colors.black45,
+            blurRadius: 10,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 72,
+            height: 72,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: color.withValues(alpha: 0.15),
+              border: Border.all(color: color, width: 2),
+            ),
+            child: Center(
+              child: Text(
+                player.name.isNotEmpty ? player.name[0].toUpperCase() : '?',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
-        ),
-        const SizedBox(height: 10),
-        Text(
-          player.name,
-          style: TextStyle(
-            color: color,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        if (player.isHost)
+          const SizedBox(height: 16),
           Text(
-            'Host',
-            style: TextStyle(color: color.withValues(alpha: 0.5), fontSize: 13),
+            player.name,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              shadows: [Shadow(color: color, blurRadius: 8)],
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
-      ],
+          if (player.isHost)
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 2,
+                ),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: color.withValues(alpha: 0.5)),
+                ),
+                child: Text(
+                  'Host',
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -535,11 +593,24 @@ class _TvButton extends StatefulWidget {
 class _TvButtonState extends State<_TvButton> {
   bool _focused = false;
 
+  KeyEventResult _handleKey(FocusNode node, KeyEvent event) {
+    if (event is KeyDownEvent &&
+        (event.logicalKey == LogicalKeyboardKey.select ||
+            event.logicalKey == LogicalKeyboardKey.enter ||
+            event.logicalKey == LogicalKeyboardKey.space ||
+            event.logicalKey == LogicalKeyboardKey.gameButtonA)) {
+      widget.onPressed();
+      return KeyEventResult.handled;
+    }
+    return KeyEventResult.ignored;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Focus(
       autofocus: widget.autofocus,
       onFocusChange: (f) => setState(() => _focused = f),
+      onKeyEvent: _handleKey,
       child: GestureDetector(
         onTap: widget.onPressed,
         child: AnimatedScale(
@@ -571,6 +642,25 @@ class _TvButtonState extends State<_TvButton> {
           ),
         ),
       ),
+    );
+  }
+}
+
+// ── D-Pad Navigation Hint ─────────────────────────────────────────────────────
+
+class _DPadNavigationHint extends StatelessWidget {
+  const _DPadNavigationHint();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          '◄►  Di chuyển    OK  Ch\u1ecdn    Back  Tho\u00e1t',
+          style: TextStyle(color: Colors.white24, fontSize: 14),
+        ),
+      ],
     );
   }
 }

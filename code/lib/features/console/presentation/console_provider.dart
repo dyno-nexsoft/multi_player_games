@@ -144,6 +144,20 @@ class ConsoleProvider extends ChangeNotifier {
     );
   }
 
+  // ── Emotes ─────────────────────────────────────────────────────────────────
+
+  void sendEmote(String emoteId) {
+    HapticFeedback.lightImpact();
+    lobbyProvider.sendGamePacket(
+      GamePacket(
+        type: PacketType.emote,
+        senderId: lobbyProvider.localPlayer?.id,
+        timestamp: DateTime.now().millisecondsSinceEpoch,
+        payload: {'id': emoteId},
+      ),
+    );
+  }
+
   // ── Feedback từ host ───────────────────────────────────────────────────────
 
   void _onFeedback(String hapticType, int? flashColor) {

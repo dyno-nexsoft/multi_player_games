@@ -28,11 +28,21 @@ class EmoteLayerState extends State<EmoteLayer> {
   final List<_EmoteParticle> _active = [];
   int _nextId = 0;
 
-  /// Fire an emote — call from game or lobby provider callback.
-  void showEmote(String emoji) {
+  void showEmote(String senderId, String emoji) {
     if (!mounted) return;
+    final lobby = context.read<LobbyProvider>();
+    final index = lobby.players.indexWhere((p) => p.id == senderId);
+    final isHost = lobby.isHost && lobby.localPlayer?.id == senderId;
+    final finalIndex = index >= 0 ? index : (isHost ? 0 : 0);
     setState(() {
-      _active.add(_EmoteParticle(id: _nextId++, emoji: emoji));
+      _active.add(
+        _EmoteParticle(
+          id: _nextId++,
+          emoji: emoji,
+          playerIndex: finalIndex,
+          totalPlayers: max(1, lobby.players.length),
+        ),
+      );
     });
   }
 
@@ -66,7 +76,7 @@ class EmoteLayerState extends State<EmoteLayer> {
 // ── Emote picker button ────────────────────────────────────────────────────
 
 class _EmotePickerButton extends StatefulWidget {
-  final ValueChanged<String> onSelected;
+  final void Function(String senderId, String emoji) onSelected;
   const _EmotePickerButton({required this.onSelected});
 
   @override
@@ -78,11 +88,11 @@ class _EmotePickerButtonState extends State<_EmotePickerButton> {
 
   void _send(BuildContext context, String emoji) {
     setState(() => _open = false);
-    widget.onSelected(emoji);
+    final lobby = context.read<LobbyProvider>();
+    widget.onSelected(lobby.localPlayer?.id ?? '', emoji);
     HapticFeedback.lightImpact();
 
     // Broadcast emote packet via LobbyProvider
-    final lobby = context.read<LobbyProvider>();
     final packet = GamePacket(
       type: PacketType.emote,
       senderId: lobby.localPlayer?.id,
@@ -150,9 +160,37 @@ class _EmoteParticle {
   final int id;
   final String emoji;
   final double startX;
+  final double startY;
 
-  _EmoteParticle({required this.id, required this.emoji})
-    : startX = 0.3 + Random().nextDouble() * 0.4;
+  _EmoteParticle({
+    required this.id,
+    required this.emoji,
+    required int playerIndex,
+    required int totalPlayers,
+  }) : // Tính toán vị trí xuất phát dựa trên index người chơi
+       startX = _calcStartX(playerIndex, totalPlayers),
+       startY = _calcStartY(playerIndex, totalPlayers);
+
+  static double _calcStartX(int i, int total) {
+    // 4 góc hoặc chia đều theo viền
+    if (total <= 4) {
+      if (i == 0 || i == 2) return 0.1; // Trái
+      return 0.9; // Phải
+    } else {
+      return (i % 2 == 0) ? 0.1 : 0.9;
+    }
+  }
+
+  static double _calcStartY(int i, int total) {
+    if (total <= 4) {
+      if (i == 0 || i == 1) return 0.15; // Trên
+      return 0.85; // Dưới
+    } else {
+      // Dải đều từ trên xuống dưới
+      final step = 0.8 / (total / 2).ceil();
+      return 0.1 + (i ~/ 2) * step;
+    }
+  }
 }
 
 class _FlyingEmote extends StatefulWidget {
@@ -206,10 +244,17 @@ class _FlyingEmoteState extends State<_FlyingEmote>
     return AnimatedBuilder(
       animation: _ctrl,
       builder: (context, child) {
-        final y = 0.85 - _pos.value * 0.75; // from 85% to 10% of screen height
+        // Tọa độ bay: Từ điểm xuất phát (startX, startY) bay dạt về giữa màn hình (0.5, 0.5)
+        final dx =
+            widget.particle.startX +
+            (0.5 - widget.particle.startX) * _pos.value;
+        final dy =
+            widget.particle.startY +
+            (0.4 - widget.particle.startY) * _pos.value;
+
         return Positioned(
-          left: widget.particle.startX * MediaQuery.of(context).size.width - 24,
-          top: y * MediaQuery.of(context).size.height,
+          left: dx * MediaQuery.of(context).size.width - 24,
+          top: dy * MediaQuery.of(context).size.height,
           child: Opacity(
             opacity: _fade.value,
             child: Transform.scale(

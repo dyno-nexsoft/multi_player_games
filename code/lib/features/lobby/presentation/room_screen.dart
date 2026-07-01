@@ -346,22 +346,16 @@ class _GameSelector extends StatelessWidget {
           ),
         ),
 
-        // ── Games grid ───────────────────────────────────────────────────────
+        // ── Games list ───────────────────────────────────────────────────────
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: GridView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: ListView.builder(
               padding: const EdgeInsets.only(top: 4, bottom: 16),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                childAspectRatio: 0.82,
-              ),
               itemCount: games.length,
               itemBuilder: (context, i) {
                 final game = games[i];
-                return NeonGameCard(
+                return NeonGameListCard(
                   game: game,
                   localizedTitle: _localTitle(context, game.id, game),
                   onTap: () => lobby.startGame(game.id),

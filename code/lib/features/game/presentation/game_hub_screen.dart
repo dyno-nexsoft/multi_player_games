@@ -62,8 +62,8 @@ class _GameHubScreenState extends State<GameHubScreen> {
       final gp = context.read<GameProvider>();
       _showPauseMenu(context, lp, gp);
     };
-    _lobby.onEmoteReceived = (emoji) =>
-        EmoteLayer.of(context)?.showEmote(emoji);
+    _lobby.onEmoteReceived = (senderId, emoji) =>
+        EmoteLayer.of(context)?.showEmote(senderId, emoji);
   }
 
   @override
@@ -206,6 +206,10 @@ class _GameHubScreenState extends State<GameHubScreen> {
                     if (game != null && !gameProvider.showScoreboard)
                       _buildGameUi(context, game),
 
+                    // ── Avatar Flash Feedback (chớp viền khi bấm nút) ───────────
+                    if (game != null && !gameProvider.showScoreboard)
+                      const _InputFlashOverlay(),
+
                     // ── Disruption overlay (khán giả phá đám) ─────────────────────
                     if (_activeDisruption != null)
                       _DisruptionOverlay(type: _activeDisruption!),
@@ -332,6 +336,120 @@ class _IceFrost extends StatelessWidget {
         child: Container(color: const Color(0x2229B6F6)),
       ),
     );
+  }
+}
+
+// ── Input Flash Overlay ────────────────────────────────────────────────────────
+
+class _InputFlashOverlay extends StatefulWidget {
+  const _InputFlashOverlay();
+
+  @override
+  State<_InputFlashOverlay> createState() => _InputFlashOverlayState();
+}
+
+class _InputFlashOverlayState extends State<_InputFlashOverlay>
+    with TickerProviderStateMixin {
+  final Map<String, AnimationController> _flashCtrls = {};
+
+  @override
+  void initState() {
+    super.initState();
+    // Chờ build xong mới lấy Provider
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<LobbyProvider>().onPlayerInputFired = _onPlayerInput;
+      }
+    });
+  }
+
+  void _onPlayerInput(String playerId) {
+    if (!mounted) return;
+    if (!_flashCtrls.containsKey(playerId)) {
+      _flashCtrls[playerId] =
+          AnimationController(
+            vsync: this,
+            duration: const Duration(milliseconds: 200),
+          )..addStatusListener((status) {
+            if (status == AnimationStatus.completed) {
+              _flashCtrls[playerId]?.reverse();
+            }
+          });
+    }
+    // Chạy lại animation từ đầu
+    _flashCtrls[playerId]?.forward(from: 0.0);
+  }
+
+  @override
+  void dispose() {
+    for (final ctrl in _flashCtrls.values) {
+      ctrl.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<LobbyProvider>(
+      builder: (context, lobby, _) {
+        if (lobby.players.isEmpty) return const SizedBox.shrink();
+
+        return Stack(
+          children: lobby.players.map((p) {
+            final ctrl = _flashCtrls[p.id];
+            if (ctrl == null) return const SizedBox.shrink();
+
+            final color = Color(p.color);
+            // Vị trí (edge) dựa trên index
+            final index = lobby.players.indexOf(p);
+            final align = _getAlignmentForIndex(index, lobby.players.length);
+
+            return Align(
+              alignment: align,
+              child: AnimatedBuilder(
+                animation: ctrl,
+                builder: (context, _) {
+                  if (ctrl.value == 0) return const SizedBox.shrink();
+                  return Container(
+                    width: 32,
+                    height: 32,
+                    margin: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: color.withValues(alpha: ctrl.value * 0.8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: color.withValues(alpha: ctrl.value),
+                          blurRadius: 16 * ctrl.value,
+                          spreadRadius: 8 * ctrl.value,
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            );
+          }).toList(),
+        );
+      },
+    );
+  }
+
+  Alignment _getAlignmentForIndex(int i, int total) {
+    if (total <= 4) {
+      return switch (i) {
+        0 => Alignment.topLeft,
+        1 => Alignment.topRight,
+        2 => Alignment.bottomLeft,
+        _ => Alignment.bottomRight,
+      };
+    } else {
+      if (i % 2 == 0) {
+        return Alignment(-1.0, -0.8 + (i / total) * 1.6);
+      } else {
+        return Alignment(1.0, -0.8 + (i / total) * 1.6);
+      }
+    }
   }
 }
 

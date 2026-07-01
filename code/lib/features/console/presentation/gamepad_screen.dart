@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widget_previews.dart';
 import 'package:provider/provider.dart';
 import 'package:party_game_hub/core/theme/app_colors.dart';
@@ -21,6 +22,7 @@ class GamepadScreen extends StatefulWidget {
 
 class _GamepadScreenState extends State<GamepadScreen> {
   late ConsoleProvider _console;
+  bool _showEmoteTray = false;
 
   @override
   void initState() {
@@ -66,21 +68,28 @@ class _GamepadScreenState extends State<GamepadScreen> {
             child: GestureDetector(
               behavior: HitTestBehavior.translucent,
               onVerticalDragEnd: (details) {
-                if (details.primaryVelocity != null &&
-                    details.primaryVelocity! > 300) {
-                  // Swipe down -> Mở pause (gửi lệnh cho host)
-                  context.read<LobbyProvider>().sendSystemPause();
+                if (details.primaryVelocity != null) {
+                  if (details.primaryVelocity! > 300) {
+                    // Swipe down -> Mở pause (gửi lệnh cho host)
+                    HapticFeedback.mediumImpact();
+                    context.read<LobbyProvider>().sendSystemPause();
+                  } else if (details.primaryVelocity! < -300) {
+                    // Swipe up -> Mở/đóng khay emote
+                    HapticFeedback.selectionClick();
+                    setState(() => _showEmoteTray = !_showEmoteTray);
+                  }
                 }
               },
               onLongPress: () {
                 // Long press -> Pause/Stop
+                HapticFeedback.heavyImpact();
                 context.read<LobbyProvider>().sendSystemPause();
               },
               onScaleUpdate: (details) {
                 if (details.scale < 0.7) {
                   // Pinch in -> Thoát nhanh
-                  final lobby = context.read<LobbyProvider>();
-                  lobby.leaveRoom();
+                  HapticFeedback.heavyImpact();
+                  context.read<LobbyProvider>().leaveRoom();
                 }
               },
               child: AnimatedContainer(
@@ -143,6 +152,46 @@ class _GamepadScreenState extends State<GamepadScreen> {
                             ),
                           ),
                         ),
+                      // ── Emote hint (khi khay đang ẩn) ───────────
+                      if (!_showEmoteTray)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Icon(
+                            Icons.keyboard_arrow_up,
+                            color: playerColor.withValues(alpha: 0.3),
+                            size: 20,
+                          ),
+                        ),
+                      // ── Emote Tray ───────────
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 250),
+                        curve: Curves.easeOutBack,
+                        height: _showEmoteTray ? 80 : 0,
+                        child: ClipRect(
+                          child: Wrap(
+                            alignment: WrapAlignment.center,
+                            spacing: 16,
+                            children: [
+                              _EmoteButton(
+                                icon: '🐔',
+                                onPressed: () => console.sendEmote('chicken'),
+                              ),
+                              _EmoteButton(
+                                icon: '🍅',
+                                onPressed: () => console.sendEmote('tomato'),
+                              ),
+                              _EmoteButton(
+                                icon: '💩',
+                                onPressed: () => console.sendEmote('poop'),
+                              ),
+                              _EmoteButton(
+                                icon: '💨',
+                                onPressed: () => console.sendEmote('smoke'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -513,6 +562,32 @@ class _GamepadButtonState extends State<_GamepadButton>
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+// ── Emote Button ─────────────────────────────────────────────────────────────
+
+class _EmoteButton extends StatelessWidget {
+  final String icon;
+  final VoidCallback onPressed;
+
+  const _EmoteButton({required this.icon, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        width: 56,
+        height: 56,
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.1),
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white24, width: 2),
+        ),
+        child: Center(child: Text(icon, style: const TextStyle(fontSize: 28))),
       ),
     );
   }

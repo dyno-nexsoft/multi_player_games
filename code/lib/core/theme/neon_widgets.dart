@@ -171,6 +171,115 @@ class _NeonGameCardState extends State<NeonGameCard> {
   }
 }
 
+// ── NeonGameListCard ───────────────────────────────────────────────────────────
+/// Tappable game selection card (horizontal list variant).
+class NeonGameListCard extends StatefulWidget {
+  final MiniGameMetadata game;
+  final String localizedTitle;
+  final VoidCallback onTap;
+
+  const NeonGameListCard({
+    required this.game,
+    required this.localizedTitle,
+    required this.onTap,
+    super.key,
+  });
+
+  @override
+  State<NeonGameListCard> createState() => _NeonGameListCardState();
+}
+
+class _NeonGameListCardState extends State<NeonGameListCard> {
+  bool _pressed = false;
+
+  static Color _accent(String id, AppColors colors) => switch (id) {
+    GameIds.sumoBumper => const Color(0xFFFF6B35),
+    GameIds.reactionTap => const Color(0xFFFFD700),
+    GameIds.minesweeper => const Color(0xFFE53935),
+    GameIds.truthOrDare => colors.neonPurple,
+    GameIds.spinPicker => const Color(0xFFFFD700),
+    GameIds.neverHaveIEver => const Color(0xFFFF6584),
+    GameIds.hotPotato => const Color(0xFFFF6B35),
+    _ => colors.neonPurple,
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<AppColors>()!;
+    final accent = _accent(widget.game.id, colors);
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) {
+        setState(() => _pressed = false);
+        widget.onTap();
+      },
+      onTapCancel: () => setState(() => _pressed = false),
+      child: AnimatedScale(
+        scale: _pressed ? 0.96 : 1.0,
+        duration: const Duration(milliseconds: 90),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          margin: const EdgeInsets.symmetric(vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            color: const Color(0xFF1A1A2E),
+            border: Border.all(
+              color: accent.withValues(alpha: _pressed ? 0.95 : 0.38),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: accent.withValues(alpha: _pressed ? 0.55 : 0.15),
+                blurRadius: _pressed ? 16 : 8,
+                spreadRadius: _pressed ? 1 : 0,
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Hero(
+                tag: 'game_icon_${widget.game.id}',
+                child: MiniGameRegistry.iconFor(
+                  widget.game.id,
+                ).svg(width: 42, height: 42),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.localizedTitle,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      widget.game.description,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.6),
+                        fontSize: 12,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              Icon(Icons.play_arrow_rounded, color: accent, size: 28),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 // ── PulseButton ────────────────────────────────────────────────────────────
 /// Wraps a button widget with a breathing neon glow pulse animation.
 class PulseButton extends StatefulWidget {

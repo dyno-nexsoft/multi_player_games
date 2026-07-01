@@ -104,6 +104,8 @@ class LobbyProvider extends ChangeNotifier {
 
   /// Callback khi client (tay cầm) nhận feedback từ host (haptic + flash).
   void Function(String hapticType, int? flashColor)? onControllerFeedback;
+  void Function(String senderId, String emoji)? onEmoteReceived;
+  void Function(String playerId)? onPlayerInputFired;
 
   /// Callback khi client nhận tick đếm ngược từ host (3, 2, 1, 0=GO).
   void Function(int tick)? onCountdownTick;
@@ -190,7 +192,6 @@ class LobbyProvider extends ChangeNotifier {
   }
 
   /// Callback để EmoteLayer nhận emoji từ đối thủ.
-  void Function(String emoji)? onEmoteReceived;
 
   /// Callback khi nhận lệnh rung đồng bộ từ thiết bị khác.
   void Function()? onHapticReceived;
@@ -447,6 +448,7 @@ class LobbyProvider extends ChangeNotifier {
         // Host nhận input từ tay cầm — route thẳng tới game.
         final id = packet.senderId ?? '';
         onControllerInput?.call(id, packet.payload);
+        onPlayerInputFired?.call(id);
         // Cũng route qua onGamePacket để các game xử lý nếu muốn.
         onGamePacket?.call(packet);
       case PacketType.controllerFeedback:
@@ -492,13 +494,19 @@ class LobbyProvider extends ChangeNotifier {
           onSpatialAudio?.call(action, sound);
         }
       case PacketType.gameData:
+        final id = packet.senderId ?? '';
+        onPlayerInputFired?.call(id);
+        onGamePacket?.call(packet);
       case PacketType.worldState:
         onGamePacket?.call(packet);
       case PacketType.endGame:
         onGameEnded?.call(packet);
       case PacketType.emote:
         final emoji = packet.payload['emoji'] as String?;
-        if (emoji != null) onEmoteReceived?.call(emoji);
+        final senderId = packet.senderId;
+        if (emoji != null && senderId != null) {
+          onEmoteReceived?.call(senderId, emoji);
+        }
       // Relay tới các client khác được xử lý ở _handleHostPacket.
       case PacketType.haptic:
         onHapticReceived?.call();
